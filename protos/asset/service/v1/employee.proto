@@ -1,0 +1,256 @@
+syntax = "proto3";
+
+package asset.service.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "redact/v3/redact.proto";
+
+// Employee represents a person who can be assigned assets
+message Employee {
+  // Unique identifier
+  optional string id = 1 [json_name = "id"];
+
+  // Tenant ID for multi-tenancy
+  optional uint32 tenant_id = 2 [json_name = "tenantId"];
+
+  // First name
+  optional string first_name = 3 [json_name = "firstName"];
+
+  // Last name
+  optional string last_name = 4 [json_name = "lastName"];
+
+  // Email
+  optional string email = 5 [(redact.v3.value).string = "", json_name = "email"];
+
+  // Phone
+  optional string phone = 6 [(redact.v3.value).string = "", json_name = "phone"];
+
+  // Department
+  optional string department = 7 [json_name = "department"];
+
+  // Job title
+  optional string job_title = 8 [json_name = "jobTitle"];
+
+  // Employee number
+  optional string employee_number = 9 [json_name = "employeeNumber"];
+
+  // Notes
+  optional string notes = 10 [json_name = "notes"];
+
+  // Custom tags (JSON)
+  optional string tags = 11 [json_name = "tags"];
+
+  // Custom metadata (JSON)
+  optional string metadata = 12 [json_name = "metadata"];
+
+  // Creation timestamp
+  optional google.protobuf.Timestamp created_at = 20 [json_name = "createdAt"];
+
+  // Last update timestamp
+  optional google.protobuf.Timestamp updated_at = 21 [json_name = "updatedAt"];
+
+  // Creator user ID
+  optional uint32 created_by = 22 [json_name = "createdBy"];
+
+  // Last updater user ID
+  optional uint32 updated_by = 23 [json_name = "updatedBy"];
+}
+
+// CreateEmployeeRequest creates a new employee
+message CreateEmployeeRequest {
+  optional uint32 tenant_id = 1 [
+    json_name = "tenantId",
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional string first_name = 2 [
+    json_name = "firstName",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional string last_name = 3 [
+    json_name = "lastName",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional string email = 4 [(redact.v3.value).string = "", json_name = "email"];
+  optional string phone = 5 [(redact.v3.value).string = "", json_name = "phone"];
+  optional string department = 6 [json_name = "department"];
+  optional string job_title = 7 [json_name = "jobTitle"];
+  optional string employee_number = 8 [json_name = "employeeNumber"];
+  optional string notes = 9 [json_name = "notes"];
+  optional string tags = 10 [json_name = "tags"];
+  optional string metadata = 11 [json_name = "metadata"];
+}
+
+message CreateEmployeeResponse {
+  Employee employee = 1 [json_name = "employee"];
+}
+
+// GetEmployeeRequest retrieves an employee by ID
+message GetEmployeeRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetEmployeeResponse {
+  Employee employee = 1 [json_name = "employee"];
+}
+
+// ListEmployeesRequest lists employees with filtering
+message ListEmployeesRequest {
+  optional uint32 tenant_id = 1 [json_name = "tenantId"];
+  optional int32 page = 2 [json_name = "page"];
+  optional int32 page_size = 3 [json_name = "pageSize"];
+  optional bool no_paging = 4 [json_name = "noPaging"];
+  optional string query = 5 [json_name = "query"];
+  repeated string order_by = 6 [json_name = "orderBy"];
+  optional string field_mask = 7 [json_name = "fieldMask"];
+
+  // Filter by department
+  optional string department = 10 [json_name = "department"];
+}
+
+message ListEmployeesResponse {
+  repeated Employee items = 1 [json_name = "items"];
+  optional int32 total = 2 [json_name = "total"];
+}
+
+// UpdateEmployeeRequest updates an employee
+message UpdateEmployeeRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional Employee data = 2 [json_name = "data"];
+
+  google.protobuf.FieldMask update_mask = 3 [json_name = "updateMask"];
+}
+
+message UpdateEmployeeResponse {
+  Employee employee = 1 [json_name = "employee"];
+}
+
+// DeleteEmployeeRequest deletes an employee
+message DeleteEmployeeRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// LdapSyncPreviewRequest requests a preview of LDAP sync changes
+message LdapSyncPreviewRequest {
+  optional uint32 tenant_id = 1 [json_name = "tenantId"];
+}
+
+// LdapSyncChange describes a single change from LDAP sync
+message LdapSyncChange {
+  enum Action {
+    ACTION_UNSPECIFIED = 0;
+    ACTION_CREATE = 1;
+    ACTION_UPDATE = 2;
+  }
+
+  Action action = 1 [json_name = "action"];
+  optional Employee employee = 2 [json_name = "employee"];
+  repeated string changed_fields = 3 [json_name = "changedFields"];
+  optional string existing_id = 4 [json_name = "existingId"];
+  optional string ldap_dn = 5 [json_name = "ldapDn"];
+}
+
+// LdapSyncPreviewResponse contains the preview of LDAP sync changes
+message LdapSyncPreviewResponse {
+  int32 total_ldap_entries = 1 [json_name = "totalLdapEntries"];
+  int32 new_count = 2 [json_name = "newCount"];
+  int32 update_count = 3 [json_name = "updateCount"];
+  int32 unchanged_count = 4 [json_name = "unchangedCount"];
+  repeated LdapSyncChange changes = 5 [json_name = "changes"];
+  repeated string warnings = 6 [json_name = "warnings"];
+}
+
+// LdapSyncExecuteRequest executes the LDAP sync
+message LdapSyncExecuteRequest {
+  optional uint32 tenant_id = 1 [json_name = "tenantId"];
+  repeated string selected_dns = 2 [json_name = "selectedDns"];
+}
+
+// LdapSyncExecuteResponse contains the results of LDAP sync execution
+message LdapSyncExecuteResponse {
+  int32 created_count = 1 [json_name = "createdCount"];
+  int32 updated_count = 2 [json_name = "updatedCount"];
+  int32 skipped_count = 3 [json_name = "skippedCount"];
+  int32 error_count = 4 [json_name = "errorCount"];
+  repeated string errors = 5 [json_name = "errors"];
+}
+
+// EmployeeService manages employees for asset assignment
+service EmployeeService {
+  // Create a new employee
+  rpc CreateEmployee(CreateEmployeeRequest) returns (CreateEmployeeResponse) {
+    option (google.api.http) = {
+      post: "/v1/employees"
+      body: "*"
+    };
+  }
+
+  // Get an employee by ID
+  rpc GetEmployee(GetEmployeeRequest) returns (GetEmployeeResponse) {
+    option (google.api.http) = {
+      get: "/v1/employees/{id}"
+    };
+  }
+
+  // List employees with filtering
+  rpc ListEmployees(ListEmployeesRequest) returns (ListEmployeesResponse) {
+    option (google.api.http) = {
+      get: "/v1/employees"
+    };
+  }
+
+  // Update an employee
+  rpc UpdateEmployee(UpdateEmployeeRequest) returns (UpdateEmployeeResponse) {
+    option (google.api.http) = {
+      put: "/v1/employees/{id}"
+      body: "*"
+    };
+  }
+
+  // Delete an employee
+  rpc DeleteEmployee(DeleteEmployeeRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/employees/{id}"
+    };
+  }
+
+  // Preview LDAP sync changes
+  rpc LdapSyncPreview(LdapSyncPreviewRequest) returns (LdapSyncPreviewResponse) {
+    option (google.api.http) = {
+      post: "/v1/employees/ldap-sync/preview"
+      body: "*"
+    };
+  }
+
+  // Execute LDAP sync
+  rpc LdapSyncExecute(LdapSyncExecuteRequest) returns (LdapSyncExecuteResponse) {
+    option (google.api.http) = {
+      post: "/v1/employees/ldap-sync/execute"
+      body: "*"
+    };
+  }
+}

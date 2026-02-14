@@ -1,0 +1,6 @@
+openapi: 3.0.0
+info:
+  title: Asset Management Service
+  version: 1.0.0
+  description: IT Asset Management service for managing assets, consumables, suppliers, employees, locations, and categories
+paths: {}

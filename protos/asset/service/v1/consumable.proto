@@ -1,0 +1,305 @@
+syntax = "proto3";
+
+package asset.service.v1;
+
+import "asset/service/v1/asset.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+
+// Consumable represents a consumable item (keyboards, mice, cables, etc.)
+message Consumable {
+  // Unique identifier
+  optional string id = 1 [json_name = "id"];
+
+  // Tenant ID for multi-tenancy
+  optional uint32 tenant_id = 2 [json_name = "tenantId"];
+
+  // Consumable name
+  optional string name = 3 [json_name = "name"];
+
+  // Description
+  optional string description = 4 [json_name = "description"];
+
+  // Category ID
+  optional string category_id = 5 [json_name = "categoryId"];
+
+  // Supplier ID
+  optional string supplier_id = 6 [json_name = "supplierId"];
+
+  // Location ID
+  optional string location_id = 7 [json_name = "locationId"];
+
+  // Model name
+  optional string model_name = 8 [json_name = "modelName"];
+
+  // Model number
+  optional string model_number = 9 [json_name = "modelNumber"];
+
+  // Current quantity
+  optional int32 amount = 10 [json_name = "amount"];
+
+  // Minimum quantity threshold
+  optional int32 min_amount = 11 [json_name = "minAmount"];
+
+  // Purchase date
+  optional google.protobuf.Timestamp purchase_date = 12 [json_name = "purchaseDate"];
+
+  // Purchase cost
+  optional double purchase_cost = 13 [json_name = "purchaseCost"];
+
+  // Order number
+  optional string order_number = 14 [json_name = "orderNumber"];
+
+  // Notes
+  optional string notes = 15 [json_name = "notes"];
+
+  // Custom tags (JSON)
+  optional string tags = 16 [json_name = "tags"];
+
+  // Custom metadata (JSON)
+  optional string metadata = 17 [json_name = "metadata"];
+
+  // Creation timestamp
+  optional google.protobuf.Timestamp created_at = 30 [json_name = "createdAt"];
+
+  // Last update timestamp
+  optional google.protobuf.Timestamp updated_at = 31 [json_name = "updatedAt"];
+
+  // Creator user ID
+  optional uint32 created_by = 32 [json_name = "createdBy"];
+
+  // Last updater user ID
+  optional uint32 updated_by = 33 [json_name = "updatedBy"];
+}
+
+// CreateConsumableRequest creates a new consumable
+message CreateConsumableRequest {
+  optional uint32 tenant_id = 1 [
+    json_name = "tenantId",
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional string name = 2 [
+    json_name = "name",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional string description = 3 [json_name = "description"];
+  optional string category_id = 4 [json_name = "categoryId"];
+  optional string supplier_id = 5 [json_name = "supplierId"];
+  optional string location_id = 6 [json_name = "locationId"];
+  optional string model_name = 7 [json_name = "modelName"];
+  optional string model_number = 8 [json_name = "modelNumber"];
+  optional int32 amount = 9 [json_name = "amount"];
+  optional int32 min_amount = 10 [json_name = "minAmount"];
+  optional google.protobuf.Timestamp purchase_date = 11 [json_name = "purchaseDate"];
+  optional double purchase_cost = 12 [json_name = "purchaseCost"];
+  optional string order_number = 13 [json_name = "orderNumber"];
+  optional string notes = 14 [json_name = "notes"];
+  optional string tags = 15 [json_name = "tags"];
+  optional string metadata = 16 [json_name = "metadata"];
+}
+
+message CreateConsumableResponse {
+  Consumable consumable = 1 [json_name = "consumable"];
+}
+
+// GetConsumableRequest retrieves a consumable by ID
+message GetConsumableRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetConsumableResponse {
+  Consumable consumable = 1 [json_name = "consumable"];
+}
+
+// ListConsumablesRequest lists consumables with filtering
+message ListConsumablesRequest {
+  optional uint32 tenant_id = 1 [json_name = "tenantId"];
+  optional int32 page = 2 [json_name = "page"];
+  optional int32 page_size = 3 [json_name = "pageSize"];
+  optional bool no_paging = 4 [json_name = "noPaging"];
+  optional string query = 5 [json_name = "query"];
+  repeated string order_by = 6 [json_name = "orderBy"];
+  optional string field_mask = 7 [json_name = "fieldMask"];
+
+  // Filter by category
+  optional string category_id = 10 [json_name = "categoryId"];
+
+  // Filter by supplier
+  optional string supplier_id = 11 [json_name = "supplierId"];
+
+  // Filter by location
+  optional string location_id = 12 [json_name = "locationId"];
+}
+
+message ListConsumablesResponse {
+  repeated Consumable items = 1 [json_name = "items"];
+  optional int32 total = 2 [json_name = "total"];
+}
+
+// UpdateConsumableRequest updates a consumable
+message UpdateConsumableRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional Consumable data = 2 [json_name = "data"];
+
+  google.protobuf.FieldMask update_mask = 3 [json_name = "updateMask"];
+}
+
+message UpdateConsumableResponse {
+  Consumable consumable = 1 [json_name = "consumable"];
+}
+
+// DeleteConsumableRequest deletes a consumable
+message DeleteConsumableRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// ListConsumableDocumentsRequest lists documents for a consumable
+message ListConsumableDocumentsRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ListConsumableDocumentsResponse {
+  repeated AssetDocument items = 1 [json_name = "items"];
+}
+
+// UploadConsumableDocumentRequest uploads a document for a consumable
+message UploadConsumableDocumentRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string file_name = 2 [json_name = "fileName"];
+  bytes content = 3 [json_name = "content"];
+  string mime_type = 4 [json_name = "mimeType"];
+  optional string description = 5 [json_name = "description"];
+}
+
+message UploadConsumableDocumentResponse {
+  AssetDocument document = 1 [json_name = "document"];
+}
+
+// DeleteConsumableDocumentRequest deletes a consumable document
+message DeleteConsumableDocumentRequest {
+  string consumable_id = 1 [
+    json_name = "consumableId",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string id = 2 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// DownloadConsumableDocumentRequest downloads a consumable document
+message DownloadConsumableDocumentRequest {
+  string consumable_id = 1 [
+    json_name = "consumableId",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string id = 2 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// ConsumableService manages consumable items
+service ConsumableService {
+  // Create a new consumable
+  rpc CreateConsumable(CreateConsumableRequest) returns (CreateConsumableResponse) {
+    option (google.api.http) = {
+      post: "/v1/consumables"
+      body: "*"
+    };
+  }
+
+  // Get a consumable by ID
+  rpc GetConsumable(GetConsumableRequest) returns (GetConsumableResponse) {
+    option (google.api.http) = {
+      get: "/v1/consumables/{id}"
+    };
+  }
+
+  // List consumables with filtering
+  rpc ListConsumables(ListConsumablesRequest) returns (ListConsumablesResponse) {
+    option (google.api.http) = {
+      get: "/v1/consumables"
+    };
+  }
+
+  // Update a consumable
+  rpc UpdateConsumable(UpdateConsumableRequest) returns (UpdateConsumableResponse) {
+    option (google.api.http) = {
+      put: "/v1/consumables/{id}"
+      body: "*"
+    };
+  }
+
+  // Delete a consumable
+  rpc DeleteConsumable(DeleteConsumableRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/consumables/{id}"
+    };
+  }
+
+  // List documents for a consumable
+  rpc ListDocuments(ListConsumableDocumentsRequest) returns (ListConsumableDocumentsResponse) {
+    option (google.api.http) = {
+      get: "/v1/consumables/{id}/documents"
+    };
+  }
+
+  // Upload a document for a consumable
+  rpc UploadDocument(UploadConsumableDocumentRequest) returns (UploadConsumableDocumentResponse) {
+    option (google.api.http) = {
+      post: "/v1/consumables/{id}/documents"
+      body: "*"
+    };
+  }
+
+  // Delete a consumable document
+  rpc DeleteDocument(DeleteConsumableDocumentRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/consumables/{consumable_id}/documents/{id}"
+    };
+  }
+
+  // Download a consumable document
+  rpc DownloadDocument(DownloadConsumableDocumentRequest) returns (DownloadDocumentResponse) {
+    option (google.api.http) = {
+      get: "/v1/consumables/{consumable_id}/documents/{id}/download"
+    };
+  }
+}

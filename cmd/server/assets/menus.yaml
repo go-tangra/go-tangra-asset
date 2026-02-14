@@ -1,0 +1,184 @@
+# Asset Module Menu Definitions
+# This file defines the menu structure for the Asset module
+# Used by admin service for dynamic menu registration
+
+module:
+  id: asset
+  name: Asset Management
+  description: IT Asset Management
+
+menus:
+  - id: asset
+    parent_id: null
+    type: CATALOG
+    name: Assets
+    path: /asset
+    icon: lucide:monitor
+    order: 400
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: asset-assets
+    parent_id: asset
+    type: MENU
+    name: Assets
+    path: asset
+    component: app/asset/asset/index.vue
+    icon: lucide:laptop
+    order: 1
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: asset-consumables
+    parent_id: asset
+    type: MENU
+    name: Consumables
+    path: consumable
+    component: app/asset/consumable/index.vue
+    icon: lucide:package
+    order: 2
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: asset-categories
+    parent_id: asset
+    type: MENU
+    name: Categories
+    path: category
+    component: app/asset/category/index.vue
+    icon: lucide:folder-tree
+    order: 3
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: asset-suppliers
+    parent_id: asset
+    type: MENU
+    name: Suppliers
+    path: supplier
+    component: app/asset/supplier/index.vue
+    icon: lucide:truck
+    order: 4
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: asset-employees
+    parent_id: asset
+    type: MENU
+    name: Employees
+    path: employee
+    component: app/asset/employee/index.vue
+    icon: lucide:users
+    order: 5
+    authority:
+      - platform:admin
+      - tenant:manager
+
+  - id: asset-locations
+    parent_id: asset
+    type: MENU
+    name: Locations
+    path: location
+    component: app/asset/location/index.vue
+    icon: lucide:map-pin
+    order: 6
+    authority:
+      - platform:admin
+      - tenant:manager
+
+permission_groups:
+  - name: Asset Management
+    module: asset
+    description: IT Asset Management Permissions
+    permissions:
+      - name: View Assets
+        code: asset.asset.view
+        description: View asset details and list
+      - name: Manage Assets
+        code: asset.asset.manage
+        description: Create, update, and delete assets
+      - name: Assign Assets
+        code: asset.asset.assign
+        description: Assign and unassign assets to employees
+      - name: View Consumables
+        code: asset.consumable.view
+        description: View consumable details and list
+      - name: Manage Consumables
+        code: asset.consumable.manage
+        description: Create, update, and delete consumables
+      - name: View Categories
+        code: asset.category.view
+        description: View category details and tree
+      - name: Manage Categories
+        code: asset.category.manage
+        description: Create, update, and delete categories
+      - name: View Suppliers
+        code: asset.supplier.view
+        description: View supplier details and list
+      - name: Manage Suppliers
+        code: asset.supplier.manage
+        description: Create, update, and delete suppliers
+      - name: View Employees
+        code: asset.employee.view
+        description: View employee details and list
+      - name: Manage Employees
+        code: asset.employee.manage
+        description: Create, update, and delete employees
+      - name: View Locations
+        code: asset.location.view
+        description: View location details and tree
+      - name: Manage Locations
+        code: asset.location.manage
+        description: Create, update, and delete locations
+
+roles:
+  - name: Asset Administrator
+    code: asset.admin
+    description: Full access to Asset Management module
+    is_system: true
+    permissions:
+      - asset.asset.view
+      - asset.asset.manage
+      - asset.asset.assign
+      - asset.consumable.view
+      - asset.consumable.manage
+      - asset.category.view
+      - asset.category.manage
+      - asset.supplier.view
+      - asset.supplier.manage
+      - asset.employee.view
+      - asset.employee.manage
+      - asset.location.view
+      - asset.location.manage
+
+  - name: Asset Operator
+    code: asset.operator
+    description: Can manage assets, consumables, and assignments
+    is_system: true
+    permissions:
+      - asset.asset.view
+      - asset.asset.manage
+      - asset.asset.assign
+      - asset.consumable.view
+      - asset.consumable.manage
+      - asset.category.view
+      - asset.supplier.view
+      - asset.employee.view
+      - asset.location.view
+
+  - name: Asset Viewer
+    code: asset.viewer
+    description: Read-only access to Asset Management module
+    is_system: true
+    permissions:
+      - asset.asset.view
+      - asset.consumable.view
+      - asset.category.view
+      - asset.supplier.view
+      - asset.employee.view
+      - asset.location.view

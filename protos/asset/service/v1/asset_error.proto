@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package asset.service.v1;
+
+import "errors/errors.proto";
+
+enum AssetErrorReason {
+  option (errors.default_code) = 500;
+
+  // 400
+  BAD_REQUEST = 0 [(errors.code) = 400]; // Bad request
+  VALIDATION_FAILED = 1 [(errors.code) = 400]; // Validation failed
+  INVALID_STATUS_TRANSITION = 2 [(errors.code) = 400]; // Invalid asset status transition
+
+  // 404
+  NOT_FOUND = 100 [(errors.code) = 404]; // Resource not found
+  SUPPLIER_NOT_FOUND = 101 [(errors.code) = 404]; // Supplier not found
+  EMPLOYEE_NOT_FOUND = 102 [(errors.code) = 404]; // Employee not found
+  LOCATION_NOT_FOUND = 103 [(errors.code) = 404]; // Location not found
+  CATEGORY_NOT_FOUND = 104 [(errors.code) = 404]; // Category not found
+  ASSET_NOT_FOUND = 105 [(errors.code) = 404]; // Asset not found
+  CONSUMABLE_NOT_FOUND = 106 [(errors.code) = 404]; // Consumable not found
+  DOCUMENT_NOT_FOUND = 107 [(errors.code) = 404]; // Document not found
+
+  // 409
+  SUPPLIER_ALREADY_EXISTS = 200 [(errors.code) = 409]; // Supplier already exists
+  ASSET_ALREADY_ASSIGNED = 201 [(errors.code) = 409]; // Asset is already assigned
+  ASSET_NOT_ASSIGNED = 202 [(errors.code) = 409]; // Asset is not assigned
+  SUPPLIER_HAS_ASSETS = 203 [(errors.code) = 409]; // Supplier has associated assets
+  EMPLOYEE_HAS_ASSETS = 204 [(errors.code) = 409]; // Employee has assigned assets
+  LOCATION_HAS_CHILDREN = 205 [(errors.code) = 409]; // Location has child locations
+  LOCATION_HAS_ASSETS = 206 [(errors.code) = 409]; // Location has associated assets
+  CATEGORY_HAS_CHILDREN = 207 [(errors.code) = 409]; // Category has child categories
+  CATEGORY_HAS_ASSETS = 208 [(errors.code) = 409]; // Category has associated assets
+
+  // 500
+  INTERNAL_SERVER_ERROR = 300 [(errors.code) = 500]; // Internal server error
+  STORAGE_ERROR = 301 [(errors.code) = 500]; // Storage operation failed
+
+  // LDAP
+  LDAP_NOT_CONFIGURED = 400 [(errors.code) = 400]; // LDAP is not configured
+  LDAP_SYNC_FAILED = 401 [(errors.code) = 500]; // LDAP sync failed
+}

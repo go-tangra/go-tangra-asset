@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package asset.service.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// HealthCheckRequest for health checks
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  string status = 1 [json_name = "status"];
+  string version = 2 [json_name = "version"];
+  google.protobuf.Timestamp timestamp = 3 [json_name = "timestamp"];
+}
+
+// GetDashboardStatsRequest retrieves overall asset statistics
+message GetDashboardStatsRequest {
+  optional uint32 tenant_id = 1 [json_name = "tenantId"];
+}
+
+message GetDashboardStatsResponse {
+  int64 total_assets = 1 [json_name = "totalAssets"];
+  int64 assets_deployable = 2 [json_name = "assetsDeployable"];
+  int64 assets_assigned = 3 [json_name = "assetsAssigned"];
+  int64 assets_broken = 4 [json_name = "assetsBroken"];
+  int64 assets_archived = 5 [json_name = "assetsArchived"];
+  int64 total_consumables = 6 [json_name = "totalConsumables"];
+  int64 total_suppliers = 7 [json_name = "totalSuppliers"];
+  int64 total_employees = 8 [json_name = "totalEmployees"];
+  int64 total_categories = 9 [json_name = "totalCategories"];
+  int64 total_locations = 10 [json_name = "totalLocations"];
+  double total_cost = 11 [json_name = "totalCost"];
+}
+
+// SystemService provides system-level operations
+service SystemService {
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse) {
+    option (google.api.http) = {
+      get: "/v1/health"
+    };
+  }
+
+  // Get dashboard statistics
+  rpc GetDashboardStats(GetDashboardStatsRequest) returns (GetDashboardStatsResponse) {
+    option (google.api.http) = {
+      get: "/v1/stats"
+    };
+  }
+}
