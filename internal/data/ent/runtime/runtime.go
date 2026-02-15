@@ -12,6 +12,7 @@ import (
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/category"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/consumable"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
+	"github.com/go-tangra/go-tangra-asset/internal/data/ent/license"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/location"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/schema"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/supplier"
@@ -312,6 +313,50 @@ func init() {
 	employeeDescID := employeeFields[0].Descriptor()
 	// employee.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	employee.IDValidator = employeeDescID.Validators[0].(func(string) error)
+	licenseMixin := schema.License{}.Mixin()
+	license.Policy = privacy.NewPolicies(licenseMixin[3], schema.License{})
+	license.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := license.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	licenseMixinFields3 := licenseMixin[3].Fields()
+	_ = licenseMixinFields3
+	licenseFields := schema.License{}.Fields()
+	_ = licenseFields
+	// licenseDescTenantID is the schema descriptor for tenant_id field.
+	licenseDescTenantID := licenseMixinFields3[0].Descriptor()
+	// license.DefaultTenantID holds the default value on creation for the tenant_id field.
+	license.DefaultTenantID = licenseDescTenantID.Default.(uint32)
+	// licenseDescName is the schema descriptor for name field.
+	licenseDescName := licenseFields[1].Descriptor()
+	// license.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	license.NameValidator = func() func(string) error {
+		validators := licenseDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// licenseDescStatus is the schema descriptor for status field.
+	licenseDescStatus := licenseFields[9].Descriptor()
+	// license.DefaultStatus holds the default value on creation for the status field.
+	license.DefaultStatus = licenseDescStatus.Default.(string)
+	// licenseDescID is the schema descriptor for id field.
+	licenseDescID := licenseFields[0].Descriptor()
+	// license.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	license.IDValidator = licenseDescID.Validators[0].(func(string) error)
 	locationMixin := schema.Location{}.Mixin()
 	location.Policy = privacy.NewPolicies(locationMixin[3], schema.Location{})
 	location.Hooks[0] = func(next ent.Mutator) ent.Mutator {

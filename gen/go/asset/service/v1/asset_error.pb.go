@@ -38,6 +38,7 @@ const (
 	AssetErrorReason_ASSET_NOT_FOUND      AssetErrorReason = 105 // Asset not found
 	AssetErrorReason_CONSUMABLE_NOT_FOUND AssetErrorReason = 106 // Consumable not found
 	AssetErrorReason_DOCUMENT_NOT_FOUND   AssetErrorReason = 107 // Document not found
+	AssetErrorReason_LICENSE_NOT_FOUND    AssetErrorReason = 108 // License not found
 	// 409
 	AssetErrorReason_SUPPLIER_ALREADY_EXISTS AssetErrorReason = 200 // Supplier already exists
 	AssetErrorReason_ASSET_ALREADY_ASSIGNED  AssetErrorReason = 201 // Asset is already assigned
@@ -70,6 +71,7 @@ var (
 		105: "ASSET_NOT_FOUND",
 		106: "CONSUMABLE_NOT_FOUND",
 		107: "DOCUMENT_NOT_FOUND",
+		108: "LICENSE_NOT_FOUND",
 		200: "SUPPLIER_ALREADY_EXISTS",
 		201: "ASSET_ALREADY_ASSIGNED",
 		202: "ASSET_NOT_ASSIGNED",
@@ -96,6 +98,7 @@ var (
 		"ASSET_NOT_FOUND":           105,
 		"CONSUMABLE_NOT_FOUND":      106,
 		"DOCUMENT_NOT_FOUND":        107,
+		"LICENSE_NOT_FOUND":         108,
 		"SUPPLIER_ALREADY_EXISTS":   200,
 		"ASSET_ALREADY_ASSIGNED":    201,
 		"ASSET_NOT_ASSIGNED":        202,
@@ -143,7 +146,7 @@ var File_asset_service_v1_asset_error_proto protoreflect.FileDescriptor
 
 const file_asset_service_v1_asset_error_proto_rawDesc = "" +
 	"\n" +
-	"\"asset/service/v1/asset_error.proto\x12\x10asset.service.v1\x1a\x13errors/errors.proto*\xfa\x05\n" +
+	"\"asset/service/v1/asset_error.proto\x12\x10asset.service.v1\x1a\x13errors/errors.proto*\x97\x06\n" +
 	"\x10AssetErrorReason\x12\x15\n" +
 	"\vBAD_REQUEST\x10\x00\x1a\x04\xa8E\x90\x03\x12\x1b\n" +
 	"\x11VALIDATION_FAILED\x10\x01\x1a\x04\xa8E\x90\x03\x12#\n" +
@@ -155,7 +158,8 @@ const file_asset_service_v1_asset_error_proto_rawDesc = "" +
 	"\x12CATEGORY_NOT_FOUND\x10h\x1a\x04\xa8E\x94\x03\x12\x19\n" +
 	"\x0fASSET_NOT_FOUND\x10i\x1a\x04\xa8E\x94\x03\x12\x1e\n" +
 	"\x14CONSUMABLE_NOT_FOUND\x10j\x1a\x04\xa8E\x94\x03\x12\x1c\n" +
-	"\x12DOCUMENT_NOT_FOUND\x10k\x1a\x04\xa8E\x94\x03\x12\"\n" +
+	"\x12DOCUMENT_NOT_FOUND\x10k\x1a\x04\xa8E\x94\x03\x12\x1b\n" +
+	"\x11LICENSE_NOT_FOUND\x10l\x1a\x04\xa8E\x94\x03\x12\"\n" +
 	"\x17SUPPLIER_ALREADY_EXISTS\x10\xc8\x01\x1a\x04\xa8E\x99\x03\x12!\n" +
 	"\x16ASSET_ALREADY_ASSIGNED\x10\xc9\x01\x1a\x04\xa8E\x99\x03\x12\x1d\n" +
 	"\x12ASSET_NOT_ASSIGNED\x10\xca\x01\x1a\x04\xa8E\x99\x03\x12\x1e\n" +

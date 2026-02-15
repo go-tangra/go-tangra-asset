@@ -27,6 +27,9 @@ type Consumable func(*sql.Selector)
 // Employee is the predicate function for employee builders.
 type Employee func(*sql.Selector)
 
+// License is the predicate function for license builders.
+type License func(*sql.Selector)
+
 // Location is the predicate function for location builders.
 type Location func(*sql.Selector)
 

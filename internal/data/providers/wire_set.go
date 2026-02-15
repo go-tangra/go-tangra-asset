@@ -24,6 +24,7 @@ var ProviderSet = wire.NewSet(
 	data.NewAssignmentRepo,
 	data.NewDocumentRepo,
 	data.NewConsumableRepo,
+	data.NewLicenseRepo,
 	data.NewAuditLogRepo,
 	data.NewStatisticsRepo,
 )

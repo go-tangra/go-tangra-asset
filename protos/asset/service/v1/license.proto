@@ -1,0 +1,286 @@
+syntax = "proto3";
+
+package asset.service.v1;
+
+import "asset/service/v1/asset.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+
+// LicenseStatus represents the state of a license
+enum LicenseStatus {
+  LICENSE_STATUS_UNSPECIFIED = 0;
+  LICENSE_STATUS_ACTIVE = 1;
+  LICENSE_STATUS_EXPIRED = 2;
+  LICENSE_STATUS_SUSPENDED = 3;
+}
+
+// License represents a software license
+message License {
+  // Unique identifier
+  optional string id = 1 [json_name = "id"];
+
+  // Tenant ID for multi-tenancy
+  optional uint32 tenant_id = 2 [json_name = "tenantId"];
+
+  // License name
+  optional string name = 3 [json_name = "name"];
+
+  // Supplier ID
+  optional string supplier_id = 4 [json_name = "supplierId"];
+
+  // Purchase date
+  optional google.protobuf.Timestamp purchase_date = 5 [json_name = "purchaseDate"];
+
+  // Purchase cost
+  optional double purchase_cost = 6 [json_name = "purchaseCost"];
+
+  // Order number
+  optional string order_number = 7 [json_name = "orderNumber"];
+
+  // Valid from date
+  optional google.protobuf.Timestamp valid_from = 8 [json_name = "validFrom"];
+
+  // Valid to date
+  optional google.protobuf.Timestamp valid_to = 9 [json_name = "validTo"];
+
+  // Notes
+  optional string notes = 10 [json_name = "notes"];
+
+  // License status
+  optional LicenseStatus status = 11 [json_name = "status"];
+
+  // Creation timestamp
+  optional google.protobuf.Timestamp created_at = 30 [json_name = "createdAt"];
+
+  // Last update timestamp
+  optional google.protobuf.Timestamp updated_at = 31 [json_name = "updatedAt"];
+
+  // Creator user ID
+  optional uint32 created_by = 32 [json_name = "createdBy"];
+
+  // Last updater user ID
+  optional uint32 updated_by = 33 [json_name = "updatedBy"];
+}
+
+// CreateLicenseRequest creates a new license
+message CreateLicenseRequest {
+  optional uint32 tenant_id = 1 [
+    json_name = "tenantId",
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional string name = 2 [
+    json_name = "name",
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional string supplier_id = 3 [json_name = "supplierId"];
+  optional google.protobuf.Timestamp purchase_date = 4 [json_name = "purchaseDate"];
+  optional double purchase_cost = 5 [json_name = "purchaseCost"];
+  optional string order_number = 6 [json_name = "orderNumber"];
+  optional google.protobuf.Timestamp valid_from = 7 [json_name = "validFrom"];
+  optional google.protobuf.Timestamp valid_to = 8 [json_name = "validTo"];
+  optional string notes = 9 [json_name = "notes"];
+  optional LicenseStatus status = 10 [json_name = "status"];
+}
+
+message CreateLicenseResponse {
+  License license = 1 [json_name = "license"];
+}
+
+// GetLicenseRequest retrieves a license by ID
+message GetLicenseRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetLicenseResponse {
+  License license = 1 [json_name = "license"];
+}
+
+// ListLicensesRequest lists licenses with filtering
+message ListLicensesRequest {
+  optional uint32 tenant_id = 1 [json_name = "tenantId"];
+  optional int32 page = 2 [json_name = "page"];
+  optional int32 page_size = 3 [json_name = "pageSize"];
+  optional bool no_paging = 4 [json_name = "noPaging"];
+  optional string query = 5 [json_name = "query"];
+  repeated string order_by = 6 [json_name = "orderBy"];
+  optional string field_mask = 7 [json_name = "fieldMask"];
+
+  // Filter by supplier
+  optional string supplier_id = 10 [json_name = "supplierId"];
+
+  // Filter by status
+  optional LicenseStatus status = 11 [json_name = "status"];
+}
+
+message ListLicensesResponse {
+  repeated License items = 1 [json_name = "items"];
+  optional int32 total = 2 [json_name = "total"];
+}
+
+// UpdateLicenseRequest updates a license
+message UpdateLicenseRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  optional License data = 2 [json_name = "data"];
+
+  google.protobuf.FieldMask update_mask = 3 [json_name = "updateMask"];
+}
+
+message UpdateLicenseResponse {
+  License license = 1 [json_name = "license"];
+}
+
+// DeleteLicenseRequest deletes a license
+message DeleteLicenseRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// ListLicenseDocumentsRequest lists documents for a license
+message ListLicenseDocumentsRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ListLicenseDocumentsResponse {
+  repeated AssetDocument items = 1 [json_name = "items"];
+}
+
+// UploadLicenseDocumentRequest uploads a document for a license
+message UploadLicenseDocumentRequest {
+  string id = 1 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string file_name = 2 [json_name = "fileName"];
+  bytes content = 3 [json_name = "content"];
+  string mime_type = 4 [json_name = "mimeType"];
+  optional string description = 5 [json_name = "description"];
+}
+
+message UploadLicenseDocumentResponse {
+  AssetDocument document = 1 [json_name = "document"];
+}
+
+// DeleteLicenseDocumentRequest deletes a license document
+message DeleteLicenseDocumentRequest {
+  string license_id = 1 [
+    json_name = "licenseId",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string id = 2 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// DownloadLicenseDocumentRequest downloads a license document
+message DownloadLicenseDocumentRequest {
+  string license_id = 1 [
+    json_name = "licenseId",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string id = 2 [
+    json_name = "id",
+    (buf.validate.field).string.min_len = 1,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// LicenseService manages software licenses
+service LicenseService {
+  // Create a new license
+  rpc CreateLicense(CreateLicenseRequest) returns (CreateLicenseResponse) {
+    option (google.api.http) = {
+      post: "/v1/licenses"
+      body: "*"
+    };
+  }
+
+  // Get a license by ID
+  rpc GetLicense(GetLicenseRequest) returns (GetLicenseResponse) {
+    option (google.api.http) = {
+      get: "/v1/licenses/{id}"
+    };
+  }
+
+  // List licenses with filtering
+  rpc ListLicenses(ListLicensesRequest) returns (ListLicensesResponse) {
+    option (google.api.http) = {
+      get: "/v1/licenses"
+    };
+  }
+
+  // Update a license
+  rpc UpdateLicense(UpdateLicenseRequest) returns (UpdateLicenseResponse) {
+    option (google.api.http) = {
+      put: "/v1/licenses/{id}"
+      body: "*"
+    };
+  }
+
+  // Delete a license
+  rpc DeleteLicense(DeleteLicenseRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/licenses/{id}"
+    };
+  }
+
+  // List documents for a license
+  rpc ListDocuments(ListLicenseDocumentsRequest) returns (ListLicenseDocumentsResponse) {
+    option (google.api.http) = {
+      get: "/v1/licenses/{id}/documents"
+    };
+  }
+
+  // Upload a document for a license
+  rpc UploadDocument(UploadLicenseDocumentRequest) returns (UploadLicenseDocumentResponse) {
+    option (google.api.http) = {
+      post: "/v1/licenses/{id}/documents"
+      body: "*"
+    };
+  }
+
+  // Delete a license document
+  rpc DeleteDocument(DeleteLicenseDocumentRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/licenses/{license_id}/documents/{id}"
+    };
+  }
+
+  // Download a license document
+  rpc DownloadDocument(DownloadLicenseDocumentRequest) returns (DownloadDocumentResponse) {
+    option (google.api.http) = {
+      get: "/v1/licenses/{license_id}/documents/{id}/download"
+    };
+  }
+}

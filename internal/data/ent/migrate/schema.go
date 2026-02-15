@@ -440,6 +440,61 @@ var (
 			},
 		},
 	}
+	// AssetLicensesColumns holds the columns for the "asset_licenses" table.
+	AssetLicensesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Comment: "Unique identifier"},
+		{Name: "create_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
+		{Name: "update_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
+		{Name: "create_time", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "update_time", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "delete_time", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255, Comment: "License name"},
+		{Name: "purchase_date", Type: field.TypeTime, Nullable: true, Comment: "Purchase date"},
+		{Name: "purchase_cost", Type: field.TypeFloat64, Nullable: true, Comment: "Purchase cost"},
+		{Name: "order_number", Type: field.TypeString, Nullable: true, Comment: "Order number"},
+		{Name: "valid_from", Type: field.TypeTime, Nullable: true, Comment: "Valid from date"},
+		{Name: "valid_to", Type: field.TypeTime, Nullable: true, Comment: "Valid to date"},
+		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Notes"},
+		{Name: "status", Type: field.TypeString, Nullable: true, Comment: "License status", Default: "ACTIVE"},
+		{Name: "supplier_id", Type: field.TypeString, Nullable: true, Comment: "Supplier ID"},
+	}
+	// AssetLicensesTable holds the schema information for the "asset_licenses" table.
+	AssetLicensesTable = &schema.Table{
+		Name:       "asset_licenses",
+		Columns:    AssetLicensesColumns,
+		PrimaryKey: []*schema.Column{AssetLicensesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "asset_licenses_asset_suppliers_supplier",
+				Columns:    []*schema.Column{AssetLicensesColumns[15]},
+				RefColumns: []*schema.Column{AssetSuppliersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "license_tenant_id_name",
+				Unique:  false,
+				Columns: []*schema.Column{AssetLicensesColumns[6], AssetLicensesColumns[7]},
+			},
+			{
+				Name:    "license_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{AssetLicensesColumns[6]},
+			},
+			{
+				Name:    "license_supplier_id",
+				Unique:  false,
+				Columns: []*schema.Column{AssetLicensesColumns[15]},
+			},
+			{
+				Name:    "license_status",
+				Unique:  false,
+				Columns: []*schema.Column{AssetLicensesColumns[14]},
+			},
+		},
+	}
 	// AssetLocationsColumns holds the columns for the "asset_locations" table.
 	AssetLocationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Comment: "Unique identifier"},
@@ -559,6 +614,7 @@ var (
 		AssetCategoriesTable,
 		AssetConsumablesTable,
 		AssetEmployeesTable,
+		AssetLicensesTable,
 		AssetLocationsTable,
 		AssetSuppliersTable,
 	}
@@ -595,6 +651,10 @@ func init() {
 	}
 	AssetEmployeesTable.Annotation = &entsql.Annotation{
 		Table: "asset_employees",
+	}
+	AssetLicensesTable.ForeignKeys[0].RefTable = AssetSuppliersTable
+	AssetLicensesTable.Annotation = &entsql.Annotation{
+		Table: "asset_licenses",
 	}
 	AssetLocationsTable.ForeignKeys[0].RefTable = AssetLocationsTable
 	AssetLocationsTable.Annotation = &entsql.Annotation{

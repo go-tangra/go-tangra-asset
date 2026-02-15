@@ -165,6 +165,20 @@ func ErrorDocumentNotFound(format string, args ...interface{}) *errors.Error {
 	return errors.New(404, AssetErrorReason_DOCUMENT_NOT_FOUND.String(), fmt.Sprintf(format, args...))
 }
 
+// License not found
+func IsLicenseNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AssetErrorReason_LICENSE_NOT_FOUND.String() && e.Code == 404
+}
+
+// License not found
+func ErrorLicenseNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, AssetErrorReason_LICENSE_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
 // 409
 func IsSupplierAlreadyExists(err error) bool {
 	if err == nil {

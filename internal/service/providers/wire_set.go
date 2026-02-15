@@ -19,4 +19,5 @@ var ProviderSet = wire.NewSet(
 	service.NewCategoryService,
 	service.NewAssetService,
 	service.NewConsumableService,
+	service.NewLicenseService,
 )

@@ -19,6 +19,7 @@ import (
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/category"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/consumable"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
+	"github.com/go-tangra/go-tangra-asset/internal/data/ent/license"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/location"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/supplier"
 )
@@ -88,6 +89,7 @@ func checkColumn(t, c string) error {
 			category.Table:        category.ValidColumn,
 			consumable.Table:      consumable.ValidColumn,
 			employee.Table:        employee.ValidColumn,
+			license.Table:         license.ValidColumn,
 			location.Table:        location.ValidColumn,
 			supplier.Table:        supplier.ValidColumn,
 		})

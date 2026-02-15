@@ -21,6 +21,7 @@ enum AssetErrorReason {
   ASSET_NOT_FOUND = 105 [(errors.code) = 404]; // Asset not found
   CONSUMABLE_NOT_FOUND = 106 [(errors.code) = 404]; // Consumable not found
   DOCUMENT_NOT_FOUND = 107 [(errors.code) = 404]; // Document not found
+  LICENSE_NOT_FOUND = 108 [(errors.code) = 404]; // License not found
 
   // 409
   SUPPLIER_ALREADY_EXISTS = 200 [(errors.code) = 409]; // Supplier already exists

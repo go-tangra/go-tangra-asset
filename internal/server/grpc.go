@@ -57,6 +57,7 @@ func NewGRPCServer(
 	categorySvc *service.CategoryService,
 	assetSvc *service.AssetService,
 	consumableSvc *service.ConsumableService,
+	licenseSvc *service.LicenseService,
 ) *grpc.Server {
 	cfg := ctx.GetConfig()
 	logger := ctx.GetLogger()
@@ -133,6 +134,7 @@ func NewGRPCServer(
 	assetV1.RegisterRedactedCategoryServiceServer(srv, categorySvc, nil)
 	assetV1.RegisterRedactedAssetServiceServer(srv, assetSvc, nil)
 	assetV1.RegisterRedactedConsumableServiceServer(srv, consumableSvc, nil)
+	assetV1.RegisterRedactedLicenseServiceServer(srv, licenseSvc, nil)
 
 	return srv
 }
