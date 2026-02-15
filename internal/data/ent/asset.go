@@ -66,6 +66,12 @@ type Asset struct {
 	PurchaseCost *float64 `json:"purchase_cost,omitempty"`
 	// Notes
 	Notes string `json:"notes,omitempty"`
+	// Salvage value
+	SalvageValue *float64 `json:"salvage_value,omitempty"`
+	// Useful life in years
+	UsefulLifeYears *int32 `json:"useful_life_years,omitempty"`
+	// Depreciation rate for DDB calculation
+	DepreciationRate *float64 `json:"depreciation_rate,omitempty"`
 	// Custom tags (JSON)
 	Tags string `json:"tags,omitempty"`
 	// Custom metadata (JSON)
@@ -151,9 +157,9 @@ func (*Asset) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case asset.FieldPurchaseCost:
+		case asset.FieldPurchaseCost, asset.FieldSalvageValue, asset.FieldDepreciationRate:
 			values[i] = new(sql.NullFloat64)
-		case asset.FieldCreateBy, asset.FieldUpdateBy, asset.FieldTenantID, asset.FieldStatus, asset.FieldWarrantyMonths:
+		case asset.FieldCreateBy, asset.FieldUpdateBy, asset.FieldTenantID, asset.FieldStatus, asset.FieldWarrantyMonths, asset.FieldUsefulLifeYears:
 			values[i] = new(sql.NullInt64)
 		case asset.FieldID, asset.FieldAssetTag, asset.FieldName, asset.FieldSerial, asset.FieldModelName, asset.FieldModelNumber, asset.FieldCategoryID, asset.FieldSupplierID, asset.FieldLocationID, asset.FieldEmployeeID, asset.FieldPhotoKey, asset.FieldOrderNumber, asset.FieldNotes, asset.FieldTags, asset.FieldMetadata:
 			values[i] = new(sql.NullString)
@@ -321,6 +327,27 @@ func (_m *Asset) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Notes = value.String
 			}
+		case asset.FieldSalvageValue:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field salvage_value", values[i])
+			} else if value.Valid {
+				_m.SalvageValue = new(float64)
+				*_m.SalvageValue = value.Float64
+			}
+		case asset.FieldUsefulLifeYears:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field useful_life_years", values[i])
+			} else if value.Valid {
+				_m.UsefulLifeYears = new(int32)
+				*_m.UsefulLifeYears = int32(value.Int64)
+			}
+		case asset.FieldDepreciationRate:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field depreciation_rate", values[i])
+			} else if value.Valid {
+				_m.DepreciationRate = new(float64)
+				*_m.DepreciationRate = value.Float64
+			}
 		case asset.FieldTags:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field tags", values[i])
@@ -477,6 +504,21 @@ func (_m *Asset) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("notes=")
 	builder.WriteString(_m.Notes)
+	builder.WriteString(", ")
+	if v := _m.SalvageValue; v != nil {
+		builder.WriteString("salvage_value=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.UsefulLifeYears; v != nil {
+		builder.WriteString("useful_life_years=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.DepreciationRate; v != nil {
+		builder.WriteString("depreciation_rate=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("tags=")
 	builder.WriteString(_m.Tags)

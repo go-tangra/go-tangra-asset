@@ -71,6 +71,10 @@ func init() {
 	assetDescStatus := assetFields[10].Descriptor()
 	// asset.DefaultStatus holds the default value on creation for the status field.
 	asset.DefaultStatus = assetDescStatus.Default.(int32)
+	// assetDescDepreciationRate is the schema descriptor for depreciation_rate field.
+	assetDescDepreciationRate := assetFields[19].Descriptor()
+	// asset.DefaultDepreciationRate holds the default value on creation for the depreciation_rate field.
+	asset.DefaultDepreciationRate = assetDescDepreciationRate.Default.(float64)
 	// assetDescID is the schema descriptor for id field.
 	assetDescID := assetFields[0].Descriptor()
 	// asset.IDValidator is a validator for the "id" field. It is called by the builders before save.

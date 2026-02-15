@@ -48,50 +48,56 @@ const (
 // AssetMutation represents an operation that mutates the Asset nodes in the graph.
 type AssetMutation struct {
 	config
-	op                 Op
-	typ                string
-	id                 *string
-	create_by          *uint32
-	addcreate_by       *int32
-	update_by          *uint32
-	addupdate_by       *int32
-	create_time        *time.Time
-	update_time        *time.Time
-	delete_time        *time.Time
-	tenant_id          *uint32
-	addtenant_id       *int32
-	asset_tag          *string
-	name               *string
-	serial             *string
-	model_name         *string
-	model_number       *string
-	status             *int32
-	addstatus          *int32
-	photo_key          *string
-	warranty_months    *int32
-	addwarranty_months *int32
-	purchase_date      *time.Time
-	order_number       *string
-	purchase_cost      *float64
-	addpurchase_cost   *float64
-	notes              *string
-	tags               *string
-	metadata           *string
-	clearedFields      map[string]struct{}
-	category           *string
-	clearedcategory    bool
-	supplier           *string
-	clearedsupplier    bool
-	location           *string
-	clearedlocation    bool
-	employee           *string
-	clearedemployee    bool
-	assignments        map[string]struct{}
-	removedassignments map[string]struct{}
-	clearedassignments bool
-	done               bool
-	oldValue           func(context.Context) (*Asset, error)
-	predicates         []predicate.Asset
+	op                   Op
+	typ                  string
+	id                   *string
+	create_by            *uint32
+	addcreate_by         *int32
+	update_by            *uint32
+	addupdate_by         *int32
+	create_time          *time.Time
+	update_time          *time.Time
+	delete_time          *time.Time
+	tenant_id            *uint32
+	addtenant_id         *int32
+	asset_tag            *string
+	name                 *string
+	serial               *string
+	model_name           *string
+	model_number         *string
+	status               *int32
+	addstatus            *int32
+	photo_key            *string
+	warranty_months      *int32
+	addwarranty_months   *int32
+	purchase_date        *time.Time
+	order_number         *string
+	purchase_cost        *float64
+	addpurchase_cost     *float64
+	notes                *string
+	salvage_value        *float64
+	addsalvage_value     *float64
+	useful_life_years    *int32
+	adduseful_life_years *int32
+	depreciation_rate    *float64
+	adddepreciation_rate *float64
+	tags                 *string
+	metadata             *string
+	clearedFields        map[string]struct{}
+	category             *string
+	clearedcategory      bool
+	supplier             *string
+	clearedsupplier      bool
+	location             *string
+	clearedlocation      bool
+	employee             *string
+	clearedemployee      bool
+	assignments          map[string]struct{}
+	removedassignments   map[string]struct{}
+	clearedassignments   bool
+	done                 bool
+	oldValue             func(context.Context) (*Asset, error)
+	predicates           []predicate.Asset
 }
 
 var _ ent.Mutation = (*AssetMutation)(nil)
@@ -1375,6 +1381,216 @@ func (m *AssetMutation) ResetNotes() {
 	delete(m.clearedFields, asset.FieldNotes)
 }
 
+// SetSalvageValue sets the "salvage_value" field.
+func (m *AssetMutation) SetSalvageValue(f float64) {
+	m.salvage_value = &f
+	m.addsalvage_value = nil
+}
+
+// SalvageValue returns the value of the "salvage_value" field in the mutation.
+func (m *AssetMutation) SalvageValue() (r float64, exists bool) {
+	v := m.salvage_value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSalvageValue returns the old "salvage_value" field's value of the Asset entity.
+// If the Asset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AssetMutation) OldSalvageValue(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSalvageValue is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSalvageValue requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSalvageValue: %w", err)
+	}
+	return oldValue.SalvageValue, nil
+}
+
+// AddSalvageValue adds f to the "salvage_value" field.
+func (m *AssetMutation) AddSalvageValue(f float64) {
+	if m.addsalvage_value != nil {
+		*m.addsalvage_value += f
+	} else {
+		m.addsalvage_value = &f
+	}
+}
+
+// AddedSalvageValue returns the value that was added to the "salvage_value" field in this mutation.
+func (m *AssetMutation) AddedSalvageValue() (r float64, exists bool) {
+	v := m.addsalvage_value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearSalvageValue clears the value of the "salvage_value" field.
+func (m *AssetMutation) ClearSalvageValue() {
+	m.salvage_value = nil
+	m.addsalvage_value = nil
+	m.clearedFields[asset.FieldSalvageValue] = struct{}{}
+}
+
+// SalvageValueCleared returns if the "salvage_value" field was cleared in this mutation.
+func (m *AssetMutation) SalvageValueCleared() bool {
+	_, ok := m.clearedFields[asset.FieldSalvageValue]
+	return ok
+}
+
+// ResetSalvageValue resets all changes to the "salvage_value" field.
+func (m *AssetMutation) ResetSalvageValue() {
+	m.salvage_value = nil
+	m.addsalvage_value = nil
+	delete(m.clearedFields, asset.FieldSalvageValue)
+}
+
+// SetUsefulLifeYears sets the "useful_life_years" field.
+func (m *AssetMutation) SetUsefulLifeYears(i int32) {
+	m.useful_life_years = &i
+	m.adduseful_life_years = nil
+}
+
+// UsefulLifeYears returns the value of the "useful_life_years" field in the mutation.
+func (m *AssetMutation) UsefulLifeYears() (r int32, exists bool) {
+	v := m.useful_life_years
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUsefulLifeYears returns the old "useful_life_years" field's value of the Asset entity.
+// If the Asset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AssetMutation) OldUsefulLifeYears(ctx context.Context) (v *int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUsefulLifeYears is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUsefulLifeYears requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUsefulLifeYears: %w", err)
+	}
+	return oldValue.UsefulLifeYears, nil
+}
+
+// AddUsefulLifeYears adds i to the "useful_life_years" field.
+func (m *AssetMutation) AddUsefulLifeYears(i int32) {
+	if m.adduseful_life_years != nil {
+		*m.adduseful_life_years += i
+	} else {
+		m.adduseful_life_years = &i
+	}
+}
+
+// AddedUsefulLifeYears returns the value that was added to the "useful_life_years" field in this mutation.
+func (m *AssetMutation) AddedUsefulLifeYears() (r int32, exists bool) {
+	v := m.adduseful_life_years
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearUsefulLifeYears clears the value of the "useful_life_years" field.
+func (m *AssetMutation) ClearUsefulLifeYears() {
+	m.useful_life_years = nil
+	m.adduseful_life_years = nil
+	m.clearedFields[asset.FieldUsefulLifeYears] = struct{}{}
+}
+
+// UsefulLifeYearsCleared returns if the "useful_life_years" field was cleared in this mutation.
+func (m *AssetMutation) UsefulLifeYearsCleared() bool {
+	_, ok := m.clearedFields[asset.FieldUsefulLifeYears]
+	return ok
+}
+
+// ResetUsefulLifeYears resets all changes to the "useful_life_years" field.
+func (m *AssetMutation) ResetUsefulLifeYears() {
+	m.useful_life_years = nil
+	m.adduseful_life_years = nil
+	delete(m.clearedFields, asset.FieldUsefulLifeYears)
+}
+
+// SetDepreciationRate sets the "depreciation_rate" field.
+func (m *AssetMutation) SetDepreciationRate(f float64) {
+	m.depreciation_rate = &f
+	m.adddepreciation_rate = nil
+}
+
+// DepreciationRate returns the value of the "depreciation_rate" field in the mutation.
+func (m *AssetMutation) DepreciationRate() (r float64, exists bool) {
+	v := m.depreciation_rate
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDepreciationRate returns the old "depreciation_rate" field's value of the Asset entity.
+// If the Asset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AssetMutation) OldDepreciationRate(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDepreciationRate is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDepreciationRate requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDepreciationRate: %w", err)
+	}
+	return oldValue.DepreciationRate, nil
+}
+
+// AddDepreciationRate adds f to the "depreciation_rate" field.
+func (m *AssetMutation) AddDepreciationRate(f float64) {
+	if m.adddepreciation_rate != nil {
+		*m.adddepreciation_rate += f
+	} else {
+		m.adddepreciation_rate = &f
+	}
+}
+
+// AddedDepreciationRate returns the value that was added to the "depreciation_rate" field in this mutation.
+func (m *AssetMutation) AddedDepreciationRate() (r float64, exists bool) {
+	v := m.adddepreciation_rate
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDepreciationRate clears the value of the "depreciation_rate" field.
+func (m *AssetMutation) ClearDepreciationRate() {
+	m.depreciation_rate = nil
+	m.adddepreciation_rate = nil
+	m.clearedFields[asset.FieldDepreciationRate] = struct{}{}
+}
+
+// DepreciationRateCleared returns if the "depreciation_rate" field was cleared in this mutation.
+func (m *AssetMutation) DepreciationRateCleared() bool {
+	_, ok := m.clearedFields[asset.FieldDepreciationRate]
+	return ok
+}
+
+// ResetDepreciationRate resets all changes to the "depreciation_rate" field.
+func (m *AssetMutation) ResetDepreciationRate() {
+	m.depreciation_rate = nil
+	m.adddepreciation_rate = nil
+	delete(m.clearedFields, asset.FieldDepreciationRate)
+}
+
 // SetTags sets the "tags" field.
 func (m *AssetMutation) SetTags(s string) {
 	m.tags = &s
@@ -1669,7 +1885,7 @@ func (m *AssetMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AssetMutation) Fields() []string {
-	fields := make([]string, 0, 24)
+	fields := make([]string, 0, 27)
 	if m.create_by != nil {
 		fields = append(fields, asset.FieldCreateBy)
 	}
@@ -1736,6 +1952,15 @@ func (m *AssetMutation) Fields() []string {
 	if m.notes != nil {
 		fields = append(fields, asset.FieldNotes)
 	}
+	if m.salvage_value != nil {
+		fields = append(fields, asset.FieldSalvageValue)
+	}
+	if m.useful_life_years != nil {
+		fields = append(fields, asset.FieldUsefulLifeYears)
+	}
+	if m.depreciation_rate != nil {
+		fields = append(fields, asset.FieldDepreciationRate)
+	}
 	if m.tags != nil {
 		fields = append(fields, asset.FieldTags)
 	}
@@ -1794,6 +2019,12 @@ func (m *AssetMutation) Field(name string) (ent.Value, bool) {
 		return m.PurchaseCost()
 	case asset.FieldNotes:
 		return m.Notes()
+	case asset.FieldSalvageValue:
+		return m.SalvageValue()
+	case asset.FieldUsefulLifeYears:
+		return m.UsefulLifeYears()
+	case asset.FieldDepreciationRate:
+		return m.DepreciationRate()
 	case asset.FieldTags:
 		return m.Tags()
 	case asset.FieldMetadata:
@@ -1851,6 +2082,12 @@ func (m *AssetMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldPurchaseCost(ctx)
 	case asset.FieldNotes:
 		return m.OldNotes(ctx)
+	case asset.FieldSalvageValue:
+		return m.OldSalvageValue(ctx)
+	case asset.FieldUsefulLifeYears:
+		return m.OldUsefulLifeYears(ctx)
+	case asset.FieldDepreciationRate:
+		return m.OldDepreciationRate(ctx)
 	case asset.FieldTags:
 		return m.OldTags(ctx)
 	case asset.FieldMetadata:
@@ -2018,6 +2255,27 @@ func (m *AssetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetNotes(v)
 		return nil
+	case asset.FieldSalvageValue:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSalvageValue(v)
+		return nil
+	case asset.FieldUsefulLifeYears:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUsefulLifeYears(v)
+		return nil
+	case asset.FieldDepreciationRate:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDepreciationRate(v)
+		return nil
 	case asset.FieldTags:
 		v, ok := value.(string)
 		if !ok {
@@ -2058,6 +2316,15 @@ func (m *AssetMutation) AddedFields() []string {
 	if m.addpurchase_cost != nil {
 		fields = append(fields, asset.FieldPurchaseCost)
 	}
+	if m.addsalvage_value != nil {
+		fields = append(fields, asset.FieldSalvageValue)
+	}
+	if m.adduseful_life_years != nil {
+		fields = append(fields, asset.FieldUsefulLifeYears)
+	}
+	if m.adddepreciation_rate != nil {
+		fields = append(fields, asset.FieldDepreciationRate)
+	}
 	return fields
 }
 
@@ -2078,6 +2345,12 @@ func (m *AssetMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedWarrantyMonths()
 	case asset.FieldPurchaseCost:
 		return m.AddedPurchaseCost()
+	case asset.FieldSalvageValue:
+		return m.AddedSalvageValue()
+	case asset.FieldUsefulLifeYears:
+		return m.AddedUsefulLifeYears()
+	case asset.FieldDepreciationRate:
+		return m.AddedDepreciationRate()
 	}
 	return nil, false
 }
@@ -2128,6 +2401,27 @@ func (m *AssetMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddPurchaseCost(v)
+		return nil
+	case asset.FieldSalvageValue:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSalvageValue(v)
+		return nil
+	case asset.FieldUsefulLifeYears:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUsefulLifeYears(v)
+		return nil
+	case asset.FieldDepreciationRate:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDepreciationRate(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Asset numeric field %s", name)
@@ -2196,6 +2490,15 @@ func (m *AssetMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(asset.FieldNotes) {
 		fields = append(fields, asset.FieldNotes)
+	}
+	if m.FieldCleared(asset.FieldSalvageValue) {
+		fields = append(fields, asset.FieldSalvageValue)
+	}
+	if m.FieldCleared(asset.FieldUsefulLifeYears) {
+		fields = append(fields, asset.FieldUsefulLifeYears)
+	}
+	if m.FieldCleared(asset.FieldDepreciationRate) {
+		fields = append(fields, asset.FieldDepreciationRate)
 	}
 	if m.FieldCleared(asset.FieldTags) {
 		fields = append(fields, asset.FieldTags)
@@ -2277,6 +2580,15 @@ func (m *AssetMutation) ClearField(name string) error {
 	case asset.FieldNotes:
 		m.ClearNotes()
 		return nil
+	case asset.FieldSalvageValue:
+		m.ClearSalvageValue()
+		return nil
+	case asset.FieldUsefulLifeYears:
+		m.ClearUsefulLifeYears()
+		return nil
+	case asset.FieldDepreciationRate:
+		m.ClearDepreciationRate()
+		return nil
 	case asset.FieldTags:
 		m.ClearTags()
 		return nil
@@ -2356,6 +2668,15 @@ func (m *AssetMutation) ResetField(name string) error {
 		return nil
 	case asset.FieldNotes:
 		m.ResetNotes()
+		return nil
+	case asset.FieldSalvageValue:
+		m.ResetSalvageValue()
+		return nil
+	case asset.FieldUsefulLifeYears:
+		m.ResetUsefulLifeYears()
+		return nil
+	case asset.FieldDepreciationRate:
+		m.ResetDepreciationRate()
 		return nil
 	case asset.FieldTags:
 		m.ResetTags()

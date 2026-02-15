@@ -30,6 +30,9 @@ var (
 		{Name: "order_number", Type: field.TypeString, Nullable: true, Comment: "Order number"},
 		{Name: "purchase_cost", Type: field.TypeFloat64, Nullable: true, Comment: "Purchase cost"},
 		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Notes"},
+		{Name: "salvage_value", Type: field.TypeFloat64, Nullable: true, Comment: "Salvage value"},
+		{Name: "useful_life_years", Type: field.TypeInt32, Nullable: true, Comment: "Useful life in years"},
+		{Name: "depreciation_rate", Type: field.TypeFloat64, Nullable: true, Comment: "Depreciation rate for DDB calculation", Default: 0.4},
 		{Name: "tags", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Custom tags (JSON)"},
 		{Name: "metadata", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Custom metadata (JSON)"},
 		{Name: "category_id", Type: field.TypeString, Nullable: true, Comment: "Category ID"},
@@ -45,25 +48,25 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "asset_assets_asset_categories_category",
-				Columns:    []*schema.Column{AssetAssetsColumns[21]},
+				Columns:    []*schema.Column{AssetAssetsColumns[24]},
 				RefColumns: []*schema.Column{AssetCategoriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "asset_assets_asset_suppliers_supplier",
-				Columns:    []*schema.Column{AssetAssetsColumns[22]},
+				Columns:    []*schema.Column{AssetAssetsColumns[25]},
 				RefColumns: []*schema.Column{AssetSuppliersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "asset_assets_asset_locations_location",
-				Columns:    []*schema.Column{AssetAssetsColumns[23]},
+				Columns:    []*schema.Column{AssetAssetsColumns[26]},
 				RefColumns: []*schema.Column{AssetLocationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "asset_assets_asset_employees_employee",
-				Columns:    []*schema.Column{AssetAssetsColumns[24]},
+				Columns:    []*schema.Column{AssetAssetsColumns[27]},
 				RefColumns: []*schema.Column{AssetEmployeesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -92,22 +95,22 @@ var (
 			{
 				Name:    "asset_category_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssetAssetsColumns[21]},
+				Columns: []*schema.Column{AssetAssetsColumns[24]},
 			},
 			{
 				Name:    "asset_supplier_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssetAssetsColumns[22]},
+				Columns: []*schema.Column{AssetAssetsColumns[25]},
 			},
 			{
 				Name:    "asset_employee_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssetAssetsColumns[24]},
+				Columns: []*schema.Column{AssetAssetsColumns[27]},
 			},
 			{
 				Name:    "asset_location_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssetAssetsColumns[23]},
+				Columns: []*schema.Column{AssetAssetsColumns[26]},
 			},
 		},
 	}

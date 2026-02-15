@@ -88,6 +88,15 @@ message Asset {
   // Custom metadata (JSON)
   optional string metadata = 20 [json_name = "metadata"];
 
+  // Salvage value (typically 10% of purchase cost)
+  optional double salvage_value = 21 [json_name = "salvageValue"];
+
+  // Useful life in years
+  optional int32 useful_life_years = 22 [json_name = "usefulLifeYears"];
+
+  // Depreciation rate (default 0.40 for DDB)
+  optional double depreciation_rate = 23 [json_name = "depreciationRate"];
+
   // Creation timestamp
   optional google.protobuf.Timestamp created_at = 30 [json_name = "createdAt"];
 
@@ -201,6 +210,9 @@ message CreateAssetRequest {
   optional string notes = 15 [json_name = "notes"];
   optional string tags = 16 [json_name = "tags"];
   optional string metadata = 17 [json_name = "metadata"];
+  optional double salvage_value = 18 [json_name = "salvageValue"];
+  optional int32 useful_life_years = 19 [json_name = "usefulLifeYears"];
+  optional double depreciation_rate = 20 [json_name = "depreciationRate"];
 }
 
 message CreateAssetResponse {

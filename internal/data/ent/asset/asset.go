@@ -57,6 +57,12 @@ const (
 	FieldPurchaseCost = "purchase_cost"
 	// FieldNotes holds the string denoting the notes field in the database.
 	FieldNotes = "notes"
+	// FieldSalvageValue holds the string denoting the salvage_value field in the database.
+	FieldSalvageValue = "salvage_value"
+	// FieldUsefulLifeYears holds the string denoting the useful_life_years field in the database.
+	FieldUsefulLifeYears = "useful_life_years"
+	// FieldDepreciationRate holds the string denoting the depreciation_rate field in the database.
+	FieldDepreciationRate = "depreciation_rate"
 	// FieldTags holds the string denoting the tags field in the database.
 	FieldTags = "tags"
 	// FieldMetadata holds the string denoting the metadata field in the database.
@@ -135,6 +141,9 @@ var Columns = []string{
 	FieldOrderNumber,
 	FieldPurchaseCost,
 	FieldNotes,
+	FieldSalvageValue,
+	FieldUsefulLifeYears,
+	FieldDepreciationRate,
 	FieldTags,
 	FieldMetadata,
 }
@@ -167,6 +176,8 @@ var (
 	NameValidator func(string) error
 	// DefaultStatus holds the default value on creation for the "status" field.
 	DefaultStatus int32
+	// DefaultDepreciationRate holds the default value on creation for the "depreciation_rate" field.
+	DefaultDepreciationRate float64
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(string) error
 )
@@ -287,6 +298,21 @@ func ByPurchaseCost(opts ...sql.OrderTermOption) OrderOption {
 // ByNotes orders the results by the notes field.
 func ByNotes(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNotes, opts...).ToFunc()
+}
+
+// BySalvageValue orders the results by the salvage_value field.
+func BySalvageValue(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSalvageValue, opts...).ToFunc()
+}
+
+// ByUsefulLifeYears orders the results by the useful_life_years field.
+func ByUsefulLifeYears(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUsefulLifeYears, opts...).ToFunc()
+}
+
+// ByDepreciationRate orders the results by the depreciation_rate field.
+func ByDepreciationRate(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDepreciationRate, opts...).ToFunc()
 }
 
 // ByTags orders the results by the tags field.

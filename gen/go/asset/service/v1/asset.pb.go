@@ -178,6 +178,12 @@ type Asset struct {
 	Tags *string `protobuf:"bytes,19,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
 	// Custom metadata (JSON)
 	Metadata *string `protobuf:"bytes,20,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"`
+	// Salvage value (typically 10% of purchase cost)
+	SalvageValue *float64 `protobuf:"fixed64,21,opt,name=salvage_value,json=salvageValue,proto3,oneof" json:"salvage_value,omitempty"`
+	// Useful life in years
+	UsefulLifeYears *int32 `protobuf:"varint,22,opt,name=useful_life_years,json=usefulLifeYears,proto3,oneof" json:"useful_life_years,omitempty"`
+	// Depreciation rate (default 0.40 for DDB)
+	DepreciationRate *float64 `protobuf:"fixed64,23,opt,name=depreciation_rate,json=depreciationRate,proto3,oneof" json:"depreciation_rate,omitempty"`
 	// Creation timestamp
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,30,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
 	// Last update timestamp
@@ -358,6 +364,27 @@ func (x *Asset) GetMetadata() string {
 		return *x.Metadata
 	}
 	return ""
+}
+
+func (x *Asset) GetSalvageValue() float64 {
+	if x != nil && x.SalvageValue != nil {
+		return *x.SalvageValue
+	}
+	return 0
+}
+
+func (x *Asset) GetUsefulLifeYears() int32 {
+	if x != nil && x.UsefulLifeYears != nil {
+		return *x.UsefulLifeYears
+	}
+	return 0
+}
+
+func (x *Asset) GetDepreciationRate() float64 {
+	if x != nil && x.DepreciationRate != nil {
+		return *x.DepreciationRate
+	}
+	return 0
 }
 
 func (x *Asset) GetCreatedAt() *timestamppb.Timestamp {
@@ -653,26 +680,29 @@ func (x *AssetDocument) GetCreatedBy() uint32 {
 
 // CreateAssetRequest creates a new asset
 type CreateAssetRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	TenantId       *uint32                `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
-	AssetTag       *string                `protobuf:"bytes,2,opt,name=asset_tag,json=assetTag,proto3,oneof" json:"asset_tag,omitempty"`
-	Name           *string                `protobuf:"bytes,3,opt,name=name,proto3,oneof" json:"name,omitempty"`
-	Serial         *string                `protobuf:"bytes,4,opt,name=serial,proto3,oneof" json:"serial,omitempty"`
-	ModelName      *string                `protobuf:"bytes,5,opt,name=model_name,json=modelName,proto3,oneof" json:"model_name,omitempty"`
-	ModelNumber    *string                `protobuf:"bytes,6,opt,name=model_number,json=modelNumber,proto3,oneof" json:"model_number,omitempty"`
-	CategoryId     *string                `protobuf:"bytes,7,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
-	SupplierId     *string                `protobuf:"bytes,8,opt,name=supplier_id,json=supplierId,proto3,oneof" json:"supplier_id,omitempty"`
-	LocationId     *string                `protobuf:"bytes,9,opt,name=location_id,json=locationId,proto3,oneof" json:"location_id,omitempty"`
-	Status         *AssetStatus           `protobuf:"varint,10,opt,name=status,proto3,enum=asset.service.v1.AssetStatus,oneof" json:"status,omitempty"`
-	WarrantyMonths *int32                 `protobuf:"varint,11,opt,name=warranty_months,json=warrantyMonths,proto3,oneof" json:"warranty_months,omitempty"`
-	PurchaseDate   *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=purchase_date,json=purchaseDate,proto3,oneof" json:"purchase_date,omitempty"`
-	OrderNumber    *string                `protobuf:"bytes,13,opt,name=order_number,json=orderNumber,proto3,oneof" json:"order_number,omitempty"`
-	PurchaseCost   *float64               `protobuf:"fixed64,14,opt,name=purchase_cost,json=purchaseCost,proto3,oneof" json:"purchase_cost,omitempty"`
-	Notes          *string                `protobuf:"bytes,15,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
-	Tags           *string                `protobuf:"bytes,16,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
-	Metadata       *string                `protobuf:"bytes,17,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	TenantId         *uint32                `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
+	AssetTag         *string                `protobuf:"bytes,2,opt,name=asset_tag,json=assetTag,proto3,oneof" json:"asset_tag,omitempty"`
+	Name             *string                `protobuf:"bytes,3,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	Serial           *string                `protobuf:"bytes,4,opt,name=serial,proto3,oneof" json:"serial,omitempty"`
+	ModelName        *string                `protobuf:"bytes,5,opt,name=model_name,json=modelName,proto3,oneof" json:"model_name,omitempty"`
+	ModelNumber      *string                `protobuf:"bytes,6,opt,name=model_number,json=modelNumber,proto3,oneof" json:"model_number,omitempty"`
+	CategoryId       *string                `protobuf:"bytes,7,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
+	SupplierId       *string                `protobuf:"bytes,8,opt,name=supplier_id,json=supplierId,proto3,oneof" json:"supplier_id,omitempty"`
+	LocationId       *string                `protobuf:"bytes,9,opt,name=location_id,json=locationId,proto3,oneof" json:"location_id,omitempty"`
+	Status           *AssetStatus           `protobuf:"varint,10,opt,name=status,proto3,enum=asset.service.v1.AssetStatus,oneof" json:"status,omitempty"`
+	WarrantyMonths   *int32                 `protobuf:"varint,11,opt,name=warranty_months,json=warrantyMonths,proto3,oneof" json:"warranty_months,omitempty"`
+	PurchaseDate     *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=purchase_date,json=purchaseDate,proto3,oneof" json:"purchase_date,omitempty"`
+	OrderNumber      *string                `protobuf:"bytes,13,opt,name=order_number,json=orderNumber,proto3,oneof" json:"order_number,omitempty"`
+	PurchaseCost     *float64               `protobuf:"fixed64,14,opt,name=purchase_cost,json=purchaseCost,proto3,oneof" json:"purchase_cost,omitempty"`
+	Notes            *string                `protobuf:"bytes,15,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
+	Tags             *string                `protobuf:"bytes,16,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
+	Metadata         *string                `protobuf:"bytes,17,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"`
+	SalvageValue     *float64               `protobuf:"fixed64,18,opt,name=salvage_value,json=salvageValue,proto3,oneof" json:"salvage_value,omitempty"`
+	UsefulLifeYears  *int32                 `protobuf:"varint,19,opt,name=useful_life_years,json=usefulLifeYears,proto3,oneof" json:"useful_life_years,omitempty"`
+	DepreciationRate *float64               `protobuf:"fixed64,20,opt,name=depreciation_rate,json=depreciationRate,proto3,oneof" json:"depreciation_rate,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *CreateAssetRequest) Reset() {
@@ -822,6 +852,27 @@ func (x *CreateAssetRequest) GetMetadata() string {
 		return *x.Metadata
 	}
 	return ""
+}
+
+func (x *CreateAssetRequest) GetSalvageValue() float64 {
+	if x != nil && x.SalvageValue != nil {
+		return *x.SalvageValue
+	}
+	return 0
+}
+
+func (x *CreateAssetRequest) GetUsefulLifeYears() int32 {
+	if x != nil && x.UsefulLifeYears != nil {
+		return *x.UsefulLifeYears
+	}
+	return 0
+}
+
+func (x *CreateAssetRequest) GetDepreciationRate() float64 {
+	if x != nil && x.DepreciationRate != nil {
+		return *x.DepreciationRate
+	}
+	return 0
 }
 
 type CreateAssetResponse struct {
@@ -2159,8 +2210,7 @@ var File_asset_service_v1_asset_proto protoreflect.FileDescriptor
 
 const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\n" +
-	"\x1casset/service/v1/asset.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\"\x90\n" +
-	"\n" +
+	"\x1casset/service/v1/asset.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\"\xdb\v\n" +
 	"\x05Asset\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12 \n" +
@@ -2188,15 +2238,18 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\rpurchase_cost\x18\x11 \x01(\x01H\x10R\fpurchaseCost\x88\x01\x01\x12\x19\n" +
 	"\x05notes\x18\x12 \x01(\tH\x11R\x05notes\x88\x01\x01\x12\x17\n" +
 	"\x04tags\x18\x13 \x01(\tH\x12R\x04tags\x88\x01\x01\x12\x1f\n" +
-	"\bmetadata\x18\x14 \x01(\tH\x13R\bmetadata\x88\x01\x01\x12>\n" +
+	"\bmetadata\x18\x14 \x01(\tH\x13R\bmetadata\x88\x01\x01\x12(\n" +
+	"\rsalvage_value\x18\x15 \x01(\x01H\x14R\fsalvageValue\x88\x01\x01\x12/\n" +
+	"\x11useful_life_years\x18\x16 \x01(\x05H\x15R\x0fusefulLifeYears\x88\x01\x01\x120\n" +
+	"\x11depreciation_rate\x18\x17 \x01(\x01H\x16R\x10depreciationRate\x88\x01\x01\x12>\n" +
 	"\n" +
-	"created_at\x18\x1e \x01(\v2\x1a.google.protobuf.TimestampH\x14R\tcreatedAt\x88\x01\x01\x12>\n" +
+	"created_at\x18\x1e \x01(\v2\x1a.google.protobuf.TimestampH\x17R\tcreatedAt\x88\x01\x01\x12>\n" +
 	"\n" +
-	"updated_at\x18\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x15R\tupdatedAt\x88\x01\x01\x12\"\n" +
+	"updated_at\x18\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x18R\tupdatedAt\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"created_by\x18  \x01(\rH\x16R\tcreatedBy\x88\x01\x01\x12\"\n" +
+	"created_by\x18  \x01(\rH\x19R\tcreatedBy\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"updated_by\x18! \x01(\rH\x17R\tupdatedBy\x88\x01\x01B\x05\n" +
+	"updated_by\x18! \x01(\rH\x1aR\tupdatedBy\x88\x01\x01B\x05\n" +
 	"\x03_idB\f\n" +
 	"\n" +
 	"_tenant_idB\f\n" +
@@ -2219,7 +2272,10 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\x0e_purchase_costB\b\n" +
 	"\x06_notesB\a\n" +
 	"\x05_tagsB\v\n" +
-	"\t_metadataB\r\n" +
+	"\t_metadataB\x10\n" +
+	"\x0e_salvage_valueB\x14\n" +
+	"\x12_useful_life_yearsB\x14\n" +
+	"\x12_depreciation_rateB\r\n" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
@@ -2283,7 +2339,7 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\t_checksumB\x0e\n" +
 	"\f_descriptionB\r\n" +
 	"\v_created_atB\r\n" +
-	"\v_created_by\"\xb0\a\n" +
+	"\v_created_by\"\xfb\b\n" +
 	"\x12CreateAssetRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12*\n" +
 	"\tasset_tag\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01H\x01R\bassetTag\x88\x01\x01\x12!\n" +
@@ -2307,7 +2363,10 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\rpurchase_cost\x18\x0e \x01(\x01H\rR\fpurchaseCost\x88\x01\x01\x12\x19\n" +
 	"\x05notes\x18\x0f \x01(\tH\x0eR\x05notes\x88\x01\x01\x12\x17\n" +
 	"\x04tags\x18\x10 \x01(\tH\x0fR\x04tags\x88\x01\x01\x12\x1f\n" +
-	"\bmetadata\x18\x11 \x01(\tH\x10R\bmetadata\x88\x01\x01B\f\n" +
+	"\bmetadata\x18\x11 \x01(\tH\x10R\bmetadata\x88\x01\x01\x12(\n" +
+	"\rsalvage_value\x18\x12 \x01(\x01H\x11R\fsalvageValue\x88\x01\x01\x12/\n" +
+	"\x11useful_life_years\x18\x13 \x01(\x05H\x12R\x0fusefulLifeYears\x88\x01\x01\x120\n" +
+	"\x11depreciation_rate\x18\x14 \x01(\x01H\x13R\x10depreciationRate\x88\x01\x01B\f\n" +
 	"\n" +
 	"_tenant_idB\f\n" +
 	"\n" +
@@ -2326,7 +2385,10 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\x0e_purchase_costB\b\n" +
 	"\x06_notesB\a\n" +
 	"\x05_tagsB\v\n" +
-	"\t_metadata\"D\n" +
+	"\t_metadataB\x10\n" +
+	"\x0e_salvage_valueB\x14\n" +
+	"\x12_useful_life_yearsB\x14\n" +
+	"\x12_depreciation_rate\"D\n" +
 	"\x13CreateAssetResponse\x12-\n" +
 	"\x05asset\x18\x01 \x01(\v2\x17.asset.service.v1.AssetR\x05asset\"-\n" +
 	"\x0fGetAssetRequest\x12\x1a\n" +

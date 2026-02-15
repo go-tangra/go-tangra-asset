@@ -328,6 +328,48 @@ func (_c *AssetCreate) SetNillableNotes(v *string) *AssetCreate {
 	return _c
 }
 
+// SetSalvageValue sets the "salvage_value" field.
+func (_c *AssetCreate) SetSalvageValue(v float64) *AssetCreate {
+	_c.mutation.SetSalvageValue(v)
+	return _c
+}
+
+// SetNillableSalvageValue sets the "salvage_value" field if the given value is not nil.
+func (_c *AssetCreate) SetNillableSalvageValue(v *float64) *AssetCreate {
+	if v != nil {
+		_c.SetSalvageValue(*v)
+	}
+	return _c
+}
+
+// SetUsefulLifeYears sets the "useful_life_years" field.
+func (_c *AssetCreate) SetUsefulLifeYears(v int32) *AssetCreate {
+	_c.mutation.SetUsefulLifeYears(v)
+	return _c
+}
+
+// SetNillableUsefulLifeYears sets the "useful_life_years" field if the given value is not nil.
+func (_c *AssetCreate) SetNillableUsefulLifeYears(v *int32) *AssetCreate {
+	if v != nil {
+		_c.SetUsefulLifeYears(*v)
+	}
+	return _c
+}
+
+// SetDepreciationRate sets the "depreciation_rate" field.
+func (_c *AssetCreate) SetDepreciationRate(v float64) *AssetCreate {
+	_c.mutation.SetDepreciationRate(v)
+	return _c
+}
+
+// SetNillableDepreciationRate sets the "depreciation_rate" field if the given value is not nil.
+func (_c *AssetCreate) SetNillableDepreciationRate(v *float64) *AssetCreate {
+	if v != nil {
+		_c.SetDepreciationRate(*v)
+	}
+	return _c
+}
+
 // SetTags sets the "tags" field.
 func (_c *AssetCreate) SetTags(v string) *AssetCreate {
 	_c.mutation.SetTags(v)
@@ -445,6 +487,10 @@ func (_c *AssetCreate) defaults() error {
 	if _, ok := _c.mutation.Status(); !ok {
 		v := asset.DefaultStatus
 		_c.mutation.SetStatus(v)
+	}
+	if _, ok := _c.mutation.DepreciationRate(); !ok {
+		v := asset.DefaultDepreciationRate
+		_c.mutation.SetDepreciationRate(v)
 	}
 	return nil
 }
@@ -579,6 +625,18 @@ func (_c *AssetCreate) createSpec() (*Asset, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Notes(); ok {
 		_spec.SetField(asset.FieldNotes, field.TypeString, value)
 		_node.Notes = value
+	}
+	if value, ok := _c.mutation.SalvageValue(); ok {
+		_spec.SetField(asset.FieldSalvageValue, field.TypeFloat64, value)
+		_node.SalvageValue = &value
+	}
+	if value, ok := _c.mutation.UsefulLifeYears(); ok {
+		_spec.SetField(asset.FieldUsefulLifeYears, field.TypeInt32, value)
+		_node.UsefulLifeYears = &value
+	}
+	if value, ok := _c.mutation.DepreciationRate(); ok {
+		_spec.SetField(asset.FieldDepreciationRate, field.TypeFloat64, value)
+		_node.DepreciationRate = &value
 	}
 	if value, ok := _c.mutation.Tags(); ok {
 		_spec.SetField(asset.FieldTags, field.TypeString, value)
@@ -1099,6 +1157,78 @@ func (u *AssetUpsert) UpdateNotes() *AssetUpsert {
 // ClearNotes clears the value of the "notes" field.
 func (u *AssetUpsert) ClearNotes() *AssetUpsert {
 	u.SetNull(asset.FieldNotes)
+	return u
+}
+
+// SetSalvageValue sets the "salvage_value" field.
+func (u *AssetUpsert) SetSalvageValue(v float64) *AssetUpsert {
+	u.Set(asset.FieldSalvageValue, v)
+	return u
+}
+
+// UpdateSalvageValue sets the "salvage_value" field to the value that was provided on create.
+func (u *AssetUpsert) UpdateSalvageValue() *AssetUpsert {
+	u.SetExcluded(asset.FieldSalvageValue)
+	return u
+}
+
+// AddSalvageValue adds v to the "salvage_value" field.
+func (u *AssetUpsert) AddSalvageValue(v float64) *AssetUpsert {
+	u.Add(asset.FieldSalvageValue, v)
+	return u
+}
+
+// ClearSalvageValue clears the value of the "salvage_value" field.
+func (u *AssetUpsert) ClearSalvageValue() *AssetUpsert {
+	u.SetNull(asset.FieldSalvageValue)
+	return u
+}
+
+// SetUsefulLifeYears sets the "useful_life_years" field.
+func (u *AssetUpsert) SetUsefulLifeYears(v int32) *AssetUpsert {
+	u.Set(asset.FieldUsefulLifeYears, v)
+	return u
+}
+
+// UpdateUsefulLifeYears sets the "useful_life_years" field to the value that was provided on create.
+func (u *AssetUpsert) UpdateUsefulLifeYears() *AssetUpsert {
+	u.SetExcluded(asset.FieldUsefulLifeYears)
+	return u
+}
+
+// AddUsefulLifeYears adds v to the "useful_life_years" field.
+func (u *AssetUpsert) AddUsefulLifeYears(v int32) *AssetUpsert {
+	u.Add(asset.FieldUsefulLifeYears, v)
+	return u
+}
+
+// ClearUsefulLifeYears clears the value of the "useful_life_years" field.
+func (u *AssetUpsert) ClearUsefulLifeYears() *AssetUpsert {
+	u.SetNull(asset.FieldUsefulLifeYears)
+	return u
+}
+
+// SetDepreciationRate sets the "depreciation_rate" field.
+func (u *AssetUpsert) SetDepreciationRate(v float64) *AssetUpsert {
+	u.Set(asset.FieldDepreciationRate, v)
+	return u
+}
+
+// UpdateDepreciationRate sets the "depreciation_rate" field to the value that was provided on create.
+func (u *AssetUpsert) UpdateDepreciationRate() *AssetUpsert {
+	u.SetExcluded(asset.FieldDepreciationRate)
+	return u
+}
+
+// AddDepreciationRate adds v to the "depreciation_rate" field.
+func (u *AssetUpsert) AddDepreciationRate(v float64) *AssetUpsert {
+	u.Add(asset.FieldDepreciationRate, v)
+	return u
+}
+
+// ClearDepreciationRate clears the value of the "depreciation_rate" field.
+func (u *AssetUpsert) ClearDepreciationRate() *AssetUpsert {
+	u.SetNull(asset.FieldDepreciationRate)
 	return u
 }
 
@@ -1630,6 +1760,90 @@ func (u *AssetUpsertOne) UpdateNotes() *AssetUpsertOne {
 func (u *AssetUpsertOne) ClearNotes() *AssetUpsertOne {
 	return u.Update(func(s *AssetUpsert) {
 		s.ClearNotes()
+	})
+}
+
+// SetSalvageValue sets the "salvage_value" field.
+func (u *AssetUpsertOne) SetSalvageValue(v float64) *AssetUpsertOne {
+	return u.Update(func(s *AssetUpsert) {
+		s.SetSalvageValue(v)
+	})
+}
+
+// AddSalvageValue adds v to the "salvage_value" field.
+func (u *AssetUpsertOne) AddSalvageValue(v float64) *AssetUpsertOne {
+	return u.Update(func(s *AssetUpsert) {
+		s.AddSalvageValue(v)
+	})
+}
+
+// UpdateSalvageValue sets the "salvage_value" field to the value that was provided on create.
+func (u *AssetUpsertOne) UpdateSalvageValue() *AssetUpsertOne {
+	return u.Update(func(s *AssetUpsert) {
+		s.UpdateSalvageValue()
+	})
+}
+
+// ClearSalvageValue clears the value of the "salvage_value" field.
+func (u *AssetUpsertOne) ClearSalvageValue() *AssetUpsertOne {
+	return u.Update(func(s *AssetUpsert) {
+		s.ClearSalvageValue()
+	})
+}
+
+// SetUsefulLifeYears sets the "useful_life_years" field.
+func (u *AssetUpsertOne) SetUsefulLifeYears(v int32) *AssetUpsertOne {
+	return u.Update(func(s *AssetUpsert) {
+		s.SetUsefulLifeYears(v)
+	})
+}
+
+// AddUsefulLifeYears adds v to the "useful_life_years" field.
+func (u *AssetUpsertOne) AddUsefulLifeYears(v int32) *AssetUpsertOne {
+	return u.Update(func(s *AssetUpsert) {
+		s.AddUsefulLifeYears(v)
+	})
+}
+
+// UpdateUsefulLifeYears sets the "useful_life_years" field to the value that was provided on create.
+func (u *AssetUpsertOne) UpdateUsefulLifeYears() *AssetUpsertOne {
+	return u.Update(func(s *AssetUpsert) {
+		s.UpdateUsefulLifeYears()
+	})
+}
+
+// ClearUsefulLifeYears clears the value of the "useful_life_years" field.
+func (u *AssetUpsertOne) ClearUsefulLifeYears() *AssetUpsertOne {
+	return u.Update(func(s *AssetUpsert) {
+		s.ClearUsefulLifeYears()
+	})
+}
+
+// SetDepreciationRate sets the "depreciation_rate" field.
+func (u *AssetUpsertOne) SetDepreciationRate(v float64) *AssetUpsertOne {
+	return u.Update(func(s *AssetUpsert) {
+		s.SetDepreciationRate(v)
+	})
+}
+
+// AddDepreciationRate adds v to the "depreciation_rate" field.
+func (u *AssetUpsertOne) AddDepreciationRate(v float64) *AssetUpsertOne {
+	return u.Update(func(s *AssetUpsert) {
+		s.AddDepreciationRate(v)
+	})
+}
+
+// UpdateDepreciationRate sets the "depreciation_rate" field to the value that was provided on create.
+func (u *AssetUpsertOne) UpdateDepreciationRate() *AssetUpsertOne {
+	return u.Update(func(s *AssetUpsert) {
+		s.UpdateDepreciationRate()
+	})
+}
+
+// ClearDepreciationRate clears the value of the "depreciation_rate" field.
+func (u *AssetUpsertOne) ClearDepreciationRate() *AssetUpsertOne {
+	return u.Update(func(s *AssetUpsert) {
+		s.ClearDepreciationRate()
 	})
 }
 
@@ -2334,6 +2548,90 @@ func (u *AssetUpsertBulk) UpdateNotes() *AssetUpsertBulk {
 func (u *AssetUpsertBulk) ClearNotes() *AssetUpsertBulk {
 	return u.Update(func(s *AssetUpsert) {
 		s.ClearNotes()
+	})
+}
+
+// SetSalvageValue sets the "salvage_value" field.
+func (u *AssetUpsertBulk) SetSalvageValue(v float64) *AssetUpsertBulk {
+	return u.Update(func(s *AssetUpsert) {
+		s.SetSalvageValue(v)
+	})
+}
+
+// AddSalvageValue adds v to the "salvage_value" field.
+func (u *AssetUpsertBulk) AddSalvageValue(v float64) *AssetUpsertBulk {
+	return u.Update(func(s *AssetUpsert) {
+		s.AddSalvageValue(v)
+	})
+}
+
+// UpdateSalvageValue sets the "salvage_value" field to the value that was provided on create.
+func (u *AssetUpsertBulk) UpdateSalvageValue() *AssetUpsertBulk {
+	return u.Update(func(s *AssetUpsert) {
+		s.UpdateSalvageValue()
+	})
+}
+
+// ClearSalvageValue clears the value of the "salvage_value" field.
+func (u *AssetUpsertBulk) ClearSalvageValue() *AssetUpsertBulk {
+	return u.Update(func(s *AssetUpsert) {
+		s.ClearSalvageValue()
+	})
+}
+
+// SetUsefulLifeYears sets the "useful_life_years" field.
+func (u *AssetUpsertBulk) SetUsefulLifeYears(v int32) *AssetUpsertBulk {
+	return u.Update(func(s *AssetUpsert) {
+		s.SetUsefulLifeYears(v)
+	})
+}
+
+// AddUsefulLifeYears adds v to the "useful_life_years" field.
+func (u *AssetUpsertBulk) AddUsefulLifeYears(v int32) *AssetUpsertBulk {
+	return u.Update(func(s *AssetUpsert) {
+		s.AddUsefulLifeYears(v)
+	})
+}
+
+// UpdateUsefulLifeYears sets the "useful_life_years" field to the value that was provided on create.
+func (u *AssetUpsertBulk) UpdateUsefulLifeYears() *AssetUpsertBulk {
+	return u.Update(func(s *AssetUpsert) {
+		s.UpdateUsefulLifeYears()
+	})
+}
+
+// ClearUsefulLifeYears clears the value of the "useful_life_years" field.
+func (u *AssetUpsertBulk) ClearUsefulLifeYears() *AssetUpsertBulk {
+	return u.Update(func(s *AssetUpsert) {
+		s.ClearUsefulLifeYears()
+	})
+}
+
+// SetDepreciationRate sets the "depreciation_rate" field.
+func (u *AssetUpsertBulk) SetDepreciationRate(v float64) *AssetUpsertBulk {
+	return u.Update(func(s *AssetUpsert) {
+		s.SetDepreciationRate(v)
+	})
+}
+
+// AddDepreciationRate adds v to the "depreciation_rate" field.
+func (u *AssetUpsertBulk) AddDepreciationRate(v float64) *AssetUpsertBulk {
+	return u.Update(func(s *AssetUpsert) {
+		s.AddDepreciationRate(v)
+	})
+}
+
+// UpdateDepreciationRate sets the "depreciation_rate" field to the value that was provided on create.
+func (u *AssetUpsertBulk) UpdateDepreciationRate() *AssetUpsertBulk {
+	return u.Update(func(s *AssetUpsert) {
+		s.UpdateDepreciationRate()
+	})
+}
+
+// ClearDepreciationRate clears the value of the "depreciation_rate" field.
+func (u *AssetUpsertBulk) ClearDepreciationRate() *AssetUpsertBulk {
+	return u.Update(func(s *AssetUpsert) {
+		s.ClearDepreciationRate()
 	})
 }
 

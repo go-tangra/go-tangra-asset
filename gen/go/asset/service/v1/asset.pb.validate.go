@@ -165,6 +165,18 @@ func (m *Asset) validate(all bool) error {
 		// no validation rules for Metadata
 	}
 
+	if m.SalvageValue != nil {
+		// no validation rules for SalvageValue
+	}
+
+	if m.UsefulLifeYears != nil {
+		// no validation rules for UsefulLifeYears
+	}
+
+	if m.DepreciationRate != nil {
+		// no validation rules for DepreciationRate
+	}
+
 	if m.CreatedAt != nil {
 
 		if all {
@@ -804,6 +816,18 @@ func (m *CreateAssetRequest) validate(all bool) error {
 
 	if m.Metadata != nil {
 		// no validation rules for Metadata
+	}
+
+	if m.SalvageValue != nil {
+		// no validation rules for SalvageValue
+	}
+
+	if m.UsefulLifeYears != nil {
+		// no validation rules for UsefulLifeYears
+	}
+
+	if m.DepreciationRate != nil {
+		// no validation rules for DepreciationRate
 	}
 
 	if len(errors) > 0 {

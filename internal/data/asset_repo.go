@@ -168,6 +168,15 @@ func (r *AssetRepo) Update(ctx context.Context, id string, updates map[string]in
 	if purchaseDate, ok := updates["purchase_date"].(time.Time); ok {
 		update = update.SetPurchaseDate(purchaseDate)
 	}
+	if salvageValue, ok := updates["salvage_value"].(float64); ok {
+		update = update.SetSalvageValue(salvageValue)
+	}
+	if usefulLifeYears, ok := updates["useful_life_years"].(int32); ok {
+		update = update.SetUsefulLifeYears(usefulLifeYears)
+	}
+	if depreciationRate, ok := updates["depreciation_rate"].(float64); ok {
+		update = update.SetDepreciationRate(depreciationRate)
+	}
 
 	// Handle clearing nullable fields
 	if _, ok := updates["clear_employee_id"]; ok {

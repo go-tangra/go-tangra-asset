@@ -248,6 +248,12 @@ func (x *Asset) Redact() string {
 
 	// Safe field: Metadata
 
+	// Safe field: SalvageValue
+
+	// Safe field: UsefulLifeYears
+
+	// Safe field: DepreciationRate
+
 	// Safe field: CreatedAt
 
 	// Safe field: UpdatedAt
@@ -355,6 +361,12 @@ func (x *CreateAssetRequest) Redact() string {
 	// Safe field: Tags
 
 	// Safe field: Metadata
+
+	// Safe field: SalvageValue
+
+	// Safe field: UsefulLifeYears
+
+	// Safe field: DepreciationRate
 	return x.String()
 }
 

@@ -100,6 +100,22 @@ func (Asset) Fields() []ent.Field {
 			Optional().
 			Comment("Notes"),
 
+		field.Float("salvage_value").
+			Optional().
+			Nillable().
+			Comment("Salvage value"),
+
+		field.Int32("useful_life_years").
+			Optional().
+			Nillable().
+			Comment("Useful life in years"),
+
+		field.Float("depreciation_rate").
+			Optional().
+			Nillable().
+			Default(0.40).
+			Comment("Depreciation rate for DDB calculation"),
+
 		field.Text("tags").
 			Optional().
 			Comment("Custom tags (JSON)"),

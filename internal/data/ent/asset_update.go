@@ -457,6 +457,87 @@ func (_u *AssetUpdate) ClearNotes() *AssetUpdate {
 	return _u
 }
 
+// SetSalvageValue sets the "salvage_value" field.
+func (_u *AssetUpdate) SetSalvageValue(v float64) *AssetUpdate {
+	_u.mutation.ResetSalvageValue()
+	_u.mutation.SetSalvageValue(v)
+	return _u
+}
+
+// SetNillableSalvageValue sets the "salvage_value" field if the given value is not nil.
+func (_u *AssetUpdate) SetNillableSalvageValue(v *float64) *AssetUpdate {
+	if v != nil {
+		_u.SetSalvageValue(*v)
+	}
+	return _u
+}
+
+// AddSalvageValue adds value to the "salvage_value" field.
+func (_u *AssetUpdate) AddSalvageValue(v float64) *AssetUpdate {
+	_u.mutation.AddSalvageValue(v)
+	return _u
+}
+
+// ClearSalvageValue clears the value of the "salvage_value" field.
+func (_u *AssetUpdate) ClearSalvageValue() *AssetUpdate {
+	_u.mutation.ClearSalvageValue()
+	return _u
+}
+
+// SetUsefulLifeYears sets the "useful_life_years" field.
+func (_u *AssetUpdate) SetUsefulLifeYears(v int32) *AssetUpdate {
+	_u.mutation.ResetUsefulLifeYears()
+	_u.mutation.SetUsefulLifeYears(v)
+	return _u
+}
+
+// SetNillableUsefulLifeYears sets the "useful_life_years" field if the given value is not nil.
+func (_u *AssetUpdate) SetNillableUsefulLifeYears(v *int32) *AssetUpdate {
+	if v != nil {
+		_u.SetUsefulLifeYears(*v)
+	}
+	return _u
+}
+
+// AddUsefulLifeYears adds value to the "useful_life_years" field.
+func (_u *AssetUpdate) AddUsefulLifeYears(v int32) *AssetUpdate {
+	_u.mutation.AddUsefulLifeYears(v)
+	return _u
+}
+
+// ClearUsefulLifeYears clears the value of the "useful_life_years" field.
+func (_u *AssetUpdate) ClearUsefulLifeYears() *AssetUpdate {
+	_u.mutation.ClearUsefulLifeYears()
+	return _u
+}
+
+// SetDepreciationRate sets the "depreciation_rate" field.
+func (_u *AssetUpdate) SetDepreciationRate(v float64) *AssetUpdate {
+	_u.mutation.ResetDepreciationRate()
+	_u.mutation.SetDepreciationRate(v)
+	return _u
+}
+
+// SetNillableDepreciationRate sets the "depreciation_rate" field if the given value is not nil.
+func (_u *AssetUpdate) SetNillableDepreciationRate(v *float64) *AssetUpdate {
+	if v != nil {
+		_u.SetDepreciationRate(*v)
+	}
+	return _u
+}
+
+// AddDepreciationRate adds value to the "depreciation_rate" field.
+func (_u *AssetUpdate) AddDepreciationRate(v float64) *AssetUpdate {
+	_u.mutation.AddDepreciationRate(v)
+	return _u
+}
+
+// ClearDepreciationRate clears the value of the "depreciation_rate" field.
+func (_u *AssetUpdate) ClearDepreciationRate() *AssetUpdate {
+	_u.mutation.ClearDepreciationRate()
+	return _u
+}
+
 // SetTags sets the "tags" field.
 func (_u *AssetUpdate) SetTags(v string) *AssetUpdate {
 	_u.mutation.SetTags(v)
@@ -752,6 +833,33 @@ func (_u *AssetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.NotesCleared() {
 		_spec.ClearField(asset.FieldNotes, field.TypeString)
+	}
+	if value, ok := _u.mutation.SalvageValue(); ok {
+		_spec.SetField(asset.FieldSalvageValue, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedSalvageValue(); ok {
+		_spec.AddField(asset.FieldSalvageValue, field.TypeFloat64, value)
+	}
+	if _u.mutation.SalvageValueCleared() {
+		_spec.ClearField(asset.FieldSalvageValue, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.UsefulLifeYears(); ok {
+		_spec.SetField(asset.FieldUsefulLifeYears, field.TypeInt32, value)
+	}
+	if value, ok := _u.mutation.AddedUsefulLifeYears(); ok {
+		_spec.AddField(asset.FieldUsefulLifeYears, field.TypeInt32, value)
+	}
+	if _u.mutation.UsefulLifeYearsCleared() {
+		_spec.ClearField(asset.FieldUsefulLifeYears, field.TypeInt32)
+	}
+	if value, ok := _u.mutation.DepreciationRate(); ok {
+		_spec.SetField(asset.FieldDepreciationRate, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedDepreciationRate(); ok {
+		_spec.AddField(asset.FieldDepreciationRate, field.TypeFloat64, value)
+	}
+	if _u.mutation.DepreciationRateCleared() {
+		_spec.ClearField(asset.FieldDepreciationRate, field.TypeFloat64)
 	}
 	if value, ok := _u.mutation.Tags(); ok {
 		_spec.SetField(asset.FieldTags, field.TypeString, value)
@@ -1371,6 +1479,87 @@ func (_u *AssetUpdateOne) ClearNotes() *AssetUpdateOne {
 	return _u
 }
 
+// SetSalvageValue sets the "salvage_value" field.
+func (_u *AssetUpdateOne) SetSalvageValue(v float64) *AssetUpdateOne {
+	_u.mutation.ResetSalvageValue()
+	_u.mutation.SetSalvageValue(v)
+	return _u
+}
+
+// SetNillableSalvageValue sets the "salvage_value" field if the given value is not nil.
+func (_u *AssetUpdateOne) SetNillableSalvageValue(v *float64) *AssetUpdateOne {
+	if v != nil {
+		_u.SetSalvageValue(*v)
+	}
+	return _u
+}
+
+// AddSalvageValue adds value to the "salvage_value" field.
+func (_u *AssetUpdateOne) AddSalvageValue(v float64) *AssetUpdateOne {
+	_u.mutation.AddSalvageValue(v)
+	return _u
+}
+
+// ClearSalvageValue clears the value of the "salvage_value" field.
+func (_u *AssetUpdateOne) ClearSalvageValue() *AssetUpdateOne {
+	_u.mutation.ClearSalvageValue()
+	return _u
+}
+
+// SetUsefulLifeYears sets the "useful_life_years" field.
+func (_u *AssetUpdateOne) SetUsefulLifeYears(v int32) *AssetUpdateOne {
+	_u.mutation.ResetUsefulLifeYears()
+	_u.mutation.SetUsefulLifeYears(v)
+	return _u
+}
+
+// SetNillableUsefulLifeYears sets the "useful_life_years" field if the given value is not nil.
+func (_u *AssetUpdateOne) SetNillableUsefulLifeYears(v *int32) *AssetUpdateOne {
+	if v != nil {
+		_u.SetUsefulLifeYears(*v)
+	}
+	return _u
+}
+
+// AddUsefulLifeYears adds value to the "useful_life_years" field.
+func (_u *AssetUpdateOne) AddUsefulLifeYears(v int32) *AssetUpdateOne {
+	_u.mutation.AddUsefulLifeYears(v)
+	return _u
+}
+
+// ClearUsefulLifeYears clears the value of the "useful_life_years" field.
+func (_u *AssetUpdateOne) ClearUsefulLifeYears() *AssetUpdateOne {
+	_u.mutation.ClearUsefulLifeYears()
+	return _u
+}
+
+// SetDepreciationRate sets the "depreciation_rate" field.
+func (_u *AssetUpdateOne) SetDepreciationRate(v float64) *AssetUpdateOne {
+	_u.mutation.ResetDepreciationRate()
+	_u.mutation.SetDepreciationRate(v)
+	return _u
+}
+
+// SetNillableDepreciationRate sets the "depreciation_rate" field if the given value is not nil.
+func (_u *AssetUpdateOne) SetNillableDepreciationRate(v *float64) *AssetUpdateOne {
+	if v != nil {
+		_u.SetDepreciationRate(*v)
+	}
+	return _u
+}
+
+// AddDepreciationRate adds value to the "depreciation_rate" field.
+func (_u *AssetUpdateOne) AddDepreciationRate(v float64) *AssetUpdateOne {
+	_u.mutation.AddDepreciationRate(v)
+	return _u
+}
+
+// ClearDepreciationRate clears the value of the "depreciation_rate" field.
+func (_u *AssetUpdateOne) ClearDepreciationRate() *AssetUpdateOne {
+	_u.mutation.ClearDepreciationRate()
+	return _u
+}
+
 // SetTags sets the "tags" field.
 func (_u *AssetUpdateOne) SetTags(v string) *AssetUpdateOne {
 	_u.mutation.SetTags(v)
@@ -1696,6 +1885,33 @@ func (_u *AssetUpdateOne) sqlSave(ctx context.Context) (_node *Asset, err error)
 	}
 	if _u.mutation.NotesCleared() {
 		_spec.ClearField(asset.FieldNotes, field.TypeString)
+	}
+	if value, ok := _u.mutation.SalvageValue(); ok {
+		_spec.SetField(asset.FieldSalvageValue, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedSalvageValue(); ok {
+		_spec.AddField(asset.FieldSalvageValue, field.TypeFloat64, value)
+	}
+	if _u.mutation.SalvageValueCleared() {
+		_spec.ClearField(asset.FieldSalvageValue, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.UsefulLifeYears(); ok {
+		_spec.SetField(asset.FieldUsefulLifeYears, field.TypeInt32, value)
+	}
+	if value, ok := _u.mutation.AddedUsefulLifeYears(); ok {
+		_spec.AddField(asset.FieldUsefulLifeYears, field.TypeInt32, value)
+	}
+	if _u.mutation.UsefulLifeYearsCleared() {
+		_spec.ClearField(asset.FieldUsefulLifeYears, field.TypeInt32)
+	}
+	if value, ok := _u.mutation.DepreciationRate(); ok {
+		_spec.SetField(asset.FieldDepreciationRate, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedDepreciationRate(); ok {
+		_spec.AddField(asset.FieldDepreciationRate, field.TypeFloat64, value)
+	}
+	if _u.mutation.DepreciationRateCleared() {
+		_spec.ClearField(asset.FieldDepreciationRate, field.TypeFloat64)
 	}
 	if value, ok := _u.mutation.Tags(); ok {
 		_spec.SetField(asset.FieldTags, field.TypeString, value)

@@ -175,6 +175,21 @@ func Notes(v string) predicate.Asset {
 	return predicate.Asset(sql.FieldEQ(FieldNotes, v))
 }
 
+// SalvageValue applies equality check predicate on the "salvage_value" field. It's identical to SalvageValueEQ.
+func SalvageValue(v float64) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldSalvageValue, v))
+}
+
+// UsefulLifeYears applies equality check predicate on the "useful_life_years" field. It's identical to UsefulLifeYearsEQ.
+func UsefulLifeYears(v int32) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldUsefulLifeYears, v))
+}
+
+// DepreciationRate applies equality check predicate on the "depreciation_rate" field. It's identical to DepreciationRateEQ.
+func DepreciationRate(v float64) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldDepreciationRate, v))
+}
+
 // Tags applies equality check predicate on the "tags" field. It's identical to TagsEQ.
 func Tags(v string) predicate.Asset {
 	return predicate.Asset(sql.FieldEQ(FieldTags, v))
@@ -1563,6 +1578,156 @@ func NotesEqualFold(v string) predicate.Asset {
 // NotesContainsFold applies the ContainsFold predicate on the "notes" field.
 func NotesContainsFold(v string) predicate.Asset {
 	return predicate.Asset(sql.FieldContainsFold(FieldNotes, v))
+}
+
+// SalvageValueEQ applies the EQ predicate on the "salvage_value" field.
+func SalvageValueEQ(v float64) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldSalvageValue, v))
+}
+
+// SalvageValueNEQ applies the NEQ predicate on the "salvage_value" field.
+func SalvageValueNEQ(v float64) predicate.Asset {
+	return predicate.Asset(sql.FieldNEQ(FieldSalvageValue, v))
+}
+
+// SalvageValueIn applies the In predicate on the "salvage_value" field.
+func SalvageValueIn(vs ...float64) predicate.Asset {
+	return predicate.Asset(sql.FieldIn(FieldSalvageValue, vs...))
+}
+
+// SalvageValueNotIn applies the NotIn predicate on the "salvage_value" field.
+func SalvageValueNotIn(vs ...float64) predicate.Asset {
+	return predicate.Asset(sql.FieldNotIn(FieldSalvageValue, vs...))
+}
+
+// SalvageValueGT applies the GT predicate on the "salvage_value" field.
+func SalvageValueGT(v float64) predicate.Asset {
+	return predicate.Asset(sql.FieldGT(FieldSalvageValue, v))
+}
+
+// SalvageValueGTE applies the GTE predicate on the "salvage_value" field.
+func SalvageValueGTE(v float64) predicate.Asset {
+	return predicate.Asset(sql.FieldGTE(FieldSalvageValue, v))
+}
+
+// SalvageValueLT applies the LT predicate on the "salvage_value" field.
+func SalvageValueLT(v float64) predicate.Asset {
+	return predicate.Asset(sql.FieldLT(FieldSalvageValue, v))
+}
+
+// SalvageValueLTE applies the LTE predicate on the "salvage_value" field.
+func SalvageValueLTE(v float64) predicate.Asset {
+	return predicate.Asset(sql.FieldLTE(FieldSalvageValue, v))
+}
+
+// SalvageValueIsNil applies the IsNil predicate on the "salvage_value" field.
+func SalvageValueIsNil() predicate.Asset {
+	return predicate.Asset(sql.FieldIsNull(FieldSalvageValue))
+}
+
+// SalvageValueNotNil applies the NotNil predicate on the "salvage_value" field.
+func SalvageValueNotNil() predicate.Asset {
+	return predicate.Asset(sql.FieldNotNull(FieldSalvageValue))
+}
+
+// UsefulLifeYearsEQ applies the EQ predicate on the "useful_life_years" field.
+func UsefulLifeYearsEQ(v int32) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldUsefulLifeYears, v))
+}
+
+// UsefulLifeYearsNEQ applies the NEQ predicate on the "useful_life_years" field.
+func UsefulLifeYearsNEQ(v int32) predicate.Asset {
+	return predicate.Asset(sql.FieldNEQ(FieldUsefulLifeYears, v))
+}
+
+// UsefulLifeYearsIn applies the In predicate on the "useful_life_years" field.
+func UsefulLifeYearsIn(vs ...int32) predicate.Asset {
+	return predicate.Asset(sql.FieldIn(FieldUsefulLifeYears, vs...))
+}
+
+// UsefulLifeYearsNotIn applies the NotIn predicate on the "useful_life_years" field.
+func UsefulLifeYearsNotIn(vs ...int32) predicate.Asset {
+	return predicate.Asset(sql.FieldNotIn(FieldUsefulLifeYears, vs...))
+}
+
+// UsefulLifeYearsGT applies the GT predicate on the "useful_life_years" field.
+func UsefulLifeYearsGT(v int32) predicate.Asset {
+	return predicate.Asset(sql.FieldGT(FieldUsefulLifeYears, v))
+}
+
+// UsefulLifeYearsGTE applies the GTE predicate on the "useful_life_years" field.
+func UsefulLifeYearsGTE(v int32) predicate.Asset {
+	return predicate.Asset(sql.FieldGTE(FieldUsefulLifeYears, v))
+}
+
+// UsefulLifeYearsLT applies the LT predicate on the "useful_life_years" field.
+func UsefulLifeYearsLT(v int32) predicate.Asset {
+	return predicate.Asset(sql.FieldLT(FieldUsefulLifeYears, v))
+}
+
+// UsefulLifeYearsLTE applies the LTE predicate on the "useful_life_years" field.
+func UsefulLifeYearsLTE(v int32) predicate.Asset {
+	return predicate.Asset(sql.FieldLTE(FieldUsefulLifeYears, v))
+}
+
+// UsefulLifeYearsIsNil applies the IsNil predicate on the "useful_life_years" field.
+func UsefulLifeYearsIsNil() predicate.Asset {
+	return predicate.Asset(sql.FieldIsNull(FieldUsefulLifeYears))
+}
+
+// UsefulLifeYearsNotNil applies the NotNil predicate on the "useful_life_years" field.
+func UsefulLifeYearsNotNil() predicate.Asset {
+	return predicate.Asset(sql.FieldNotNull(FieldUsefulLifeYears))
+}
+
+// DepreciationRateEQ applies the EQ predicate on the "depreciation_rate" field.
+func DepreciationRateEQ(v float64) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldDepreciationRate, v))
+}
+
+// DepreciationRateNEQ applies the NEQ predicate on the "depreciation_rate" field.
+func DepreciationRateNEQ(v float64) predicate.Asset {
+	return predicate.Asset(sql.FieldNEQ(FieldDepreciationRate, v))
+}
+
+// DepreciationRateIn applies the In predicate on the "depreciation_rate" field.
+func DepreciationRateIn(vs ...float64) predicate.Asset {
+	return predicate.Asset(sql.FieldIn(FieldDepreciationRate, vs...))
+}
+
+// DepreciationRateNotIn applies the NotIn predicate on the "depreciation_rate" field.
+func DepreciationRateNotIn(vs ...float64) predicate.Asset {
+	return predicate.Asset(sql.FieldNotIn(FieldDepreciationRate, vs...))
+}
+
+// DepreciationRateGT applies the GT predicate on the "depreciation_rate" field.
+func DepreciationRateGT(v float64) predicate.Asset {
+	return predicate.Asset(sql.FieldGT(FieldDepreciationRate, v))
+}
+
+// DepreciationRateGTE applies the GTE predicate on the "depreciation_rate" field.
+func DepreciationRateGTE(v float64) predicate.Asset {
+	return predicate.Asset(sql.FieldGTE(FieldDepreciationRate, v))
+}
+
+// DepreciationRateLT applies the LT predicate on the "depreciation_rate" field.
+func DepreciationRateLT(v float64) predicate.Asset {
+	return predicate.Asset(sql.FieldLT(FieldDepreciationRate, v))
+}
+
+// DepreciationRateLTE applies the LTE predicate on the "depreciation_rate" field.
+func DepreciationRateLTE(v float64) predicate.Asset {
+	return predicate.Asset(sql.FieldLTE(FieldDepreciationRate, v))
+}
+
+// DepreciationRateIsNil applies the IsNil predicate on the "depreciation_rate" field.
+func DepreciationRateIsNil() predicate.Asset {
+	return predicate.Asset(sql.FieldIsNull(FieldDepreciationRate))
+}
+
+// DepreciationRateNotNil applies the NotNil predicate on the "depreciation_rate" field.
+func DepreciationRateNotNil() predicate.Asset {
+	return predicate.Asset(sql.FieldNotNull(FieldDepreciationRate))
 }
 
 // TagsEQ applies the EQ predicate on the "tags" field.

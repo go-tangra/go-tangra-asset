@@ -105,6 +105,15 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetV1.CreateAsset
 	if req.Metadata != nil {
 		opts = append(opts, func(c *ent.AssetCreate) { c.SetMetadata(*req.Metadata) })
 	}
+	if req.SalvageValue != nil {
+		opts = append(opts, func(c *ent.AssetCreate) { c.SetSalvageValue(*req.SalvageValue) })
+	}
+	if req.UsefulLifeYears != nil {
+		opts = append(opts, func(c *ent.AssetCreate) { c.SetUsefulLifeYears(*req.UsefulLifeYears) })
+	}
+	if req.DepreciationRate != nil {
+		opts = append(opts, func(c *ent.AssetCreate) { c.SetDepreciationRate(*req.DepreciationRate) })
+	}
 
 	entity, err := s.assetRepo.Create(ctx, req.GetTenantId(), assetTag, name, opts...)
 	if err != nil {
@@ -225,6 +234,15 @@ func (s *AssetService) UpdateAsset(ctx context.Context, req *assetV1.UpdateAsset
 		}
 		if req.Data.Metadata != nil {
 			updates["metadata"] = *req.Data.Metadata
+		}
+		if req.Data.SalvageValue != nil {
+			updates["salvage_value"] = *req.Data.SalvageValue
+		}
+		if req.Data.UsefulLifeYears != nil {
+			updates["useful_life_years"] = *req.Data.UsefulLifeYears
+		}
+		if req.Data.DepreciationRate != nil {
+			updates["depreciation_rate"] = *req.Data.DepreciationRate
 		}
 	}
 
@@ -547,6 +565,15 @@ func assetToProto(e *ent.Asset) *assetV1.Asset {
 
 	if e.PurchaseCost != nil {
 		result.PurchaseCost = e.PurchaseCost
+	}
+	if e.SalvageValue != nil {
+		result.SalvageValue = e.SalvageValue
+	}
+	if e.UsefulLifeYears != nil {
+		result.UsefulLifeYears = e.UsefulLifeYears
+	}
+	if e.DepreciationRate != nil {
+		result.DepreciationRate = e.DepreciationRate
 	}
 	if e.PurchaseDate != nil {
 		result.PurchaseDate = timestamppb.New(*e.PurchaseDate)
