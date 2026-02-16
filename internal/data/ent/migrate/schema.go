@@ -443,6 +443,99 @@ var (
 			},
 		},
 	}
+	// AssetInsurancePoliciesColumns holds the columns for the "asset_insurance_policies" table.
+	AssetInsurancePoliciesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Comment: "Unique identifier"},
+		{Name: "create_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
+		{Name: "update_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
+		{Name: "create_time", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "update_time", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "delete_time", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
+		{Name: "name", Type: field.TypeString, Size: 255, Comment: "Policy name"},
+		{Name: "policy_number", Type: field.TypeString, Nullable: true, Comment: "Policy number"},
+		{Name: "provider", Type: field.TypeString, Nullable: true, Comment: "Insurance provider"},
+		{Name: "coverage_type", Type: field.TypeString, Nullable: true, Comment: "Coverage type"},
+		{Name: "premium_amount", Type: field.TypeFloat64, Nullable: true, Comment: "Premium amount"},
+		{Name: "deductible", Type: field.TypeFloat64, Nullable: true, Comment: "Deductible"},
+		{Name: "coverage_limit", Type: field.TypeFloat64, Nullable: true, Comment: "Coverage limit"},
+		{Name: "valid_from", Type: field.TypeTime, Nullable: true, Comment: "Valid from date"},
+		{Name: "valid_to", Type: field.TypeTime, Nullable: true, Comment: "Valid to date"},
+		{Name: "status", Type: field.TypeString, Nullable: true, Comment: "Policy status", Default: "ACTIVE"},
+		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Notes"},
+	}
+	// AssetInsurancePoliciesTable holds the schema information for the "asset_insurance_policies" table.
+	AssetInsurancePoliciesTable = &schema.Table{
+		Name:       "asset_insurance_policies",
+		Columns:    AssetInsurancePoliciesColumns,
+		PrimaryKey: []*schema.Column{AssetInsurancePoliciesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "insurancepolicy_tenant_id_policy_number",
+				Unique:  true,
+				Columns: []*schema.Column{AssetInsurancePoliciesColumns[6], AssetInsurancePoliciesColumns[8]},
+			},
+			{
+				Name:    "insurancepolicy_tenant_id_name",
+				Unique:  false,
+				Columns: []*schema.Column{AssetInsurancePoliciesColumns[6], AssetInsurancePoliciesColumns[7]},
+			},
+			{
+				Name:    "insurancepolicy_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{AssetInsurancePoliciesColumns[6]},
+			},
+			{
+				Name:    "insurancepolicy_status",
+				Unique:  false,
+				Columns: []*schema.Column{AssetInsurancePoliciesColumns[16]},
+			},
+		},
+	}
+	// AssetInsurancePolicyAssetsColumns holds the columns for the "asset_insurance_policy_assets" table.
+	AssetInsurancePolicyAssetsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Comment: "Unique identifier"},
+		{Name: "create_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
+		{Name: "create_time", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
+		{Name: "update_time", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
+		{Name: "delete_time", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
+		{Name: "policy_id", Type: field.TypeString, Comment: "Insurance policy ID"},
+		{Name: "asset_id", Type: field.TypeString, Comment: "Asset ID"},
+		{Name: "tenant_id", Type: field.TypeUint32, Comment: "Tenant ID"},
+		{Name: "covered_value", Type: field.TypeFloat64, Nullable: true, Comment: "Covered value for this asset"},
+		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Notes"},
+		{Name: "asset_tag", Type: field.TypeString, Nullable: true, Comment: "Denormalized asset tag"},
+		{Name: "asset_name", Type: field.TypeString, Nullable: true, Comment: "Denormalized asset name"},
+		{Name: "model_name", Type: field.TypeString, Nullable: true, Comment: "Denormalized model name"},
+	}
+	// AssetInsurancePolicyAssetsTable holds the schema information for the "asset_insurance_policy_assets" table.
+	AssetInsurancePolicyAssetsTable = &schema.Table{
+		Name:       "asset_insurance_policy_assets",
+		Columns:    AssetInsurancePolicyAssetsColumns,
+		PrimaryKey: []*schema.Column{AssetInsurancePolicyAssetsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "insurancepolicyasset_policy_id_asset_id",
+				Unique:  true,
+				Columns: []*schema.Column{AssetInsurancePolicyAssetsColumns[5], AssetInsurancePolicyAssetsColumns[6]},
+			},
+			{
+				Name:    "insurancepolicyasset_policy_id",
+				Unique:  false,
+				Columns: []*schema.Column{AssetInsurancePolicyAssetsColumns[5]},
+			},
+			{
+				Name:    "insurancepolicyasset_asset_id",
+				Unique:  false,
+				Columns: []*schema.Column{AssetInsurancePolicyAssetsColumns[6]},
+			},
+			{
+				Name:    "insurancepolicyasset_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{AssetInsurancePolicyAssetsColumns[7]},
+			},
+		},
+	}
 	// AssetLicensesColumns holds the columns for the "asset_licenses" table.
 	AssetLicensesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Comment: "Unique identifier"},
@@ -617,6 +710,8 @@ var (
 		AssetCategoriesTable,
 		AssetConsumablesTable,
 		AssetEmployeesTable,
+		AssetInsurancePoliciesTable,
+		AssetInsurancePolicyAssetsTable,
 		AssetLicensesTable,
 		AssetLocationsTable,
 		AssetSuppliersTable,
@@ -654,6 +749,12 @@ func init() {
 	}
 	AssetEmployeesTable.Annotation = &entsql.Annotation{
 		Table: "asset_employees",
+	}
+	AssetInsurancePoliciesTable.Annotation = &entsql.Annotation{
+		Table: "asset_insurance_policies",
+	}
+	AssetInsurancePolicyAssetsTable.Annotation = &entsql.Annotation{
+		Table: "asset_insurance_policy_assets",
 	}
 	AssetLicensesTable.ForeignKeys[0].RefTable = AssetSuppliersTable
 	AssetLicensesTable.Annotation = &entsql.Annotation{

@@ -55,6 +55,18 @@ menus:
       - platform:admin
       - tenant:manager
 
+  - id: asset-insurance
+    parent_id: asset
+    type: MENU
+    name: Insurance
+    path: insurance
+    component: app/asset/insurance/index.vue
+    icon: lucide:shield-check
+    order: 4
+    authority:
+      - platform:admin
+      - tenant:manager
+
   - id: asset-categories
     parent_id: asset
     type: MENU
@@ -62,7 +74,7 @@ menus:
     path: category
     component: app/asset/category/index.vue
     icon: lucide:folder-tree
-    order: 4
+    order: 5
     authority:
       - platform:admin
       - tenant:manager
@@ -74,7 +86,7 @@ menus:
     path: supplier
     component: app/asset/supplier/index.vue
     icon: lucide:truck
-    order: 5
+    order: 6
     authority:
       - platform:admin
       - tenant:manager
@@ -86,7 +98,7 @@ menus:
     path: employee
     component: app/asset/employee/index.vue
     icon: lucide:users
-    order: 6
+    order: 7
     authority:
       - platform:admin
       - tenant:manager
@@ -98,10 +110,115 @@ menus:
     path: location
     component: app/asset/location/index.vue
     icon: lucide:map-pin
-    order: 7
+    order: 8
     authority:
       - platform:admin
       - tenant:manager
+
+dashboard_widgets:
+  - id: asset.total_assets
+    name: Total Assets
+    description: Total IT assets with deployable count
+    icon: lucide:laptop
+    widget_type: stat_card
+    data_source:
+      endpoint: /admin/v1/modules/asset/v1/stats
+      method: GET
+    data_mapping:
+      value_path: assetsDeployable
+      total_path: totalAssets
+      label: Deployable Assets
+    default_size:
+      width: 3
+      height: 1
+    tags: [asset, overview]
+    authority: [platform:admin, tenant:manager]
+
+  - id: asset.assigned_assets
+    name: Assigned Assets
+    description: Assets currently assigned to employees
+    icon: lucide:user-check
+    widget_type: stat_card
+    data_source:
+      endpoint: /admin/v1/modules/asset/v1/stats
+      method: GET
+    data_mapping:
+      value_path: assetsAssigned
+      total_path: totalAssets
+      label: Assigned
+    default_size:
+      width: 3
+      height: 1
+    tags: [asset, overview]
+    authority: [platform:admin, tenant:manager]
+
+  - id: asset.total_cost
+    name: Total Asset Cost
+    description: Total cost of all assets
+    icon: lucide:banknote
+    widget_type: stat_card
+    data_source:
+      endpoint: /admin/v1/modules/asset/v1/stats
+      method: GET
+    data_mapping:
+      value_path: totalCost
+      label: Total Cost
+    default_size:
+      width: 3
+      height: 1
+    tags: [asset, overview]
+    authority: [platform:admin, tenant:manager]
+
+  - id: asset.consumables_stat
+    name: Consumables
+    description: Total consumable inventory count
+    icon: lucide:package
+    widget_type: stat_card
+    data_source:
+      endpoint: /admin/v1/modules/asset/v1/stats
+      method: GET
+    data_mapping:
+      value_path: totalConsumables
+      label: Consumables
+    default_size:
+      width: 3
+      height: 1
+    tags: [asset, overview]
+    authority: [platform:admin, tenant:manager]
+
+  - id: asset.employees_stat
+    name: Employees
+    description: Total employees in asset management
+    icon: lucide:users
+    widget_type: stat_card
+    data_source:
+      endpoint: /admin/v1/modules/asset/v1/stats
+      method: GET
+    data_mapping:
+      value_path: totalEmployees
+      label: Employees
+    default_size:
+      width: 3
+      height: 1
+    tags: [asset, overview]
+    authority: [platform:admin, tenant:manager]
+
+  - id: asset.licenses_stat
+    name: Licenses
+    description: Total software licenses managed
+    icon: lucide:scroll-text
+    widget_type: stat_card
+    data_source:
+      endpoint: /admin/v1/modules/asset/v1/stats
+      method: GET
+    data_mapping:
+      value_path: totalLicenses
+      label: Licenses
+    default_size:
+      width: 3
+      height: 1
+    tags: [asset, overview]
+    authority: [platform:admin, tenant:manager]
 
 permission_groups:
   - name: Asset Management
@@ -129,6 +246,12 @@ permission_groups:
       - name: Manage Licenses
         code: asset.license.manage
         description: Create, update, and delete licenses
+      - name: View Insurance
+        code: asset.insurance.view
+        description: View insurance policy details and list
+      - name: Manage Insurance
+        code: asset.insurance.manage
+        description: Create, update, and delete insurance policies
       - name: View Categories
         code: asset.category.view
         description: View category details and tree
@@ -167,6 +290,8 @@ roles:
       - asset.consumable.manage
       - asset.license.view
       - asset.license.manage
+      - asset.insurance.view
+      - asset.insurance.manage
       - asset.category.view
       - asset.category.manage
       - asset.supplier.view
@@ -188,6 +313,8 @@ roles:
       - asset.consumable.manage
       - asset.license.view
       - asset.license.manage
+      - asset.insurance.view
+      - asset.insurance.manage
       - asset.category.view
       - asset.supplier.view
       - asset.employee.view
@@ -201,6 +328,7 @@ roles:
       - asset.asset.view
       - asset.consumable.view
       - asset.license.view
+      - asset.insurance.view
       - asset.category.view
       - asset.supplier.view
       - asset.employee.view

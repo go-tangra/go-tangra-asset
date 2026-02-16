@@ -179,6 +179,34 @@ func ErrorLicenseNotFound(format string, args ...interface{}) *errors.Error {
 	return errors.New(404, AssetErrorReason_LICENSE_NOT_FOUND.String(), fmt.Sprintf(format, args...))
 }
 
+// Insurance policy not found
+func IsInsurancePolicyNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AssetErrorReason_INSURANCE_POLICY_NOT_FOUND.String() && e.Code == 404
+}
+
+// Insurance policy not found
+func ErrorInsurancePolicyNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, AssetErrorReason_INSURANCE_POLICY_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
+// Policy asset not found
+func IsPolicyAssetNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AssetErrorReason_POLICY_ASSET_NOT_FOUND.String() && e.Code == 404
+}
+
+// Policy asset not found
+func ErrorPolicyAssetNotFound(format string, args ...interface{}) *errors.Error {
+	return errors.New(404, AssetErrorReason_POLICY_ASSET_NOT_FOUND.String(), fmt.Sprintf(format, args...))
+}
+
 // 409
 func IsSupplierAlreadyExists(err error) bool {
 	if err == nil {
@@ -303,6 +331,34 @@ func IsCategoryHasAssets(err error) bool {
 // Category has associated assets
 func ErrorCategoryHasAssets(format string, args ...interface{}) *errors.Error {
 	return errors.New(409, AssetErrorReason_CATEGORY_HAS_ASSETS.String(), fmt.Sprintf(format, args...))
+}
+
+// Asset is already in this policy
+func IsAssetAlreadyInPolicy(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AssetErrorReason_ASSET_ALREADY_IN_POLICY.String() && e.Code == 409
+}
+
+// Asset is already in this policy
+func ErrorAssetAlreadyInPolicy(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, AssetErrorReason_ASSET_ALREADY_IN_POLICY.String(), fmt.Sprintf(format, args...))
+}
+
+// Policy has associated assets
+func IsPolicyHasAssets(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AssetErrorReason_POLICY_HAS_ASSETS.String() && e.Code == 409
+}
+
+// Policy has associated assets
+func ErrorPolicyHasAssets(format string, args ...interface{}) *errors.Error {
+	return errors.New(409, AssetErrorReason_POLICY_HAS_ASSETS.String(), fmt.Sprintf(format, args...))
 }
 
 // 500

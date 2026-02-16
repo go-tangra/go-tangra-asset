@@ -26,6 +26,10 @@ type Tx struct {
 	Consumable *ConsumableClient
 	// Employee is the client for interacting with the Employee builders.
 	Employee *EmployeeClient
+	// InsurancePolicy is the client for interacting with the InsurancePolicy builders.
+	InsurancePolicy *InsurancePolicyClient
+	// InsurancePolicyAsset is the client for interacting with the InsurancePolicyAsset builders.
+	InsurancePolicyAsset *InsurancePolicyAssetClient
 	// License is the client for interacting with the License builders.
 	License *LicenseClient
 	// Location is the client for interacting with the Location builders.
@@ -170,6 +174,8 @@ func (tx *Tx) init() {
 	tx.Category = NewCategoryClient(tx.config)
 	tx.Consumable = NewConsumableClient(tx.config)
 	tx.Employee = NewEmployeeClient(tx.config)
+	tx.InsurancePolicy = NewInsurancePolicyClient(tx.config)
+	tx.InsurancePolicyAsset = NewInsurancePolicyAssetClient(tx.config)
 	tx.License = NewLicenseClient(tx.config)
 	tx.Location = NewLocationClient(tx.config)
 	tx.Supplier = NewSupplierClient(tx.config)

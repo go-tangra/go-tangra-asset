@@ -22,6 +22,8 @@ import (
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/category"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/consumable"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
+	"github.com/go-tangra/go-tangra-asset/internal/data/ent/insurancepolicy"
+	"github.com/go-tangra/go-tangra-asset/internal/data/ent/insurancepolicyasset"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/license"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/location"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/supplier"
@@ -46,6 +48,10 @@ type Client struct {
 	Consumable *ConsumableClient
 	// Employee is the client for interacting with the Employee builders.
 	Employee *EmployeeClient
+	// InsurancePolicy is the client for interacting with the InsurancePolicy builders.
+	InsurancePolicy *InsurancePolicyClient
+	// InsurancePolicyAsset is the client for interacting with the InsurancePolicyAsset builders.
+	InsurancePolicyAsset *InsurancePolicyAssetClient
 	// License is the client for interacting with the License builders.
 	License *LicenseClient
 	// Location is the client for interacting with the Location builders.
@@ -70,6 +76,8 @@ func (c *Client) init() {
 	c.Category = NewCategoryClient(c.config)
 	c.Consumable = NewConsumableClient(c.config)
 	c.Employee = NewEmployeeClient(c.config)
+	c.InsurancePolicy = NewInsurancePolicyClient(c.config)
+	c.InsurancePolicyAsset = NewInsurancePolicyAssetClient(c.config)
 	c.License = NewLicenseClient(c.config)
 	c.Location = NewLocationClient(c.config)
 	c.Supplier = NewSupplierClient(c.config)
@@ -163,18 +171,20 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:             ctx,
-		config:          cfg,
-		Asset:           NewAssetClient(cfg),
-		AssetAssignment: NewAssetAssignmentClient(cfg),
-		AssetDocument:   NewAssetDocumentClient(cfg),
-		AuditLog:        NewAuditLogClient(cfg),
-		Category:        NewCategoryClient(cfg),
-		Consumable:      NewConsumableClient(cfg),
-		Employee:        NewEmployeeClient(cfg),
-		License:         NewLicenseClient(cfg),
-		Location:        NewLocationClient(cfg),
-		Supplier:        NewSupplierClient(cfg),
+		ctx:                  ctx,
+		config:               cfg,
+		Asset:                NewAssetClient(cfg),
+		AssetAssignment:      NewAssetAssignmentClient(cfg),
+		AssetDocument:        NewAssetDocumentClient(cfg),
+		AuditLog:             NewAuditLogClient(cfg),
+		Category:             NewCategoryClient(cfg),
+		Consumable:           NewConsumableClient(cfg),
+		Employee:             NewEmployeeClient(cfg),
+		InsurancePolicy:      NewInsurancePolicyClient(cfg),
+		InsurancePolicyAsset: NewInsurancePolicyAssetClient(cfg),
+		License:              NewLicenseClient(cfg),
+		Location:             NewLocationClient(cfg),
+		Supplier:             NewSupplierClient(cfg),
 	}, nil
 }
 
@@ -192,18 +202,20 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:             ctx,
-		config:          cfg,
-		Asset:           NewAssetClient(cfg),
-		AssetAssignment: NewAssetAssignmentClient(cfg),
-		AssetDocument:   NewAssetDocumentClient(cfg),
-		AuditLog:        NewAuditLogClient(cfg),
-		Category:        NewCategoryClient(cfg),
-		Consumable:      NewConsumableClient(cfg),
-		Employee:        NewEmployeeClient(cfg),
-		License:         NewLicenseClient(cfg),
-		Location:        NewLocationClient(cfg),
-		Supplier:        NewSupplierClient(cfg),
+		ctx:                  ctx,
+		config:               cfg,
+		Asset:                NewAssetClient(cfg),
+		AssetAssignment:      NewAssetAssignmentClient(cfg),
+		AssetDocument:        NewAssetDocumentClient(cfg),
+		AuditLog:             NewAuditLogClient(cfg),
+		Category:             NewCategoryClient(cfg),
+		Consumable:           NewConsumableClient(cfg),
+		Employee:             NewEmployeeClient(cfg),
+		InsurancePolicy:      NewInsurancePolicyClient(cfg),
+		InsurancePolicyAsset: NewInsurancePolicyAssetClient(cfg),
+		License:              NewLicenseClient(cfg),
+		Location:             NewLocationClient(cfg),
+		Supplier:             NewSupplierClient(cfg),
 	}, nil
 }
 
@@ -234,7 +246,8 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Asset, c.AssetAssignment, c.AssetDocument, c.AuditLog, c.Category,
-		c.Consumable, c.Employee, c.License, c.Location, c.Supplier,
+		c.Consumable, c.Employee, c.InsurancePolicy, c.InsurancePolicyAsset, c.License,
+		c.Location, c.Supplier,
 	} {
 		n.Use(hooks...)
 	}
@@ -245,7 +258,8 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Asset, c.AssetAssignment, c.AssetDocument, c.AuditLog, c.Category,
-		c.Consumable, c.Employee, c.License, c.Location, c.Supplier,
+		c.Consumable, c.Employee, c.InsurancePolicy, c.InsurancePolicyAsset, c.License,
+		c.Location, c.Supplier,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -268,6 +282,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Consumable.mutate(ctx, m)
 	case *EmployeeMutation:
 		return c.Employee.mutate(ctx, m)
+	case *InsurancePolicyMutation:
+		return c.InsurancePolicy.mutate(ctx, m)
+	case *InsurancePolicyAssetMutation:
+		return c.InsurancePolicyAsset.mutate(ctx, m)
 	case *LicenseMutation:
 		return c.License.mutate(ctx, m)
 	case *LocationMutation:
@@ -1471,6 +1489,273 @@ func (c *EmployeeClient) mutate(ctx context.Context, m *EmployeeMutation) (Value
 	}
 }
 
+// InsurancePolicyClient is a client for the InsurancePolicy schema.
+type InsurancePolicyClient struct {
+	config
+}
+
+// NewInsurancePolicyClient returns a client for the InsurancePolicy from the given config.
+func NewInsurancePolicyClient(c config) *InsurancePolicyClient {
+	return &InsurancePolicyClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `insurancepolicy.Hooks(f(g(h())))`.
+func (c *InsurancePolicyClient) Use(hooks ...Hook) {
+	c.hooks.InsurancePolicy = append(c.hooks.InsurancePolicy, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `insurancepolicy.Intercept(f(g(h())))`.
+func (c *InsurancePolicyClient) Intercept(interceptors ...Interceptor) {
+	c.inters.InsurancePolicy = append(c.inters.InsurancePolicy, interceptors...)
+}
+
+// Create returns a builder for creating a InsurancePolicy entity.
+func (c *InsurancePolicyClient) Create() *InsurancePolicyCreate {
+	mutation := newInsurancePolicyMutation(c.config, OpCreate)
+	return &InsurancePolicyCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of InsurancePolicy entities.
+func (c *InsurancePolicyClient) CreateBulk(builders ...*InsurancePolicyCreate) *InsurancePolicyCreateBulk {
+	return &InsurancePolicyCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *InsurancePolicyClient) MapCreateBulk(slice any, setFunc func(*InsurancePolicyCreate, int)) *InsurancePolicyCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &InsurancePolicyCreateBulk{err: fmt.Errorf("calling to InsurancePolicyClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*InsurancePolicyCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &InsurancePolicyCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for InsurancePolicy.
+func (c *InsurancePolicyClient) Update() *InsurancePolicyUpdate {
+	mutation := newInsurancePolicyMutation(c.config, OpUpdate)
+	return &InsurancePolicyUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *InsurancePolicyClient) UpdateOne(_m *InsurancePolicy) *InsurancePolicyUpdateOne {
+	mutation := newInsurancePolicyMutation(c.config, OpUpdateOne, withInsurancePolicy(_m))
+	return &InsurancePolicyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *InsurancePolicyClient) UpdateOneID(id string) *InsurancePolicyUpdateOne {
+	mutation := newInsurancePolicyMutation(c.config, OpUpdateOne, withInsurancePolicyID(id))
+	return &InsurancePolicyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for InsurancePolicy.
+func (c *InsurancePolicyClient) Delete() *InsurancePolicyDelete {
+	mutation := newInsurancePolicyMutation(c.config, OpDelete)
+	return &InsurancePolicyDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *InsurancePolicyClient) DeleteOne(_m *InsurancePolicy) *InsurancePolicyDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *InsurancePolicyClient) DeleteOneID(id string) *InsurancePolicyDeleteOne {
+	builder := c.Delete().Where(insurancepolicy.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &InsurancePolicyDeleteOne{builder}
+}
+
+// Query returns a query builder for InsurancePolicy.
+func (c *InsurancePolicyClient) Query() *InsurancePolicyQuery {
+	return &InsurancePolicyQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeInsurancePolicy},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a InsurancePolicy entity by its id.
+func (c *InsurancePolicyClient) Get(ctx context.Context, id string) (*InsurancePolicy, error) {
+	return c.Query().Where(insurancepolicy.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *InsurancePolicyClient) GetX(ctx context.Context, id string) *InsurancePolicy {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *InsurancePolicyClient) Hooks() []Hook {
+	hooks := c.hooks.InsurancePolicy
+	return append(hooks[:len(hooks):len(hooks)], insurancepolicy.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *InsurancePolicyClient) Interceptors() []Interceptor {
+	return c.inters.InsurancePolicy
+}
+
+func (c *InsurancePolicyClient) mutate(ctx context.Context, m *InsurancePolicyMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&InsurancePolicyCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&InsurancePolicyUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&InsurancePolicyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&InsurancePolicyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown InsurancePolicy mutation op: %q", m.Op())
+	}
+}
+
+// InsurancePolicyAssetClient is a client for the InsurancePolicyAsset schema.
+type InsurancePolicyAssetClient struct {
+	config
+}
+
+// NewInsurancePolicyAssetClient returns a client for the InsurancePolicyAsset from the given config.
+func NewInsurancePolicyAssetClient(c config) *InsurancePolicyAssetClient {
+	return &InsurancePolicyAssetClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `insurancepolicyasset.Hooks(f(g(h())))`.
+func (c *InsurancePolicyAssetClient) Use(hooks ...Hook) {
+	c.hooks.InsurancePolicyAsset = append(c.hooks.InsurancePolicyAsset, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `insurancepolicyasset.Intercept(f(g(h())))`.
+func (c *InsurancePolicyAssetClient) Intercept(interceptors ...Interceptor) {
+	c.inters.InsurancePolicyAsset = append(c.inters.InsurancePolicyAsset, interceptors...)
+}
+
+// Create returns a builder for creating a InsurancePolicyAsset entity.
+func (c *InsurancePolicyAssetClient) Create() *InsurancePolicyAssetCreate {
+	mutation := newInsurancePolicyAssetMutation(c.config, OpCreate)
+	return &InsurancePolicyAssetCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of InsurancePolicyAsset entities.
+func (c *InsurancePolicyAssetClient) CreateBulk(builders ...*InsurancePolicyAssetCreate) *InsurancePolicyAssetCreateBulk {
+	return &InsurancePolicyAssetCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *InsurancePolicyAssetClient) MapCreateBulk(slice any, setFunc func(*InsurancePolicyAssetCreate, int)) *InsurancePolicyAssetCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &InsurancePolicyAssetCreateBulk{err: fmt.Errorf("calling to InsurancePolicyAssetClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*InsurancePolicyAssetCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &InsurancePolicyAssetCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for InsurancePolicyAsset.
+func (c *InsurancePolicyAssetClient) Update() *InsurancePolicyAssetUpdate {
+	mutation := newInsurancePolicyAssetMutation(c.config, OpUpdate)
+	return &InsurancePolicyAssetUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *InsurancePolicyAssetClient) UpdateOne(_m *InsurancePolicyAsset) *InsurancePolicyAssetUpdateOne {
+	mutation := newInsurancePolicyAssetMutation(c.config, OpUpdateOne, withInsurancePolicyAsset(_m))
+	return &InsurancePolicyAssetUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *InsurancePolicyAssetClient) UpdateOneID(id string) *InsurancePolicyAssetUpdateOne {
+	mutation := newInsurancePolicyAssetMutation(c.config, OpUpdateOne, withInsurancePolicyAssetID(id))
+	return &InsurancePolicyAssetUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for InsurancePolicyAsset.
+func (c *InsurancePolicyAssetClient) Delete() *InsurancePolicyAssetDelete {
+	mutation := newInsurancePolicyAssetMutation(c.config, OpDelete)
+	return &InsurancePolicyAssetDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *InsurancePolicyAssetClient) DeleteOne(_m *InsurancePolicyAsset) *InsurancePolicyAssetDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *InsurancePolicyAssetClient) DeleteOneID(id string) *InsurancePolicyAssetDeleteOne {
+	builder := c.Delete().Where(insurancepolicyasset.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &InsurancePolicyAssetDeleteOne{builder}
+}
+
+// Query returns a query builder for InsurancePolicyAsset.
+func (c *InsurancePolicyAssetClient) Query() *InsurancePolicyAssetQuery {
+	return &InsurancePolicyAssetQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeInsurancePolicyAsset},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a InsurancePolicyAsset entity by its id.
+func (c *InsurancePolicyAssetClient) Get(ctx context.Context, id string) (*InsurancePolicyAsset, error) {
+	return c.Query().Where(insurancepolicyasset.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *InsurancePolicyAssetClient) GetX(ctx context.Context, id string) *InsurancePolicyAsset {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *InsurancePolicyAssetClient) Hooks() []Hook {
+	return c.hooks.InsurancePolicyAsset
+}
+
+// Interceptors returns the client interceptors.
+func (c *InsurancePolicyAssetClient) Interceptors() []Interceptor {
+	return c.inters.InsurancePolicyAsset
+}
+
+func (c *InsurancePolicyAssetClient) mutate(ctx context.Context, m *InsurancePolicyAssetMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&InsurancePolicyAssetCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&InsurancePolicyAssetUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&InsurancePolicyAssetUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&InsurancePolicyAssetDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown InsurancePolicyAsset mutation op: %q", m.Op())
+	}
+}
+
 // LicenseClient is a client for the License schema.
 type LicenseClient struct {
 	config
@@ -1989,10 +2274,11 @@ func (c *SupplierClient) mutate(ctx context.Context, m *SupplierMutation) (Value
 type (
 	hooks struct {
 		Asset, AssetAssignment, AssetDocument, AuditLog, Category, Consumable, Employee,
-		License, Location, Supplier []ent.Hook
+		InsurancePolicy, InsurancePolicyAsset, License, Location, Supplier []ent.Hook
 	}
 	inters struct {
 		Asset, AssetAssignment, AssetDocument, AuditLog, Category, Consumable, Employee,
-		License, Location, Supplier []ent.Interceptor
+		InsurancePolicy, InsurancePolicyAsset, License, Location,
+		Supplier []ent.Interceptor
 	}
 )

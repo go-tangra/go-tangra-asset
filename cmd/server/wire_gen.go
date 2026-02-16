@@ -51,7 +51,9 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	consumableService := service.NewConsumableService(context, consumableRepo, documentRepo, storageClient)
 	licenseRepo := data.NewLicenseRepo(context, entClient)
 	licenseService := service.NewLicenseService(context, licenseRepo, documentRepo, storageClient)
-	grpcServer := server.NewGRPCServer(context, certManager, auditLogRepo, systemService, supplierService, employeeService, locationService, categoryService, assetService, consumableService, licenseService)
+	insurancePolicyRepo := data.NewInsurancePolicyRepo(context, entClient)
+	insurancePolicyService := service.NewInsurancePolicyService(context, insurancePolicyRepo, assetRepo)
+	grpcServer := server.NewGRPCServer(context, certManager, auditLogRepo, systemService, supplierService, employeeService, locationService, categoryService, assetService, consumableService, licenseService, insurancePolicyService)
 	app := newApp(context, grpcServer)
 	return app, func() {
 		cleanup2()

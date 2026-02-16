@@ -27,6 +27,12 @@ type Consumable func(*sql.Selector)
 // Employee is the predicate function for employee builders.
 type Employee func(*sql.Selector)
 
+// InsurancePolicy is the predicate function for insurancepolicy builders.
+type InsurancePolicy func(*sql.Selector)
+
+// InsurancePolicyAsset is the predicate function for insurancepolicyasset builders.
+type InsurancePolicyAsset func(*sql.Selector)
+
 // License is the predicate function for license builders.
 type License func(*sql.Selector)
 

@@ -19,6 +19,8 @@ import (
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/category"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/consumable"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
+	"github.com/go-tangra/go-tangra-asset/internal/data/ent/insurancepolicy"
+	"github.com/go-tangra/go-tangra-asset/internal/data/ent/insurancepolicyasset"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/license"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/location"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/supplier"
@@ -82,16 +84,18 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			asset.Table:           asset.ValidColumn,
-			assetassignment.Table: assetassignment.ValidColumn,
-			assetdocument.Table:   assetdocument.ValidColumn,
-			auditlog.Table:        auditlog.ValidColumn,
-			category.Table:        category.ValidColumn,
-			consumable.Table:      consumable.ValidColumn,
-			employee.Table:        employee.ValidColumn,
-			license.Table:         license.ValidColumn,
-			location.Table:        location.ValidColumn,
-			supplier.Table:        supplier.ValidColumn,
+			asset.Table:                asset.ValidColumn,
+			assetassignment.Table:      assetassignment.ValidColumn,
+			assetdocument.Table:        assetdocument.ValidColumn,
+			auditlog.Table:             auditlog.ValidColumn,
+			category.Table:             category.ValidColumn,
+			consumable.Table:           consumable.ValidColumn,
+			employee.Table:             employee.ValidColumn,
+			insurancepolicy.Table:      insurancepolicy.ValidColumn,
+			insurancepolicyasset.Table: insurancepolicyasset.ValidColumn,
+			license.Table:              license.ValidColumn,
+			location.Table:             location.ValidColumn,
+			supplier.Table:             supplier.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

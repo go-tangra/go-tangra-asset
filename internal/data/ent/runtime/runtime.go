@@ -12,6 +12,8 @@ import (
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/category"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/consumable"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
+	"github.com/go-tangra/go-tangra-asset/internal/data/ent/insurancepolicy"
+	"github.com/go-tangra/go-tangra-asset/internal/data/ent/insurancepolicyasset"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/license"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/location"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/schema"
@@ -317,6 +319,64 @@ func init() {
 	employeeDescID := employeeFields[0].Descriptor()
 	// employee.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	employee.IDValidator = employeeDescID.Validators[0].(func(string) error)
+	insurancepolicyMixin := schema.InsurancePolicy{}.Mixin()
+	insurancepolicy.Policy = privacy.NewPolicies(insurancepolicyMixin[3], schema.InsurancePolicy{})
+	insurancepolicy.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := insurancepolicy.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	insurancepolicyMixinFields3 := insurancepolicyMixin[3].Fields()
+	_ = insurancepolicyMixinFields3
+	insurancepolicyFields := schema.InsurancePolicy{}.Fields()
+	_ = insurancepolicyFields
+	// insurancepolicyDescTenantID is the schema descriptor for tenant_id field.
+	insurancepolicyDescTenantID := insurancepolicyMixinFields3[0].Descriptor()
+	// insurancepolicy.DefaultTenantID holds the default value on creation for the tenant_id field.
+	insurancepolicy.DefaultTenantID = insurancepolicyDescTenantID.Default.(uint32)
+	// insurancepolicyDescName is the schema descriptor for name field.
+	insurancepolicyDescName := insurancepolicyFields[1].Descriptor()
+	// insurancepolicy.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	insurancepolicy.NameValidator = func() func(string) error {
+		validators := insurancepolicyDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// insurancepolicyDescStatus is the schema descriptor for status field.
+	insurancepolicyDescStatus := insurancepolicyFields[10].Descriptor()
+	// insurancepolicy.DefaultStatus holds the default value on creation for the status field.
+	insurancepolicy.DefaultStatus = insurancepolicyDescStatus.Default.(string)
+	// insurancepolicyDescID is the schema descriptor for id field.
+	insurancepolicyDescID := insurancepolicyFields[0].Descriptor()
+	// insurancepolicy.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	insurancepolicy.IDValidator = insurancepolicyDescID.Validators[0].(func(string) error)
+	insurancepolicyassetFields := schema.InsurancePolicyAsset{}.Fields()
+	_ = insurancepolicyassetFields
+	// insurancepolicyassetDescPolicyID is the schema descriptor for policy_id field.
+	insurancepolicyassetDescPolicyID := insurancepolicyassetFields[1].Descriptor()
+	// insurancepolicyasset.PolicyIDValidator is a validator for the "policy_id" field. It is called by the builders before save.
+	insurancepolicyasset.PolicyIDValidator = insurancepolicyassetDescPolicyID.Validators[0].(func(string) error)
+	// insurancepolicyassetDescAssetID is the schema descriptor for asset_id field.
+	insurancepolicyassetDescAssetID := insurancepolicyassetFields[2].Descriptor()
+	// insurancepolicyasset.AssetIDValidator is a validator for the "asset_id" field. It is called by the builders before save.
+	insurancepolicyasset.AssetIDValidator = insurancepolicyassetDescAssetID.Validators[0].(func(string) error)
+	// insurancepolicyassetDescID is the schema descriptor for id field.
+	insurancepolicyassetDescID := insurancepolicyassetFields[0].Descriptor()
+	// insurancepolicyasset.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	insurancepolicyasset.IDValidator = insurancepolicyassetDescID.Validators[0].(func(string) error)
 	licenseMixin := schema.License{}.Mixin()
 	license.Policy = privacy.NewPolicies(licenseMixin[3], schema.License{})
 	license.Hooks[0] = func(next ent.Mutator) ent.Mutator {

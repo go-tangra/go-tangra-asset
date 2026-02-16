@@ -93,6 +93,30 @@ func (f EmployeeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EmployeeMutation", m)
 }
 
+// The InsurancePolicyFunc type is an adapter to allow the use of ordinary
+// function as InsurancePolicy mutator.
+type InsurancePolicyFunc func(context.Context, *ent.InsurancePolicyMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f InsurancePolicyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.InsurancePolicyMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.InsurancePolicyMutation", m)
+}
+
+// The InsurancePolicyAssetFunc type is an adapter to allow the use of ordinary
+// function as InsurancePolicyAsset mutator.
+type InsurancePolicyAssetFunc func(context.Context, *ent.InsurancePolicyAssetMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f InsurancePolicyAssetFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.InsurancePolicyAssetMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.InsurancePolicyAssetMutation", m)
+}
+
 // The LicenseFunc type is an adapter to allow the use of ordinary
 // function as License mutator.
 type LicenseFunc func(context.Context, *ent.LicenseMutation) (ent.Value, error)

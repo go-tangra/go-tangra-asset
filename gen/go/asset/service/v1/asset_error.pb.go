@@ -30,15 +30,17 @@ const (
 	AssetErrorReason_VALIDATION_FAILED         AssetErrorReason = 1 // Validation failed
 	AssetErrorReason_INVALID_STATUS_TRANSITION AssetErrorReason = 2 // Invalid asset status transition
 	// 404
-	AssetErrorReason_NOT_FOUND            AssetErrorReason = 100 // Resource not found
-	AssetErrorReason_SUPPLIER_NOT_FOUND   AssetErrorReason = 101 // Supplier not found
-	AssetErrorReason_EMPLOYEE_NOT_FOUND   AssetErrorReason = 102 // Employee not found
-	AssetErrorReason_LOCATION_NOT_FOUND   AssetErrorReason = 103 // Location not found
-	AssetErrorReason_CATEGORY_NOT_FOUND   AssetErrorReason = 104 // Category not found
-	AssetErrorReason_ASSET_NOT_FOUND      AssetErrorReason = 105 // Asset not found
-	AssetErrorReason_CONSUMABLE_NOT_FOUND AssetErrorReason = 106 // Consumable not found
-	AssetErrorReason_DOCUMENT_NOT_FOUND   AssetErrorReason = 107 // Document not found
-	AssetErrorReason_LICENSE_NOT_FOUND    AssetErrorReason = 108 // License not found
+	AssetErrorReason_NOT_FOUND                  AssetErrorReason = 100 // Resource not found
+	AssetErrorReason_SUPPLIER_NOT_FOUND         AssetErrorReason = 101 // Supplier not found
+	AssetErrorReason_EMPLOYEE_NOT_FOUND         AssetErrorReason = 102 // Employee not found
+	AssetErrorReason_LOCATION_NOT_FOUND         AssetErrorReason = 103 // Location not found
+	AssetErrorReason_CATEGORY_NOT_FOUND         AssetErrorReason = 104 // Category not found
+	AssetErrorReason_ASSET_NOT_FOUND            AssetErrorReason = 105 // Asset not found
+	AssetErrorReason_CONSUMABLE_NOT_FOUND       AssetErrorReason = 106 // Consumable not found
+	AssetErrorReason_DOCUMENT_NOT_FOUND         AssetErrorReason = 107 // Document not found
+	AssetErrorReason_LICENSE_NOT_FOUND          AssetErrorReason = 108 // License not found
+	AssetErrorReason_INSURANCE_POLICY_NOT_FOUND AssetErrorReason = 109 // Insurance policy not found
+	AssetErrorReason_POLICY_ASSET_NOT_FOUND     AssetErrorReason = 110 // Policy asset not found
 	// 409
 	AssetErrorReason_SUPPLIER_ALREADY_EXISTS AssetErrorReason = 200 // Supplier already exists
 	AssetErrorReason_ASSET_ALREADY_ASSIGNED  AssetErrorReason = 201 // Asset is already assigned
@@ -49,6 +51,8 @@ const (
 	AssetErrorReason_LOCATION_HAS_ASSETS     AssetErrorReason = 206 // Location has associated assets
 	AssetErrorReason_CATEGORY_HAS_CHILDREN   AssetErrorReason = 207 // Category has child categories
 	AssetErrorReason_CATEGORY_HAS_ASSETS     AssetErrorReason = 208 // Category has associated assets
+	AssetErrorReason_ASSET_ALREADY_IN_POLICY AssetErrorReason = 209 // Asset is already in this policy
+	AssetErrorReason_POLICY_HAS_ASSETS       AssetErrorReason = 210 // Policy has associated assets
 	// 500
 	AssetErrorReason_INTERNAL_SERVER_ERROR AssetErrorReason = 300 // Internal server error
 	AssetErrorReason_STORAGE_ERROR         AssetErrorReason = 301 // Storage operation failed
@@ -72,6 +76,8 @@ var (
 		106: "CONSUMABLE_NOT_FOUND",
 		107: "DOCUMENT_NOT_FOUND",
 		108: "LICENSE_NOT_FOUND",
+		109: "INSURANCE_POLICY_NOT_FOUND",
+		110: "POLICY_ASSET_NOT_FOUND",
 		200: "SUPPLIER_ALREADY_EXISTS",
 		201: "ASSET_ALREADY_ASSIGNED",
 		202: "ASSET_NOT_ASSIGNED",
@@ -81,37 +87,43 @@ var (
 		206: "LOCATION_HAS_ASSETS",
 		207: "CATEGORY_HAS_CHILDREN",
 		208: "CATEGORY_HAS_ASSETS",
+		209: "ASSET_ALREADY_IN_POLICY",
+		210: "POLICY_HAS_ASSETS",
 		300: "INTERNAL_SERVER_ERROR",
 		301: "STORAGE_ERROR",
 		400: "LDAP_NOT_CONFIGURED",
 		401: "LDAP_SYNC_FAILED",
 	}
 	AssetErrorReason_value = map[string]int32{
-		"BAD_REQUEST":               0,
-		"VALIDATION_FAILED":         1,
-		"INVALID_STATUS_TRANSITION": 2,
-		"NOT_FOUND":                 100,
-		"SUPPLIER_NOT_FOUND":        101,
-		"EMPLOYEE_NOT_FOUND":        102,
-		"LOCATION_NOT_FOUND":        103,
-		"CATEGORY_NOT_FOUND":        104,
-		"ASSET_NOT_FOUND":           105,
-		"CONSUMABLE_NOT_FOUND":      106,
-		"DOCUMENT_NOT_FOUND":        107,
-		"LICENSE_NOT_FOUND":         108,
-		"SUPPLIER_ALREADY_EXISTS":   200,
-		"ASSET_ALREADY_ASSIGNED":    201,
-		"ASSET_NOT_ASSIGNED":        202,
-		"SUPPLIER_HAS_ASSETS":       203,
-		"EMPLOYEE_HAS_ASSETS":       204,
-		"LOCATION_HAS_CHILDREN":     205,
-		"LOCATION_HAS_ASSETS":       206,
-		"CATEGORY_HAS_CHILDREN":     207,
-		"CATEGORY_HAS_ASSETS":       208,
-		"INTERNAL_SERVER_ERROR":     300,
-		"STORAGE_ERROR":             301,
-		"LDAP_NOT_CONFIGURED":       400,
-		"LDAP_SYNC_FAILED":          401,
+		"BAD_REQUEST":                0,
+		"VALIDATION_FAILED":          1,
+		"INVALID_STATUS_TRANSITION":  2,
+		"NOT_FOUND":                  100,
+		"SUPPLIER_NOT_FOUND":         101,
+		"EMPLOYEE_NOT_FOUND":         102,
+		"LOCATION_NOT_FOUND":         103,
+		"CATEGORY_NOT_FOUND":         104,
+		"ASSET_NOT_FOUND":            105,
+		"CONSUMABLE_NOT_FOUND":       106,
+		"DOCUMENT_NOT_FOUND":         107,
+		"LICENSE_NOT_FOUND":          108,
+		"INSURANCE_POLICY_NOT_FOUND": 109,
+		"POLICY_ASSET_NOT_FOUND":     110,
+		"SUPPLIER_ALREADY_EXISTS":    200,
+		"ASSET_ALREADY_ASSIGNED":     201,
+		"ASSET_NOT_ASSIGNED":         202,
+		"SUPPLIER_HAS_ASSETS":        203,
+		"EMPLOYEE_HAS_ASSETS":        204,
+		"LOCATION_HAS_CHILDREN":      205,
+		"LOCATION_HAS_ASSETS":        206,
+		"CATEGORY_HAS_CHILDREN":      207,
+		"CATEGORY_HAS_ASSETS":        208,
+		"ASSET_ALREADY_IN_POLICY":    209,
+		"POLICY_HAS_ASSETS":          210,
+		"INTERNAL_SERVER_ERROR":      300,
+		"STORAGE_ERROR":              301,
+		"LDAP_NOT_CONFIGURED":        400,
+		"LDAP_SYNC_FAILED":           401,
 	}
 )
 
@@ -146,7 +158,7 @@ var File_asset_service_v1_asset_error_proto protoreflect.FileDescriptor
 
 const file_asset_service_v1_asset_error_proto_rawDesc = "" +
 	"\n" +
-	"\"asset/service/v1/asset_error.proto\x12\x10asset.service.v1\x1a\x13errors/errors.proto*\x97\x06\n" +
+	"\"asset/service/v1/asset_error.proto\x12\x10asset.service.v1\x1a\x13errors/errors.proto*\xa1\a\n" +
 	"\x10AssetErrorReason\x12\x15\n" +
 	"\vBAD_REQUEST\x10\x00\x1a\x04\xa8E\x90\x03\x12\x1b\n" +
 	"\x11VALIDATION_FAILED\x10\x01\x1a\x04\xa8E\x90\x03\x12#\n" +
@@ -159,7 +171,9 @@ const file_asset_service_v1_asset_error_proto_rawDesc = "" +
 	"\x0fASSET_NOT_FOUND\x10i\x1a\x04\xa8E\x94\x03\x12\x1e\n" +
 	"\x14CONSUMABLE_NOT_FOUND\x10j\x1a\x04\xa8E\x94\x03\x12\x1c\n" +
 	"\x12DOCUMENT_NOT_FOUND\x10k\x1a\x04\xa8E\x94\x03\x12\x1b\n" +
-	"\x11LICENSE_NOT_FOUND\x10l\x1a\x04\xa8E\x94\x03\x12\"\n" +
+	"\x11LICENSE_NOT_FOUND\x10l\x1a\x04\xa8E\x94\x03\x12$\n" +
+	"\x1aINSURANCE_POLICY_NOT_FOUND\x10m\x1a\x04\xa8E\x94\x03\x12 \n" +
+	"\x16POLICY_ASSET_NOT_FOUND\x10n\x1a\x04\xa8E\x94\x03\x12\"\n" +
 	"\x17SUPPLIER_ALREADY_EXISTS\x10\xc8\x01\x1a\x04\xa8E\x99\x03\x12!\n" +
 	"\x16ASSET_ALREADY_ASSIGNED\x10\xc9\x01\x1a\x04\xa8E\x99\x03\x12\x1d\n" +
 	"\x12ASSET_NOT_ASSIGNED\x10\xca\x01\x1a\x04\xa8E\x99\x03\x12\x1e\n" +
@@ -168,7 +182,9 @@ const file_asset_service_v1_asset_error_proto_rawDesc = "" +
 	"\x15LOCATION_HAS_CHILDREN\x10\xcd\x01\x1a\x04\xa8E\x99\x03\x12\x1e\n" +
 	"\x13LOCATION_HAS_ASSETS\x10\xce\x01\x1a\x04\xa8E\x99\x03\x12 \n" +
 	"\x15CATEGORY_HAS_CHILDREN\x10\xcf\x01\x1a\x04\xa8E\x99\x03\x12\x1e\n" +
-	"\x13CATEGORY_HAS_ASSETS\x10\xd0\x01\x1a\x04\xa8E\x99\x03\x12 \n" +
+	"\x13CATEGORY_HAS_ASSETS\x10\xd0\x01\x1a\x04\xa8E\x99\x03\x12\"\n" +
+	"\x17ASSET_ALREADY_IN_POLICY\x10\xd1\x01\x1a\x04\xa8E\x99\x03\x12\x1c\n" +
+	"\x11POLICY_HAS_ASSETS\x10\xd2\x01\x1a\x04\xa8E\x99\x03\x12 \n" +
 	"\x15INTERNAL_SERVER_ERROR\x10\xac\x02\x1a\x04\xa8E\xf4\x03\x12\x18\n" +
 	"\rSTORAGE_ERROR\x10\xad\x02\x1a\x04\xa8E\xf4\x03\x12\x1e\n" +
 	"\x13LDAP_NOT_CONFIGURED\x10\x90\x03\x1a\x04\xa8E\x90\x03\x12\x1b\n" +

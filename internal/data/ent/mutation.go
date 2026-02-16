@@ -18,6 +18,8 @@ import (
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/category"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/consumable"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
+	"github.com/go-tangra/go-tangra-asset/internal/data/ent/insurancepolicy"
+	"github.com/go-tangra/go-tangra-asset/internal/data/ent/insurancepolicyasset"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/license"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/location"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/predicate"
@@ -33,16 +35,18 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeAsset           = "Asset"
-	TypeAssetAssignment = "AssetAssignment"
-	TypeAssetDocument   = "AssetDocument"
-	TypeAuditLog        = "AuditLog"
-	TypeCategory        = "Category"
-	TypeConsumable      = "Consumable"
-	TypeEmployee        = "Employee"
-	TypeLicense         = "License"
-	TypeLocation        = "Location"
-	TypeSupplier        = "Supplier"
+	TypeAsset                = "Asset"
+	TypeAssetAssignment      = "AssetAssignment"
+	TypeAssetDocument        = "AssetDocument"
+	TypeAuditLog             = "AuditLog"
+	TypeCategory             = "Category"
+	TypeConsumable           = "Consumable"
+	TypeEmployee             = "Employee"
+	TypeInsurancePolicy      = "InsurancePolicy"
+	TypeInsurancePolicyAsset = "InsurancePolicyAsset"
+	TypeLicense              = "License"
+	TypeLocation             = "Location"
+	TypeSupplier             = "Supplier"
 )
 
 // AssetMutation represents an operation that mutates the Asset nodes in the graph.
@@ -12085,6 +12089,2920 @@ func (m *EmployeeMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown Employee edge %s", name)
+}
+
+// InsurancePolicyMutation represents an operation that mutates the InsurancePolicy nodes in the graph.
+type InsurancePolicyMutation struct {
+	config
+	op                Op
+	typ               string
+	id                *string
+	create_by         *uint32
+	addcreate_by      *int32
+	update_by         *uint32
+	addupdate_by      *int32
+	create_time       *time.Time
+	update_time       *time.Time
+	delete_time       *time.Time
+	tenant_id         *uint32
+	addtenant_id      *int32
+	name              *string
+	policy_number     *string
+	provider          *string
+	coverage_type     *string
+	premium_amount    *float64
+	addpremium_amount *float64
+	deductible        *float64
+	adddeductible     *float64
+	coverage_limit    *float64
+	addcoverage_limit *float64
+	valid_from        *time.Time
+	valid_to          *time.Time
+	status            *string
+	notes             *string
+	clearedFields     map[string]struct{}
+	done              bool
+	oldValue          func(context.Context) (*InsurancePolicy, error)
+	predicates        []predicate.InsurancePolicy
+}
+
+var _ ent.Mutation = (*InsurancePolicyMutation)(nil)
+
+// insurancepolicyOption allows management of the mutation configuration using functional options.
+type insurancepolicyOption func(*InsurancePolicyMutation)
+
+// newInsurancePolicyMutation creates new mutation for the InsurancePolicy entity.
+func newInsurancePolicyMutation(c config, op Op, opts ...insurancepolicyOption) *InsurancePolicyMutation {
+	m := &InsurancePolicyMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeInsurancePolicy,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withInsurancePolicyID sets the ID field of the mutation.
+func withInsurancePolicyID(id string) insurancepolicyOption {
+	return func(m *InsurancePolicyMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *InsurancePolicy
+		)
+		m.oldValue = func(ctx context.Context) (*InsurancePolicy, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().InsurancePolicy.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withInsurancePolicy sets the old InsurancePolicy of the mutation.
+func withInsurancePolicy(node *InsurancePolicy) insurancepolicyOption {
+	return func(m *InsurancePolicyMutation) {
+		m.oldValue = func(context.Context) (*InsurancePolicy, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m InsurancePolicyMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m InsurancePolicyMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of InsurancePolicy entities.
+func (m *InsurancePolicyMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *InsurancePolicyMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *InsurancePolicyMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().InsurancePolicy.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreateBy sets the "create_by" field.
+func (m *InsurancePolicyMutation) SetCreateBy(u uint32) {
+	m.create_by = &u
+	m.addcreate_by = nil
+}
+
+// CreateBy returns the value of the "create_by" field in the mutation.
+func (m *InsurancePolicyMutation) CreateBy() (r uint32, exists bool) {
+	v := m.create_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateBy returns the old "create_by" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldCreateBy(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreateBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreateBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateBy: %w", err)
+	}
+	return oldValue.CreateBy, nil
+}
+
+// AddCreateBy adds u to the "create_by" field.
+func (m *InsurancePolicyMutation) AddCreateBy(u int32) {
+	if m.addcreate_by != nil {
+		*m.addcreate_by += u
+	} else {
+		m.addcreate_by = &u
+	}
+}
+
+// AddedCreateBy returns the value that was added to the "create_by" field in this mutation.
+func (m *InsurancePolicyMutation) AddedCreateBy() (r int32, exists bool) {
+	v := m.addcreate_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearCreateBy clears the value of the "create_by" field.
+func (m *InsurancePolicyMutation) ClearCreateBy() {
+	m.create_by = nil
+	m.addcreate_by = nil
+	m.clearedFields[insurancepolicy.FieldCreateBy] = struct{}{}
+}
+
+// CreateByCleared returns if the "create_by" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) CreateByCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldCreateBy]
+	return ok
+}
+
+// ResetCreateBy resets all changes to the "create_by" field.
+func (m *InsurancePolicyMutation) ResetCreateBy() {
+	m.create_by = nil
+	m.addcreate_by = nil
+	delete(m.clearedFields, insurancepolicy.FieldCreateBy)
+}
+
+// SetUpdateBy sets the "update_by" field.
+func (m *InsurancePolicyMutation) SetUpdateBy(u uint32) {
+	m.update_by = &u
+	m.addupdate_by = nil
+}
+
+// UpdateBy returns the value of the "update_by" field in the mutation.
+func (m *InsurancePolicyMutation) UpdateBy() (r uint32, exists bool) {
+	v := m.update_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdateBy returns the old "update_by" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldUpdateBy(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdateBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdateBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdateBy: %w", err)
+	}
+	return oldValue.UpdateBy, nil
+}
+
+// AddUpdateBy adds u to the "update_by" field.
+func (m *InsurancePolicyMutation) AddUpdateBy(u int32) {
+	if m.addupdate_by != nil {
+		*m.addupdate_by += u
+	} else {
+		m.addupdate_by = &u
+	}
+}
+
+// AddedUpdateBy returns the value that was added to the "update_by" field in this mutation.
+func (m *InsurancePolicyMutation) AddedUpdateBy() (r int32, exists bool) {
+	v := m.addupdate_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearUpdateBy clears the value of the "update_by" field.
+func (m *InsurancePolicyMutation) ClearUpdateBy() {
+	m.update_by = nil
+	m.addupdate_by = nil
+	m.clearedFields[insurancepolicy.FieldUpdateBy] = struct{}{}
+}
+
+// UpdateByCleared returns if the "update_by" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) UpdateByCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldUpdateBy]
+	return ok
+}
+
+// ResetUpdateBy resets all changes to the "update_by" field.
+func (m *InsurancePolicyMutation) ResetUpdateBy() {
+	m.update_by = nil
+	m.addupdate_by = nil
+	delete(m.clearedFields, insurancepolicy.FieldUpdateBy)
+}
+
+// SetCreateTime sets the "create_time" field.
+func (m *InsurancePolicyMutation) SetCreateTime(t time.Time) {
+	m.create_time = &t
+}
+
+// CreateTime returns the value of the "create_time" field in the mutation.
+func (m *InsurancePolicyMutation) CreateTime() (r time.Time, exists bool) {
+	v := m.create_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateTime returns the old "create_time" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldCreateTime(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
+	}
+	return oldValue.CreateTime, nil
+}
+
+// ClearCreateTime clears the value of the "create_time" field.
+func (m *InsurancePolicyMutation) ClearCreateTime() {
+	m.create_time = nil
+	m.clearedFields[insurancepolicy.FieldCreateTime] = struct{}{}
+}
+
+// CreateTimeCleared returns if the "create_time" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) CreateTimeCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldCreateTime]
+	return ok
+}
+
+// ResetCreateTime resets all changes to the "create_time" field.
+func (m *InsurancePolicyMutation) ResetCreateTime() {
+	m.create_time = nil
+	delete(m.clearedFields, insurancepolicy.FieldCreateTime)
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (m *InsurancePolicyMutation) SetUpdateTime(t time.Time) {
+	m.update_time = &t
+}
+
+// UpdateTime returns the value of the "update_time" field in the mutation.
+func (m *InsurancePolicyMutation) UpdateTime() (r time.Time, exists bool) {
+	v := m.update_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdateTime returns the old "update_time" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldUpdateTime(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
+	}
+	return oldValue.UpdateTime, nil
+}
+
+// ClearUpdateTime clears the value of the "update_time" field.
+func (m *InsurancePolicyMutation) ClearUpdateTime() {
+	m.update_time = nil
+	m.clearedFields[insurancepolicy.FieldUpdateTime] = struct{}{}
+}
+
+// UpdateTimeCleared returns if the "update_time" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) UpdateTimeCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldUpdateTime]
+	return ok
+}
+
+// ResetUpdateTime resets all changes to the "update_time" field.
+func (m *InsurancePolicyMutation) ResetUpdateTime() {
+	m.update_time = nil
+	delete(m.clearedFields, insurancepolicy.FieldUpdateTime)
+}
+
+// SetDeleteTime sets the "delete_time" field.
+func (m *InsurancePolicyMutation) SetDeleteTime(t time.Time) {
+	m.delete_time = &t
+}
+
+// DeleteTime returns the value of the "delete_time" field in the mutation.
+func (m *InsurancePolicyMutation) DeleteTime() (r time.Time, exists bool) {
+	v := m.delete_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeleteTime returns the old "delete_time" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldDeleteTime(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeleteTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeleteTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeleteTime: %w", err)
+	}
+	return oldValue.DeleteTime, nil
+}
+
+// ClearDeleteTime clears the value of the "delete_time" field.
+func (m *InsurancePolicyMutation) ClearDeleteTime() {
+	m.delete_time = nil
+	m.clearedFields[insurancepolicy.FieldDeleteTime] = struct{}{}
+}
+
+// DeleteTimeCleared returns if the "delete_time" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) DeleteTimeCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldDeleteTime]
+	return ok
+}
+
+// ResetDeleteTime resets all changes to the "delete_time" field.
+func (m *InsurancePolicyMutation) ResetDeleteTime() {
+	m.delete_time = nil
+	delete(m.clearedFields, insurancepolicy.FieldDeleteTime)
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *InsurancePolicyMutation) SetTenantID(u uint32) {
+	m.tenant_id = &u
+	m.addtenant_id = nil
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *InsurancePolicyMutation) TenantID() (r uint32, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldTenantID(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// AddTenantID adds u to the "tenant_id" field.
+func (m *InsurancePolicyMutation) AddTenantID(u int32) {
+	if m.addtenant_id != nil {
+		*m.addtenant_id += u
+	} else {
+		m.addtenant_id = &u
+	}
+}
+
+// AddedTenantID returns the value that was added to the "tenant_id" field in this mutation.
+func (m *InsurancePolicyMutation) AddedTenantID() (r int32, exists bool) {
+	v := m.addtenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (m *InsurancePolicyMutation) ClearTenantID() {
+	m.tenant_id = nil
+	m.addtenant_id = nil
+	m.clearedFields[insurancepolicy.FieldTenantID] = struct{}{}
+}
+
+// TenantIDCleared returns if the "tenant_id" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) TenantIDCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldTenantID]
+	return ok
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *InsurancePolicyMutation) ResetTenantID() {
+	m.tenant_id = nil
+	m.addtenant_id = nil
+	delete(m.clearedFields, insurancepolicy.FieldTenantID)
+}
+
+// SetName sets the "name" field.
+func (m *InsurancePolicyMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *InsurancePolicyMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *InsurancePolicyMutation) ResetName() {
+	m.name = nil
+}
+
+// SetPolicyNumber sets the "policy_number" field.
+func (m *InsurancePolicyMutation) SetPolicyNumber(s string) {
+	m.policy_number = &s
+}
+
+// PolicyNumber returns the value of the "policy_number" field in the mutation.
+func (m *InsurancePolicyMutation) PolicyNumber() (r string, exists bool) {
+	v := m.policy_number
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPolicyNumber returns the old "policy_number" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldPolicyNumber(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPolicyNumber is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPolicyNumber requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPolicyNumber: %w", err)
+	}
+	return oldValue.PolicyNumber, nil
+}
+
+// ClearPolicyNumber clears the value of the "policy_number" field.
+func (m *InsurancePolicyMutation) ClearPolicyNumber() {
+	m.policy_number = nil
+	m.clearedFields[insurancepolicy.FieldPolicyNumber] = struct{}{}
+}
+
+// PolicyNumberCleared returns if the "policy_number" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) PolicyNumberCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldPolicyNumber]
+	return ok
+}
+
+// ResetPolicyNumber resets all changes to the "policy_number" field.
+func (m *InsurancePolicyMutation) ResetPolicyNumber() {
+	m.policy_number = nil
+	delete(m.clearedFields, insurancepolicy.FieldPolicyNumber)
+}
+
+// SetProvider sets the "provider" field.
+func (m *InsurancePolicyMutation) SetProvider(s string) {
+	m.provider = &s
+}
+
+// Provider returns the value of the "provider" field in the mutation.
+func (m *InsurancePolicyMutation) Provider() (r string, exists bool) {
+	v := m.provider
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProvider returns the old "provider" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldProvider(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProvider is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProvider requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProvider: %w", err)
+	}
+	return oldValue.Provider, nil
+}
+
+// ClearProvider clears the value of the "provider" field.
+func (m *InsurancePolicyMutation) ClearProvider() {
+	m.provider = nil
+	m.clearedFields[insurancepolicy.FieldProvider] = struct{}{}
+}
+
+// ProviderCleared returns if the "provider" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) ProviderCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldProvider]
+	return ok
+}
+
+// ResetProvider resets all changes to the "provider" field.
+func (m *InsurancePolicyMutation) ResetProvider() {
+	m.provider = nil
+	delete(m.clearedFields, insurancepolicy.FieldProvider)
+}
+
+// SetCoverageType sets the "coverage_type" field.
+func (m *InsurancePolicyMutation) SetCoverageType(s string) {
+	m.coverage_type = &s
+}
+
+// CoverageType returns the value of the "coverage_type" field in the mutation.
+func (m *InsurancePolicyMutation) CoverageType() (r string, exists bool) {
+	v := m.coverage_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCoverageType returns the old "coverage_type" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldCoverageType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCoverageType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCoverageType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCoverageType: %w", err)
+	}
+	return oldValue.CoverageType, nil
+}
+
+// ClearCoverageType clears the value of the "coverage_type" field.
+func (m *InsurancePolicyMutation) ClearCoverageType() {
+	m.coverage_type = nil
+	m.clearedFields[insurancepolicy.FieldCoverageType] = struct{}{}
+}
+
+// CoverageTypeCleared returns if the "coverage_type" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) CoverageTypeCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldCoverageType]
+	return ok
+}
+
+// ResetCoverageType resets all changes to the "coverage_type" field.
+func (m *InsurancePolicyMutation) ResetCoverageType() {
+	m.coverage_type = nil
+	delete(m.clearedFields, insurancepolicy.FieldCoverageType)
+}
+
+// SetPremiumAmount sets the "premium_amount" field.
+func (m *InsurancePolicyMutation) SetPremiumAmount(f float64) {
+	m.premium_amount = &f
+	m.addpremium_amount = nil
+}
+
+// PremiumAmount returns the value of the "premium_amount" field in the mutation.
+func (m *InsurancePolicyMutation) PremiumAmount() (r float64, exists bool) {
+	v := m.premium_amount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPremiumAmount returns the old "premium_amount" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldPremiumAmount(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPremiumAmount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPremiumAmount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPremiumAmount: %w", err)
+	}
+	return oldValue.PremiumAmount, nil
+}
+
+// AddPremiumAmount adds f to the "premium_amount" field.
+func (m *InsurancePolicyMutation) AddPremiumAmount(f float64) {
+	if m.addpremium_amount != nil {
+		*m.addpremium_amount += f
+	} else {
+		m.addpremium_amount = &f
+	}
+}
+
+// AddedPremiumAmount returns the value that was added to the "premium_amount" field in this mutation.
+func (m *InsurancePolicyMutation) AddedPremiumAmount() (r float64, exists bool) {
+	v := m.addpremium_amount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearPremiumAmount clears the value of the "premium_amount" field.
+func (m *InsurancePolicyMutation) ClearPremiumAmount() {
+	m.premium_amount = nil
+	m.addpremium_amount = nil
+	m.clearedFields[insurancepolicy.FieldPremiumAmount] = struct{}{}
+}
+
+// PremiumAmountCleared returns if the "premium_amount" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) PremiumAmountCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldPremiumAmount]
+	return ok
+}
+
+// ResetPremiumAmount resets all changes to the "premium_amount" field.
+func (m *InsurancePolicyMutation) ResetPremiumAmount() {
+	m.premium_amount = nil
+	m.addpremium_amount = nil
+	delete(m.clearedFields, insurancepolicy.FieldPremiumAmount)
+}
+
+// SetDeductible sets the "deductible" field.
+func (m *InsurancePolicyMutation) SetDeductible(f float64) {
+	m.deductible = &f
+	m.adddeductible = nil
+}
+
+// Deductible returns the value of the "deductible" field in the mutation.
+func (m *InsurancePolicyMutation) Deductible() (r float64, exists bool) {
+	v := m.deductible
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeductible returns the old "deductible" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldDeductible(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeductible is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeductible requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeductible: %w", err)
+	}
+	return oldValue.Deductible, nil
+}
+
+// AddDeductible adds f to the "deductible" field.
+func (m *InsurancePolicyMutation) AddDeductible(f float64) {
+	if m.adddeductible != nil {
+		*m.adddeductible += f
+	} else {
+		m.adddeductible = &f
+	}
+}
+
+// AddedDeductible returns the value that was added to the "deductible" field in this mutation.
+func (m *InsurancePolicyMutation) AddedDeductible() (r float64, exists bool) {
+	v := m.adddeductible
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDeductible clears the value of the "deductible" field.
+func (m *InsurancePolicyMutation) ClearDeductible() {
+	m.deductible = nil
+	m.adddeductible = nil
+	m.clearedFields[insurancepolicy.FieldDeductible] = struct{}{}
+}
+
+// DeductibleCleared returns if the "deductible" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) DeductibleCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldDeductible]
+	return ok
+}
+
+// ResetDeductible resets all changes to the "deductible" field.
+func (m *InsurancePolicyMutation) ResetDeductible() {
+	m.deductible = nil
+	m.adddeductible = nil
+	delete(m.clearedFields, insurancepolicy.FieldDeductible)
+}
+
+// SetCoverageLimit sets the "coverage_limit" field.
+func (m *InsurancePolicyMutation) SetCoverageLimit(f float64) {
+	m.coverage_limit = &f
+	m.addcoverage_limit = nil
+}
+
+// CoverageLimit returns the value of the "coverage_limit" field in the mutation.
+func (m *InsurancePolicyMutation) CoverageLimit() (r float64, exists bool) {
+	v := m.coverage_limit
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCoverageLimit returns the old "coverage_limit" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldCoverageLimit(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCoverageLimit is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCoverageLimit requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCoverageLimit: %w", err)
+	}
+	return oldValue.CoverageLimit, nil
+}
+
+// AddCoverageLimit adds f to the "coverage_limit" field.
+func (m *InsurancePolicyMutation) AddCoverageLimit(f float64) {
+	if m.addcoverage_limit != nil {
+		*m.addcoverage_limit += f
+	} else {
+		m.addcoverage_limit = &f
+	}
+}
+
+// AddedCoverageLimit returns the value that was added to the "coverage_limit" field in this mutation.
+func (m *InsurancePolicyMutation) AddedCoverageLimit() (r float64, exists bool) {
+	v := m.addcoverage_limit
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearCoverageLimit clears the value of the "coverage_limit" field.
+func (m *InsurancePolicyMutation) ClearCoverageLimit() {
+	m.coverage_limit = nil
+	m.addcoverage_limit = nil
+	m.clearedFields[insurancepolicy.FieldCoverageLimit] = struct{}{}
+}
+
+// CoverageLimitCleared returns if the "coverage_limit" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) CoverageLimitCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldCoverageLimit]
+	return ok
+}
+
+// ResetCoverageLimit resets all changes to the "coverage_limit" field.
+func (m *InsurancePolicyMutation) ResetCoverageLimit() {
+	m.coverage_limit = nil
+	m.addcoverage_limit = nil
+	delete(m.clearedFields, insurancepolicy.FieldCoverageLimit)
+}
+
+// SetValidFrom sets the "valid_from" field.
+func (m *InsurancePolicyMutation) SetValidFrom(t time.Time) {
+	m.valid_from = &t
+}
+
+// ValidFrom returns the value of the "valid_from" field in the mutation.
+func (m *InsurancePolicyMutation) ValidFrom() (r time.Time, exists bool) {
+	v := m.valid_from
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldValidFrom returns the old "valid_from" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldValidFrom(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldValidFrom is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldValidFrom requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldValidFrom: %w", err)
+	}
+	return oldValue.ValidFrom, nil
+}
+
+// ClearValidFrom clears the value of the "valid_from" field.
+func (m *InsurancePolicyMutation) ClearValidFrom() {
+	m.valid_from = nil
+	m.clearedFields[insurancepolicy.FieldValidFrom] = struct{}{}
+}
+
+// ValidFromCleared returns if the "valid_from" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) ValidFromCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldValidFrom]
+	return ok
+}
+
+// ResetValidFrom resets all changes to the "valid_from" field.
+func (m *InsurancePolicyMutation) ResetValidFrom() {
+	m.valid_from = nil
+	delete(m.clearedFields, insurancepolicy.FieldValidFrom)
+}
+
+// SetValidTo sets the "valid_to" field.
+func (m *InsurancePolicyMutation) SetValidTo(t time.Time) {
+	m.valid_to = &t
+}
+
+// ValidTo returns the value of the "valid_to" field in the mutation.
+func (m *InsurancePolicyMutation) ValidTo() (r time.Time, exists bool) {
+	v := m.valid_to
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldValidTo returns the old "valid_to" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldValidTo(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldValidTo is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldValidTo requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldValidTo: %w", err)
+	}
+	return oldValue.ValidTo, nil
+}
+
+// ClearValidTo clears the value of the "valid_to" field.
+func (m *InsurancePolicyMutation) ClearValidTo() {
+	m.valid_to = nil
+	m.clearedFields[insurancepolicy.FieldValidTo] = struct{}{}
+}
+
+// ValidToCleared returns if the "valid_to" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) ValidToCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldValidTo]
+	return ok
+}
+
+// ResetValidTo resets all changes to the "valid_to" field.
+func (m *InsurancePolicyMutation) ResetValidTo() {
+	m.valid_to = nil
+	delete(m.clearedFields, insurancepolicy.FieldValidTo)
+}
+
+// SetStatus sets the "status" field.
+func (m *InsurancePolicyMutation) SetStatus(s string) {
+	m.status = &s
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *InsurancePolicyMutation) Status() (r string, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldStatus(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ClearStatus clears the value of the "status" field.
+func (m *InsurancePolicyMutation) ClearStatus() {
+	m.status = nil
+	m.clearedFields[insurancepolicy.FieldStatus] = struct{}{}
+}
+
+// StatusCleared returns if the "status" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) StatusCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldStatus]
+	return ok
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *InsurancePolicyMutation) ResetStatus() {
+	m.status = nil
+	delete(m.clearedFields, insurancepolicy.FieldStatus)
+}
+
+// SetNotes sets the "notes" field.
+func (m *InsurancePolicyMutation) SetNotes(s string) {
+	m.notes = &s
+}
+
+// Notes returns the value of the "notes" field in the mutation.
+func (m *InsurancePolicyMutation) Notes() (r string, exists bool) {
+	v := m.notes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNotes returns the old "notes" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldNotes(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNotes is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNotes requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNotes: %w", err)
+	}
+	return oldValue.Notes, nil
+}
+
+// ClearNotes clears the value of the "notes" field.
+func (m *InsurancePolicyMutation) ClearNotes() {
+	m.notes = nil
+	m.clearedFields[insurancepolicy.FieldNotes] = struct{}{}
+}
+
+// NotesCleared returns if the "notes" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) NotesCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldNotes]
+	return ok
+}
+
+// ResetNotes resets all changes to the "notes" field.
+func (m *InsurancePolicyMutation) ResetNotes() {
+	m.notes = nil
+	delete(m.clearedFields, insurancepolicy.FieldNotes)
+}
+
+// Where appends a list predicates to the InsurancePolicyMutation builder.
+func (m *InsurancePolicyMutation) Where(ps ...predicate.InsurancePolicy) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the InsurancePolicyMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *InsurancePolicyMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.InsurancePolicy, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *InsurancePolicyMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *InsurancePolicyMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (InsurancePolicy).
+func (m *InsurancePolicyMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *InsurancePolicyMutation) Fields() []string {
+	fields := make([]string, 0, 17)
+	if m.create_by != nil {
+		fields = append(fields, insurancepolicy.FieldCreateBy)
+	}
+	if m.update_by != nil {
+		fields = append(fields, insurancepolicy.FieldUpdateBy)
+	}
+	if m.create_time != nil {
+		fields = append(fields, insurancepolicy.FieldCreateTime)
+	}
+	if m.update_time != nil {
+		fields = append(fields, insurancepolicy.FieldUpdateTime)
+	}
+	if m.delete_time != nil {
+		fields = append(fields, insurancepolicy.FieldDeleteTime)
+	}
+	if m.tenant_id != nil {
+		fields = append(fields, insurancepolicy.FieldTenantID)
+	}
+	if m.name != nil {
+		fields = append(fields, insurancepolicy.FieldName)
+	}
+	if m.policy_number != nil {
+		fields = append(fields, insurancepolicy.FieldPolicyNumber)
+	}
+	if m.provider != nil {
+		fields = append(fields, insurancepolicy.FieldProvider)
+	}
+	if m.coverage_type != nil {
+		fields = append(fields, insurancepolicy.FieldCoverageType)
+	}
+	if m.premium_amount != nil {
+		fields = append(fields, insurancepolicy.FieldPremiumAmount)
+	}
+	if m.deductible != nil {
+		fields = append(fields, insurancepolicy.FieldDeductible)
+	}
+	if m.coverage_limit != nil {
+		fields = append(fields, insurancepolicy.FieldCoverageLimit)
+	}
+	if m.valid_from != nil {
+		fields = append(fields, insurancepolicy.FieldValidFrom)
+	}
+	if m.valid_to != nil {
+		fields = append(fields, insurancepolicy.FieldValidTo)
+	}
+	if m.status != nil {
+		fields = append(fields, insurancepolicy.FieldStatus)
+	}
+	if m.notes != nil {
+		fields = append(fields, insurancepolicy.FieldNotes)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *InsurancePolicyMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case insurancepolicy.FieldCreateBy:
+		return m.CreateBy()
+	case insurancepolicy.FieldUpdateBy:
+		return m.UpdateBy()
+	case insurancepolicy.FieldCreateTime:
+		return m.CreateTime()
+	case insurancepolicy.FieldUpdateTime:
+		return m.UpdateTime()
+	case insurancepolicy.FieldDeleteTime:
+		return m.DeleteTime()
+	case insurancepolicy.FieldTenantID:
+		return m.TenantID()
+	case insurancepolicy.FieldName:
+		return m.Name()
+	case insurancepolicy.FieldPolicyNumber:
+		return m.PolicyNumber()
+	case insurancepolicy.FieldProvider:
+		return m.Provider()
+	case insurancepolicy.FieldCoverageType:
+		return m.CoverageType()
+	case insurancepolicy.FieldPremiumAmount:
+		return m.PremiumAmount()
+	case insurancepolicy.FieldDeductible:
+		return m.Deductible()
+	case insurancepolicy.FieldCoverageLimit:
+		return m.CoverageLimit()
+	case insurancepolicy.FieldValidFrom:
+		return m.ValidFrom()
+	case insurancepolicy.FieldValidTo:
+		return m.ValidTo()
+	case insurancepolicy.FieldStatus:
+		return m.Status()
+	case insurancepolicy.FieldNotes:
+		return m.Notes()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *InsurancePolicyMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case insurancepolicy.FieldCreateBy:
+		return m.OldCreateBy(ctx)
+	case insurancepolicy.FieldUpdateBy:
+		return m.OldUpdateBy(ctx)
+	case insurancepolicy.FieldCreateTime:
+		return m.OldCreateTime(ctx)
+	case insurancepolicy.FieldUpdateTime:
+		return m.OldUpdateTime(ctx)
+	case insurancepolicy.FieldDeleteTime:
+		return m.OldDeleteTime(ctx)
+	case insurancepolicy.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case insurancepolicy.FieldName:
+		return m.OldName(ctx)
+	case insurancepolicy.FieldPolicyNumber:
+		return m.OldPolicyNumber(ctx)
+	case insurancepolicy.FieldProvider:
+		return m.OldProvider(ctx)
+	case insurancepolicy.FieldCoverageType:
+		return m.OldCoverageType(ctx)
+	case insurancepolicy.FieldPremiumAmount:
+		return m.OldPremiumAmount(ctx)
+	case insurancepolicy.FieldDeductible:
+		return m.OldDeductible(ctx)
+	case insurancepolicy.FieldCoverageLimit:
+		return m.OldCoverageLimit(ctx)
+	case insurancepolicy.FieldValidFrom:
+		return m.OldValidFrom(ctx)
+	case insurancepolicy.FieldValidTo:
+		return m.OldValidTo(ctx)
+	case insurancepolicy.FieldStatus:
+		return m.OldStatus(ctx)
+	case insurancepolicy.FieldNotes:
+		return m.OldNotes(ctx)
+	}
+	return nil, fmt.Errorf("unknown InsurancePolicy field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *InsurancePolicyMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case insurancepolicy.FieldCreateBy:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateBy(v)
+		return nil
+	case insurancepolicy.FieldUpdateBy:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdateBy(v)
+		return nil
+	case insurancepolicy.FieldCreateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateTime(v)
+		return nil
+	case insurancepolicy.FieldUpdateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdateTime(v)
+		return nil
+	case insurancepolicy.FieldDeleteTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeleteTime(v)
+		return nil
+	case insurancepolicy.FieldTenantID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case insurancepolicy.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case insurancepolicy.FieldPolicyNumber:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPolicyNumber(v)
+		return nil
+	case insurancepolicy.FieldProvider:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProvider(v)
+		return nil
+	case insurancepolicy.FieldCoverageType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCoverageType(v)
+		return nil
+	case insurancepolicy.FieldPremiumAmount:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPremiumAmount(v)
+		return nil
+	case insurancepolicy.FieldDeductible:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeductible(v)
+		return nil
+	case insurancepolicy.FieldCoverageLimit:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCoverageLimit(v)
+		return nil
+	case insurancepolicy.FieldValidFrom:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetValidFrom(v)
+		return nil
+	case insurancepolicy.FieldValidTo:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetValidTo(v)
+		return nil
+	case insurancepolicy.FieldStatus:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case insurancepolicy.FieldNotes:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNotes(v)
+		return nil
+	}
+	return fmt.Errorf("unknown InsurancePolicy field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *InsurancePolicyMutation) AddedFields() []string {
+	var fields []string
+	if m.addcreate_by != nil {
+		fields = append(fields, insurancepolicy.FieldCreateBy)
+	}
+	if m.addupdate_by != nil {
+		fields = append(fields, insurancepolicy.FieldUpdateBy)
+	}
+	if m.addtenant_id != nil {
+		fields = append(fields, insurancepolicy.FieldTenantID)
+	}
+	if m.addpremium_amount != nil {
+		fields = append(fields, insurancepolicy.FieldPremiumAmount)
+	}
+	if m.adddeductible != nil {
+		fields = append(fields, insurancepolicy.FieldDeductible)
+	}
+	if m.addcoverage_limit != nil {
+		fields = append(fields, insurancepolicy.FieldCoverageLimit)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *InsurancePolicyMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case insurancepolicy.FieldCreateBy:
+		return m.AddedCreateBy()
+	case insurancepolicy.FieldUpdateBy:
+		return m.AddedUpdateBy()
+	case insurancepolicy.FieldTenantID:
+		return m.AddedTenantID()
+	case insurancepolicy.FieldPremiumAmount:
+		return m.AddedPremiumAmount()
+	case insurancepolicy.FieldDeductible:
+		return m.AddedDeductible()
+	case insurancepolicy.FieldCoverageLimit:
+		return m.AddedCoverageLimit()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *InsurancePolicyMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case insurancepolicy.FieldCreateBy:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCreateBy(v)
+		return nil
+	case insurancepolicy.FieldUpdateBy:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpdateBy(v)
+		return nil
+	case insurancepolicy.FieldTenantID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTenantID(v)
+		return nil
+	case insurancepolicy.FieldPremiumAmount:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPremiumAmount(v)
+		return nil
+	case insurancepolicy.FieldDeductible:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeductible(v)
+		return nil
+	case insurancepolicy.FieldCoverageLimit:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCoverageLimit(v)
+		return nil
+	}
+	return fmt.Errorf("unknown InsurancePolicy numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *InsurancePolicyMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(insurancepolicy.FieldCreateBy) {
+		fields = append(fields, insurancepolicy.FieldCreateBy)
+	}
+	if m.FieldCleared(insurancepolicy.FieldUpdateBy) {
+		fields = append(fields, insurancepolicy.FieldUpdateBy)
+	}
+	if m.FieldCleared(insurancepolicy.FieldCreateTime) {
+		fields = append(fields, insurancepolicy.FieldCreateTime)
+	}
+	if m.FieldCleared(insurancepolicy.FieldUpdateTime) {
+		fields = append(fields, insurancepolicy.FieldUpdateTime)
+	}
+	if m.FieldCleared(insurancepolicy.FieldDeleteTime) {
+		fields = append(fields, insurancepolicy.FieldDeleteTime)
+	}
+	if m.FieldCleared(insurancepolicy.FieldTenantID) {
+		fields = append(fields, insurancepolicy.FieldTenantID)
+	}
+	if m.FieldCleared(insurancepolicy.FieldPolicyNumber) {
+		fields = append(fields, insurancepolicy.FieldPolicyNumber)
+	}
+	if m.FieldCleared(insurancepolicy.FieldProvider) {
+		fields = append(fields, insurancepolicy.FieldProvider)
+	}
+	if m.FieldCleared(insurancepolicy.FieldCoverageType) {
+		fields = append(fields, insurancepolicy.FieldCoverageType)
+	}
+	if m.FieldCleared(insurancepolicy.FieldPremiumAmount) {
+		fields = append(fields, insurancepolicy.FieldPremiumAmount)
+	}
+	if m.FieldCleared(insurancepolicy.FieldDeductible) {
+		fields = append(fields, insurancepolicy.FieldDeductible)
+	}
+	if m.FieldCleared(insurancepolicy.FieldCoverageLimit) {
+		fields = append(fields, insurancepolicy.FieldCoverageLimit)
+	}
+	if m.FieldCleared(insurancepolicy.FieldValidFrom) {
+		fields = append(fields, insurancepolicy.FieldValidFrom)
+	}
+	if m.FieldCleared(insurancepolicy.FieldValidTo) {
+		fields = append(fields, insurancepolicy.FieldValidTo)
+	}
+	if m.FieldCleared(insurancepolicy.FieldStatus) {
+		fields = append(fields, insurancepolicy.FieldStatus)
+	}
+	if m.FieldCleared(insurancepolicy.FieldNotes) {
+		fields = append(fields, insurancepolicy.FieldNotes)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *InsurancePolicyMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *InsurancePolicyMutation) ClearField(name string) error {
+	switch name {
+	case insurancepolicy.FieldCreateBy:
+		m.ClearCreateBy()
+		return nil
+	case insurancepolicy.FieldUpdateBy:
+		m.ClearUpdateBy()
+		return nil
+	case insurancepolicy.FieldCreateTime:
+		m.ClearCreateTime()
+		return nil
+	case insurancepolicy.FieldUpdateTime:
+		m.ClearUpdateTime()
+		return nil
+	case insurancepolicy.FieldDeleteTime:
+		m.ClearDeleteTime()
+		return nil
+	case insurancepolicy.FieldTenantID:
+		m.ClearTenantID()
+		return nil
+	case insurancepolicy.FieldPolicyNumber:
+		m.ClearPolicyNumber()
+		return nil
+	case insurancepolicy.FieldProvider:
+		m.ClearProvider()
+		return nil
+	case insurancepolicy.FieldCoverageType:
+		m.ClearCoverageType()
+		return nil
+	case insurancepolicy.FieldPremiumAmount:
+		m.ClearPremiumAmount()
+		return nil
+	case insurancepolicy.FieldDeductible:
+		m.ClearDeductible()
+		return nil
+	case insurancepolicy.FieldCoverageLimit:
+		m.ClearCoverageLimit()
+		return nil
+	case insurancepolicy.FieldValidFrom:
+		m.ClearValidFrom()
+		return nil
+	case insurancepolicy.FieldValidTo:
+		m.ClearValidTo()
+		return nil
+	case insurancepolicy.FieldStatus:
+		m.ClearStatus()
+		return nil
+	case insurancepolicy.FieldNotes:
+		m.ClearNotes()
+		return nil
+	}
+	return fmt.Errorf("unknown InsurancePolicy nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *InsurancePolicyMutation) ResetField(name string) error {
+	switch name {
+	case insurancepolicy.FieldCreateBy:
+		m.ResetCreateBy()
+		return nil
+	case insurancepolicy.FieldUpdateBy:
+		m.ResetUpdateBy()
+		return nil
+	case insurancepolicy.FieldCreateTime:
+		m.ResetCreateTime()
+		return nil
+	case insurancepolicy.FieldUpdateTime:
+		m.ResetUpdateTime()
+		return nil
+	case insurancepolicy.FieldDeleteTime:
+		m.ResetDeleteTime()
+		return nil
+	case insurancepolicy.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case insurancepolicy.FieldName:
+		m.ResetName()
+		return nil
+	case insurancepolicy.FieldPolicyNumber:
+		m.ResetPolicyNumber()
+		return nil
+	case insurancepolicy.FieldProvider:
+		m.ResetProvider()
+		return nil
+	case insurancepolicy.FieldCoverageType:
+		m.ResetCoverageType()
+		return nil
+	case insurancepolicy.FieldPremiumAmount:
+		m.ResetPremiumAmount()
+		return nil
+	case insurancepolicy.FieldDeductible:
+		m.ResetDeductible()
+		return nil
+	case insurancepolicy.FieldCoverageLimit:
+		m.ResetCoverageLimit()
+		return nil
+	case insurancepolicy.FieldValidFrom:
+		m.ResetValidFrom()
+		return nil
+	case insurancepolicy.FieldValidTo:
+		m.ResetValidTo()
+		return nil
+	case insurancepolicy.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case insurancepolicy.FieldNotes:
+		m.ResetNotes()
+		return nil
+	}
+	return fmt.Errorf("unknown InsurancePolicy field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *InsurancePolicyMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *InsurancePolicyMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *InsurancePolicyMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *InsurancePolicyMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *InsurancePolicyMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *InsurancePolicyMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *InsurancePolicyMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown InsurancePolicy unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *InsurancePolicyMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown InsurancePolicy edge %s", name)
+}
+
+// InsurancePolicyAssetMutation represents an operation that mutates the InsurancePolicyAsset nodes in the graph.
+type InsurancePolicyAssetMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *string
+	create_by        *uint32
+	addcreate_by     *int32
+	create_time      *time.Time
+	update_time      *time.Time
+	delete_time      *time.Time
+	policy_id        *string
+	asset_id         *string
+	tenant_id        *uint32
+	addtenant_id     *int32
+	covered_value    *float64
+	addcovered_value *float64
+	notes            *string
+	asset_tag        *string
+	asset_name       *string
+	model_name       *string
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*InsurancePolicyAsset, error)
+	predicates       []predicate.InsurancePolicyAsset
+}
+
+var _ ent.Mutation = (*InsurancePolicyAssetMutation)(nil)
+
+// insurancepolicyassetOption allows management of the mutation configuration using functional options.
+type insurancepolicyassetOption func(*InsurancePolicyAssetMutation)
+
+// newInsurancePolicyAssetMutation creates new mutation for the InsurancePolicyAsset entity.
+func newInsurancePolicyAssetMutation(c config, op Op, opts ...insurancepolicyassetOption) *InsurancePolicyAssetMutation {
+	m := &InsurancePolicyAssetMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeInsurancePolicyAsset,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withInsurancePolicyAssetID sets the ID field of the mutation.
+func withInsurancePolicyAssetID(id string) insurancepolicyassetOption {
+	return func(m *InsurancePolicyAssetMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *InsurancePolicyAsset
+		)
+		m.oldValue = func(ctx context.Context) (*InsurancePolicyAsset, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().InsurancePolicyAsset.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withInsurancePolicyAsset sets the old InsurancePolicyAsset of the mutation.
+func withInsurancePolicyAsset(node *InsurancePolicyAsset) insurancepolicyassetOption {
+	return func(m *InsurancePolicyAssetMutation) {
+		m.oldValue = func(context.Context) (*InsurancePolicyAsset, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m InsurancePolicyAssetMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m InsurancePolicyAssetMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of InsurancePolicyAsset entities.
+func (m *InsurancePolicyAssetMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *InsurancePolicyAssetMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *InsurancePolicyAssetMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().InsurancePolicyAsset.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreateBy sets the "create_by" field.
+func (m *InsurancePolicyAssetMutation) SetCreateBy(u uint32) {
+	m.create_by = &u
+	m.addcreate_by = nil
+}
+
+// CreateBy returns the value of the "create_by" field in the mutation.
+func (m *InsurancePolicyAssetMutation) CreateBy() (r uint32, exists bool) {
+	v := m.create_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateBy returns the old "create_by" field's value of the InsurancePolicyAsset entity.
+// If the InsurancePolicyAsset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyAssetMutation) OldCreateBy(ctx context.Context) (v *uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreateBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreateBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateBy: %w", err)
+	}
+	return oldValue.CreateBy, nil
+}
+
+// AddCreateBy adds u to the "create_by" field.
+func (m *InsurancePolicyAssetMutation) AddCreateBy(u int32) {
+	if m.addcreate_by != nil {
+		*m.addcreate_by += u
+	} else {
+		m.addcreate_by = &u
+	}
+}
+
+// AddedCreateBy returns the value that was added to the "create_by" field in this mutation.
+func (m *InsurancePolicyAssetMutation) AddedCreateBy() (r int32, exists bool) {
+	v := m.addcreate_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearCreateBy clears the value of the "create_by" field.
+func (m *InsurancePolicyAssetMutation) ClearCreateBy() {
+	m.create_by = nil
+	m.addcreate_by = nil
+	m.clearedFields[insurancepolicyasset.FieldCreateBy] = struct{}{}
+}
+
+// CreateByCleared returns if the "create_by" field was cleared in this mutation.
+func (m *InsurancePolicyAssetMutation) CreateByCleared() bool {
+	_, ok := m.clearedFields[insurancepolicyasset.FieldCreateBy]
+	return ok
+}
+
+// ResetCreateBy resets all changes to the "create_by" field.
+func (m *InsurancePolicyAssetMutation) ResetCreateBy() {
+	m.create_by = nil
+	m.addcreate_by = nil
+	delete(m.clearedFields, insurancepolicyasset.FieldCreateBy)
+}
+
+// SetCreateTime sets the "create_time" field.
+func (m *InsurancePolicyAssetMutation) SetCreateTime(t time.Time) {
+	m.create_time = &t
+}
+
+// CreateTime returns the value of the "create_time" field in the mutation.
+func (m *InsurancePolicyAssetMutation) CreateTime() (r time.Time, exists bool) {
+	v := m.create_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateTime returns the old "create_time" field's value of the InsurancePolicyAsset entity.
+// If the InsurancePolicyAsset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyAssetMutation) OldCreateTime(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
+	}
+	return oldValue.CreateTime, nil
+}
+
+// ClearCreateTime clears the value of the "create_time" field.
+func (m *InsurancePolicyAssetMutation) ClearCreateTime() {
+	m.create_time = nil
+	m.clearedFields[insurancepolicyasset.FieldCreateTime] = struct{}{}
+}
+
+// CreateTimeCleared returns if the "create_time" field was cleared in this mutation.
+func (m *InsurancePolicyAssetMutation) CreateTimeCleared() bool {
+	_, ok := m.clearedFields[insurancepolicyasset.FieldCreateTime]
+	return ok
+}
+
+// ResetCreateTime resets all changes to the "create_time" field.
+func (m *InsurancePolicyAssetMutation) ResetCreateTime() {
+	m.create_time = nil
+	delete(m.clearedFields, insurancepolicyasset.FieldCreateTime)
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (m *InsurancePolicyAssetMutation) SetUpdateTime(t time.Time) {
+	m.update_time = &t
+}
+
+// UpdateTime returns the value of the "update_time" field in the mutation.
+func (m *InsurancePolicyAssetMutation) UpdateTime() (r time.Time, exists bool) {
+	v := m.update_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdateTime returns the old "update_time" field's value of the InsurancePolicyAsset entity.
+// If the InsurancePolicyAsset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyAssetMutation) OldUpdateTime(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
+	}
+	return oldValue.UpdateTime, nil
+}
+
+// ClearUpdateTime clears the value of the "update_time" field.
+func (m *InsurancePolicyAssetMutation) ClearUpdateTime() {
+	m.update_time = nil
+	m.clearedFields[insurancepolicyasset.FieldUpdateTime] = struct{}{}
+}
+
+// UpdateTimeCleared returns if the "update_time" field was cleared in this mutation.
+func (m *InsurancePolicyAssetMutation) UpdateTimeCleared() bool {
+	_, ok := m.clearedFields[insurancepolicyasset.FieldUpdateTime]
+	return ok
+}
+
+// ResetUpdateTime resets all changes to the "update_time" field.
+func (m *InsurancePolicyAssetMutation) ResetUpdateTime() {
+	m.update_time = nil
+	delete(m.clearedFields, insurancepolicyasset.FieldUpdateTime)
+}
+
+// SetDeleteTime sets the "delete_time" field.
+func (m *InsurancePolicyAssetMutation) SetDeleteTime(t time.Time) {
+	m.delete_time = &t
+}
+
+// DeleteTime returns the value of the "delete_time" field in the mutation.
+func (m *InsurancePolicyAssetMutation) DeleteTime() (r time.Time, exists bool) {
+	v := m.delete_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeleteTime returns the old "delete_time" field's value of the InsurancePolicyAsset entity.
+// If the InsurancePolicyAsset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyAssetMutation) OldDeleteTime(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeleteTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeleteTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeleteTime: %w", err)
+	}
+	return oldValue.DeleteTime, nil
+}
+
+// ClearDeleteTime clears the value of the "delete_time" field.
+func (m *InsurancePolicyAssetMutation) ClearDeleteTime() {
+	m.delete_time = nil
+	m.clearedFields[insurancepolicyasset.FieldDeleteTime] = struct{}{}
+}
+
+// DeleteTimeCleared returns if the "delete_time" field was cleared in this mutation.
+func (m *InsurancePolicyAssetMutation) DeleteTimeCleared() bool {
+	_, ok := m.clearedFields[insurancepolicyasset.FieldDeleteTime]
+	return ok
+}
+
+// ResetDeleteTime resets all changes to the "delete_time" field.
+func (m *InsurancePolicyAssetMutation) ResetDeleteTime() {
+	m.delete_time = nil
+	delete(m.clearedFields, insurancepolicyasset.FieldDeleteTime)
+}
+
+// SetPolicyID sets the "policy_id" field.
+func (m *InsurancePolicyAssetMutation) SetPolicyID(s string) {
+	m.policy_id = &s
+}
+
+// PolicyID returns the value of the "policy_id" field in the mutation.
+func (m *InsurancePolicyAssetMutation) PolicyID() (r string, exists bool) {
+	v := m.policy_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPolicyID returns the old "policy_id" field's value of the InsurancePolicyAsset entity.
+// If the InsurancePolicyAsset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyAssetMutation) OldPolicyID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPolicyID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPolicyID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPolicyID: %w", err)
+	}
+	return oldValue.PolicyID, nil
+}
+
+// ResetPolicyID resets all changes to the "policy_id" field.
+func (m *InsurancePolicyAssetMutation) ResetPolicyID() {
+	m.policy_id = nil
+}
+
+// SetAssetID sets the "asset_id" field.
+func (m *InsurancePolicyAssetMutation) SetAssetID(s string) {
+	m.asset_id = &s
+}
+
+// AssetID returns the value of the "asset_id" field in the mutation.
+func (m *InsurancePolicyAssetMutation) AssetID() (r string, exists bool) {
+	v := m.asset_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAssetID returns the old "asset_id" field's value of the InsurancePolicyAsset entity.
+// If the InsurancePolicyAsset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyAssetMutation) OldAssetID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAssetID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAssetID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAssetID: %w", err)
+	}
+	return oldValue.AssetID, nil
+}
+
+// ResetAssetID resets all changes to the "asset_id" field.
+func (m *InsurancePolicyAssetMutation) ResetAssetID() {
+	m.asset_id = nil
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (m *InsurancePolicyAssetMutation) SetTenantID(u uint32) {
+	m.tenant_id = &u
+	m.addtenant_id = nil
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *InsurancePolicyAssetMutation) TenantID() (r uint32, exists bool) {
+	v := m.tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the InsurancePolicyAsset entity.
+// If the InsurancePolicyAsset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyAssetMutation) OldTenantID(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// AddTenantID adds u to the "tenant_id" field.
+func (m *InsurancePolicyAssetMutation) AddTenantID(u int32) {
+	if m.addtenant_id != nil {
+		*m.addtenant_id += u
+	} else {
+		m.addtenant_id = &u
+	}
+}
+
+// AddedTenantID returns the value that was added to the "tenant_id" field in this mutation.
+func (m *InsurancePolicyAssetMutation) AddedTenantID() (r int32, exists bool) {
+	v := m.addtenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *InsurancePolicyAssetMutation) ResetTenantID() {
+	m.tenant_id = nil
+	m.addtenant_id = nil
+}
+
+// SetCoveredValue sets the "covered_value" field.
+func (m *InsurancePolicyAssetMutation) SetCoveredValue(f float64) {
+	m.covered_value = &f
+	m.addcovered_value = nil
+}
+
+// CoveredValue returns the value of the "covered_value" field in the mutation.
+func (m *InsurancePolicyAssetMutation) CoveredValue() (r float64, exists bool) {
+	v := m.covered_value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCoveredValue returns the old "covered_value" field's value of the InsurancePolicyAsset entity.
+// If the InsurancePolicyAsset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyAssetMutation) OldCoveredValue(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCoveredValue is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCoveredValue requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCoveredValue: %w", err)
+	}
+	return oldValue.CoveredValue, nil
+}
+
+// AddCoveredValue adds f to the "covered_value" field.
+func (m *InsurancePolicyAssetMutation) AddCoveredValue(f float64) {
+	if m.addcovered_value != nil {
+		*m.addcovered_value += f
+	} else {
+		m.addcovered_value = &f
+	}
+}
+
+// AddedCoveredValue returns the value that was added to the "covered_value" field in this mutation.
+func (m *InsurancePolicyAssetMutation) AddedCoveredValue() (r float64, exists bool) {
+	v := m.addcovered_value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearCoveredValue clears the value of the "covered_value" field.
+func (m *InsurancePolicyAssetMutation) ClearCoveredValue() {
+	m.covered_value = nil
+	m.addcovered_value = nil
+	m.clearedFields[insurancepolicyasset.FieldCoveredValue] = struct{}{}
+}
+
+// CoveredValueCleared returns if the "covered_value" field was cleared in this mutation.
+func (m *InsurancePolicyAssetMutation) CoveredValueCleared() bool {
+	_, ok := m.clearedFields[insurancepolicyasset.FieldCoveredValue]
+	return ok
+}
+
+// ResetCoveredValue resets all changes to the "covered_value" field.
+func (m *InsurancePolicyAssetMutation) ResetCoveredValue() {
+	m.covered_value = nil
+	m.addcovered_value = nil
+	delete(m.clearedFields, insurancepolicyasset.FieldCoveredValue)
+}
+
+// SetNotes sets the "notes" field.
+func (m *InsurancePolicyAssetMutation) SetNotes(s string) {
+	m.notes = &s
+}
+
+// Notes returns the value of the "notes" field in the mutation.
+func (m *InsurancePolicyAssetMutation) Notes() (r string, exists bool) {
+	v := m.notes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNotes returns the old "notes" field's value of the InsurancePolicyAsset entity.
+// If the InsurancePolicyAsset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyAssetMutation) OldNotes(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNotes is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNotes requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNotes: %w", err)
+	}
+	return oldValue.Notes, nil
+}
+
+// ClearNotes clears the value of the "notes" field.
+func (m *InsurancePolicyAssetMutation) ClearNotes() {
+	m.notes = nil
+	m.clearedFields[insurancepolicyasset.FieldNotes] = struct{}{}
+}
+
+// NotesCleared returns if the "notes" field was cleared in this mutation.
+func (m *InsurancePolicyAssetMutation) NotesCleared() bool {
+	_, ok := m.clearedFields[insurancepolicyasset.FieldNotes]
+	return ok
+}
+
+// ResetNotes resets all changes to the "notes" field.
+func (m *InsurancePolicyAssetMutation) ResetNotes() {
+	m.notes = nil
+	delete(m.clearedFields, insurancepolicyasset.FieldNotes)
+}
+
+// SetAssetTag sets the "asset_tag" field.
+func (m *InsurancePolicyAssetMutation) SetAssetTag(s string) {
+	m.asset_tag = &s
+}
+
+// AssetTag returns the value of the "asset_tag" field in the mutation.
+func (m *InsurancePolicyAssetMutation) AssetTag() (r string, exists bool) {
+	v := m.asset_tag
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAssetTag returns the old "asset_tag" field's value of the InsurancePolicyAsset entity.
+// If the InsurancePolicyAsset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyAssetMutation) OldAssetTag(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAssetTag is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAssetTag requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAssetTag: %w", err)
+	}
+	return oldValue.AssetTag, nil
+}
+
+// ClearAssetTag clears the value of the "asset_tag" field.
+func (m *InsurancePolicyAssetMutation) ClearAssetTag() {
+	m.asset_tag = nil
+	m.clearedFields[insurancepolicyasset.FieldAssetTag] = struct{}{}
+}
+
+// AssetTagCleared returns if the "asset_tag" field was cleared in this mutation.
+func (m *InsurancePolicyAssetMutation) AssetTagCleared() bool {
+	_, ok := m.clearedFields[insurancepolicyasset.FieldAssetTag]
+	return ok
+}
+
+// ResetAssetTag resets all changes to the "asset_tag" field.
+func (m *InsurancePolicyAssetMutation) ResetAssetTag() {
+	m.asset_tag = nil
+	delete(m.clearedFields, insurancepolicyasset.FieldAssetTag)
+}
+
+// SetAssetName sets the "asset_name" field.
+func (m *InsurancePolicyAssetMutation) SetAssetName(s string) {
+	m.asset_name = &s
+}
+
+// AssetName returns the value of the "asset_name" field in the mutation.
+func (m *InsurancePolicyAssetMutation) AssetName() (r string, exists bool) {
+	v := m.asset_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAssetName returns the old "asset_name" field's value of the InsurancePolicyAsset entity.
+// If the InsurancePolicyAsset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyAssetMutation) OldAssetName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAssetName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAssetName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAssetName: %w", err)
+	}
+	return oldValue.AssetName, nil
+}
+
+// ClearAssetName clears the value of the "asset_name" field.
+func (m *InsurancePolicyAssetMutation) ClearAssetName() {
+	m.asset_name = nil
+	m.clearedFields[insurancepolicyasset.FieldAssetName] = struct{}{}
+}
+
+// AssetNameCleared returns if the "asset_name" field was cleared in this mutation.
+func (m *InsurancePolicyAssetMutation) AssetNameCleared() bool {
+	_, ok := m.clearedFields[insurancepolicyasset.FieldAssetName]
+	return ok
+}
+
+// ResetAssetName resets all changes to the "asset_name" field.
+func (m *InsurancePolicyAssetMutation) ResetAssetName() {
+	m.asset_name = nil
+	delete(m.clearedFields, insurancepolicyasset.FieldAssetName)
+}
+
+// SetModelName sets the "model_name" field.
+func (m *InsurancePolicyAssetMutation) SetModelName(s string) {
+	m.model_name = &s
+}
+
+// ModelName returns the value of the "model_name" field in the mutation.
+func (m *InsurancePolicyAssetMutation) ModelName() (r string, exists bool) {
+	v := m.model_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldModelName returns the old "model_name" field's value of the InsurancePolicyAsset entity.
+// If the InsurancePolicyAsset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyAssetMutation) OldModelName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldModelName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldModelName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldModelName: %w", err)
+	}
+	return oldValue.ModelName, nil
+}
+
+// ClearModelName clears the value of the "model_name" field.
+func (m *InsurancePolicyAssetMutation) ClearModelName() {
+	m.model_name = nil
+	m.clearedFields[insurancepolicyasset.FieldModelName] = struct{}{}
+}
+
+// ModelNameCleared returns if the "model_name" field was cleared in this mutation.
+func (m *InsurancePolicyAssetMutation) ModelNameCleared() bool {
+	_, ok := m.clearedFields[insurancepolicyasset.FieldModelName]
+	return ok
+}
+
+// ResetModelName resets all changes to the "model_name" field.
+func (m *InsurancePolicyAssetMutation) ResetModelName() {
+	m.model_name = nil
+	delete(m.clearedFields, insurancepolicyasset.FieldModelName)
+}
+
+// Where appends a list predicates to the InsurancePolicyAssetMutation builder.
+func (m *InsurancePolicyAssetMutation) Where(ps ...predicate.InsurancePolicyAsset) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the InsurancePolicyAssetMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *InsurancePolicyAssetMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.InsurancePolicyAsset, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *InsurancePolicyAssetMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *InsurancePolicyAssetMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (InsurancePolicyAsset).
+func (m *InsurancePolicyAssetMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *InsurancePolicyAssetMutation) Fields() []string {
+	fields := make([]string, 0, 12)
+	if m.create_by != nil {
+		fields = append(fields, insurancepolicyasset.FieldCreateBy)
+	}
+	if m.create_time != nil {
+		fields = append(fields, insurancepolicyasset.FieldCreateTime)
+	}
+	if m.update_time != nil {
+		fields = append(fields, insurancepolicyasset.FieldUpdateTime)
+	}
+	if m.delete_time != nil {
+		fields = append(fields, insurancepolicyasset.FieldDeleteTime)
+	}
+	if m.policy_id != nil {
+		fields = append(fields, insurancepolicyasset.FieldPolicyID)
+	}
+	if m.asset_id != nil {
+		fields = append(fields, insurancepolicyasset.FieldAssetID)
+	}
+	if m.tenant_id != nil {
+		fields = append(fields, insurancepolicyasset.FieldTenantID)
+	}
+	if m.covered_value != nil {
+		fields = append(fields, insurancepolicyasset.FieldCoveredValue)
+	}
+	if m.notes != nil {
+		fields = append(fields, insurancepolicyasset.FieldNotes)
+	}
+	if m.asset_tag != nil {
+		fields = append(fields, insurancepolicyasset.FieldAssetTag)
+	}
+	if m.asset_name != nil {
+		fields = append(fields, insurancepolicyasset.FieldAssetName)
+	}
+	if m.model_name != nil {
+		fields = append(fields, insurancepolicyasset.FieldModelName)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *InsurancePolicyAssetMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case insurancepolicyasset.FieldCreateBy:
+		return m.CreateBy()
+	case insurancepolicyasset.FieldCreateTime:
+		return m.CreateTime()
+	case insurancepolicyasset.FieldUpdateTime:
+		return m.UpdateTime()
+	case insurancepolicyasset.FieldDeleteTime:
+		return m.DeleteTime()
+	case insurancepolicyasset.FieldPolicyID:
+		return m.PolicyID()
+	case insurancepolicyasset.FieldAssetID:
+		return m.AssetID()
+	case insurancepolicyasset.FieldTenantID:
+		return m.TenantID()
+	case insurancepolicyasset.FieldCoveredValue:
+		return m.CoveredValue()
+	case insurancepolicyasset.FieldNotes:
+		return m.Notes()
+	case insurancepolicyasset.FieldAssetTag:
+		return m.AssetTag()
+	case insurancepolicyasset.FieldAssetName:
+		return m.AssetName()
+	case insurancepolicyasset.FieldModelName:
+		return m.ModelName()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *InsurancePolicyAssetMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case insurancepolicyasset.FieldCreateBy:
+		return m.OldCreateBy(ctx)
+	case insurancepolicyasset.FieldCreateTime:
+		return m.OldCreateTime(ctx)
+	case insurancepolicyasset.FieldUpdateTime:
+		return m.OldUpdateTime(ctx)
+	case insurancepolicyasset.FieldDeleteTime:
+		return m.OldDeleteTime(ctx)
+	case insurancepolicyasset.FieldPolicyID:
+		return m.OldPolicyID(ctx)
+	case insurancepolicyasset.FieldAssetID:
+		return m.OldAssetID(ctx)
+	case insurancepolicyasset.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case insurancepolicyasset.FieldCoveredValue:
+		return m.OldCoveredValue(ctx)
+	case insurancepolicyasset.FieldNotes:
+		return m.OldNotes(ctx)
+	case insurancepolicyasset.FieldAssetTag:
+		return m.OldAssetTag(ctx)
+	case insurancepolicyasset.FieldAssetName:
+		return m.OldAssetName(ctx)
+	case insurancepolicyasset.FieldModelName:
+		return m.OldModelName(ctx)
+	}
+	return nil, fmt.Errorf("unknown InsurancePolicyAsset field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *InsurancePolicyAssetMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case insurancepolicyasset.FieldCreateBy:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateBy(v)
+		return nil
+	case insurancepolicyasset.FieldCreateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateTime(v)
+		return nil
+	case insurancepolicyasset.FieldUpdateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdateTime(v)
+		return nil
+	case insurancepolicyasset.FieldDeleteTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeleteTime(v)
+		return nil
+	case insurancepolicyasset.FieldPolicyID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPolicyID(v)
+		return nil
+	case insurancepolicyasset.FieldAssetID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAssetID(v)
+		return nil
+	case insurancepolicyasset.FieldTenantID:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case insurancepolicyasset.FieldCoveredValue:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCoveredValue(v)
+		return nil
+	case insurancepolicyasset.FieldNotes:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNotes(v)
+		return nil
+	case insurancepolicyasset.FieldAssetTag:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAssetTag(v)
+		return nil
+	case insurancepolicyasset.FieldAssetName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAssetName(v)
+		return nil
+	case insurancepolicyasset.FieldModelName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetModelName(v)
+		return nil
+	}
+	return fmt.Errorf("unknown InsurancePolicyAsset field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *InsurancePolicyAssetMutation) AddedFields() []string {
+	var fields []string
+	if m.addcreate_by != nil {
+		fields = append(fields, insurancepolicyasset.FieldCreateBy)
+	}
+	if m.addtenant_id != nil {
+		fields = append(fields, insurancepolicyasset.FieldTenantID)
+	}
+	if m.addcovered_value != nil {
+		fields = append(fields, insurancepolicyasset.FieldCoveredValue)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *InsurancePolicyAssetMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case insurancepolicyasset.FieldCreateBy:
+		return m.AddedCreateBy()
+	case insurancepolicyasset.FieldTenantID:
+		return m.AddedTenantID()
+	case insurancepolicyasset.FieldCoveredValue:
+		return m.AddedCoveredValue()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *InsurancePolicyAssetMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case insurancepolicyasset.FieldCreateBy:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCreateBy(v)
+		return nil
+	case insurancepolicyasset.FieldTenantID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTenantID(v)
+		return nil
+	case insurancepolicyasset.FieldCoveredValue:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCoveredValue(v)
+		return nil
+	}
+	return fmt.Errorf("unknown InsurancePolicyAsset numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *InsurancePolicyAssetMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(insurancepolicyasset.FieldCreateBy) {
+		fields = append(fields, insurancepolicyasset.FieldCreateBy)
+	}
+	if m.FieldCleared(insurancepolicyasset.FieldCreateTime) {
+		fields = append(fields, insurancepolicyasset.FieldCreateTime)
+	}
+	if m.FieldCleared(insurancepolicyasset.FieldUpdateTime) {
+		fields = append(fields, insurancepolicyasset.FieldUpdateTime)
+	}
+	if m.FieldCleared(insurancepolicyasset.FieldDeleteTime) {
+		fields = append(fields, insurancepolicyasset.FieldDeleteTime)
+	}
+	if m.FieldCleared(insurancepolicyasset.FieldCoveredValue) {
+		fields = append(fields, insurancepolicyasset.FieldCoveredValue)
+	}
+	if m.FieldCleared(insurancepolicyasset.FieldNotes) {
+		fields = append(fields, insurancepolicyasset.FieldNotes)
+	}
+	if m.FieldCleared(insurancepolicyasset.FieldAssetTag) {
+		fields = append(fields, insurancepolicyasset.FieldAssetTag)
+	}
+	if m.FieldCleared(insurancepolicyasset.FieldAssetName) {
+		fields = append(fields, insurancepolicyasset.FieldAssetName)
+	}
+	if m.FieldCleared(insurancepolicyasset.FieldModelName) {
+		fields = append(fields, insurancepolicyasset.FieldModelName)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *InsurancePolicyAssetMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *InsurancePolicyAssetMutation) ClearField(name string) error {
+	switch name {
+	case insurancepolicyasset.FieldCreateBy:
+		m.ClearCreateBy()
+		return nil
+	case insurancepolicyasset.FieldCreateTime:
+		m.ClearCreateTime()
+		return nil
+	case insurancepolicyasset.FieldUpdateTime:
+		m.ClearUpdateTime()
+		return nil
+	case insurancepolicyasset.FieldDeleteTime:
+		m.ClearDeleteTime()
+		return nil
+	case insurancepolicyasset.FieldCoveredValue:
+		m.ClearCoveredValue()
+		return nil
+	case insurancepolicyasset.FieldNotes:
+		m.ClearNotes()
+		return nil
+	case insurancepolicyasset.FieldAssetTag:
+		m.ClearAssetTag()
+		return nil
+	case insurancepolicyasset.FieldAssetName:
+		m.ClearAssetName()
+		return nil
+	case insurancepolicyasset.FieldModelName:
+		m.ClearModelName()
+		return nil
+	}
+	return fmt.Errorf("unknown InsurancePolicyAsset nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *InsurancePolicyAssetMutation) ResetField(name string) error {
+	switch name {
+	case insurancepolicyasset.FieldCreateBy:
+		m.ResetCreateBy()
+		return nil
+	case insurancepolicyasset.FieldCreateTime:
+		m.ResetCreateTime()
+		return nil
+	case insurancepolicyasset.FieldUpdateTime:
+		m.ResetUpdateTime()
+		return nil
+	case insurancepolicyasset.FieldDeleteTime:
+		m.ResetDeleteTime()
+		return nil
+	case insurancepolicyasset.FieldPolicyID:
+		m.ResetPolicyID()
+		return nil
+	case insurancepolicyasset.FieldAssetID:
+		m.ResetAssetID()
+		return nil
+	case insurancepolicyasset.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case insurancepolicyasset.FieldCoveredValue:
+		m.ResetCoveredValue()
+		return nil
+	case insurancepolicyasset.FieldNotes:
+		m.ResetNotes()
+		return nil
+	case insurancepolicyasset.FieldAssetTag:
+		m.ResetAssetTag()
+		return nil
+	case insurancepolicyasset.FieldAssetName:
+		m.ResetAssetName()
+		return nil
+	case insurancepolicyasset.FieldModelName:
+		m.ResetModelName()
+		return nil
+	}
+	return fmt.Errorf("unknown InsurancePolicyAsset field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *InsurancePolicyAssetMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *InsurancePolicyAssetMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *InsurancePolicyAssetMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *InsurancePolicyAssetMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *InsurancePolicyAssetMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *InsurancePolicyAssetMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *InsurancePolicyAssetMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown InsurancePolicyAsset unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *InsurancePolicyAssetMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown InsurancePolicyAsset edge %s", name)
 }
 
 // LicenseMutation represents an operation that mutates the License nodes in the graph.
