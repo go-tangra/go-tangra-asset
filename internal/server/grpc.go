@@ -59,6 +59,7 @@ func NewGRPCServer(
 	consumableSvc *service.ConsumableService,
 	licenseSvc *service.LicenseService,
 	insurancePolicySvc *service.InsurancePolicyService,
+	backupSvc *service.BackupService,
 ) *grpc.Server {
 	cfg := ctx.GetConfig()
 	logger := ctx.GetLogger()
@@ -118,6 +119,8 @@ func NewGRPCServer(
 			"/grpc.health.v1.Health/Check",
 			"/grpc.health.v1.Health/Watch",
 			"/asset.service.v1.SystemService/HealthCheck",
+			"/asset.service.v1.BackupService/ExportBackup",
+			"/asset.service.v1.BackupService/ImportBackup",
 		),
 	))
 
@@ -137,6 +140,7 @@ func NewGRPCServer(
 	assetV1.RegisterRedactedConsumableServiceServer(srv, consumableSvc, nil)
 	assetV1.RegisterRedactedLicenseServiceServer(srv, licenseSvc, nil)
 	assetV1.RegisterRedactedInsurancePolicyServiceServer(srv, insurancePolicySvc, nil)
+	assetV1.RegisterRedactedBackupServiceServer(srv, backupSvc, nil)
 
 	return srv
 }
