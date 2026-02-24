@@ -80,6 +80,20 @@ func (r *DocumentRepo) ListByEntity(ctx context.Context, entityType, entityID st
 	return entities, nil
 }
 
+func (r *DocumentRepo) DeleteByEntityID(ctx context.Context, entityType, entityID string) (int, error) {
+	n, err := r.entClient.Client().AssetDocument.Delete().
+		Where(
+			assetdocument.EntityType(entityType),
+			assetdocument.EntityID(entityID),
+		).
+		Exec(ctx)
+	if err != nil {
+		r.log.Errorf("delete documents by entity failed: %s", err.Error())
+		return 0, assetV1.ErrorInternalServerError("delete documents failed")
+	}
+	return n, nil
+}
+
 func (r *DocumentRepo) Delete(ctx context.Context, id string) error {
 	err := r.entClient.Client().AssetDocument.DeleteOneID(id).Exec(ctx)
 	if err != nil {

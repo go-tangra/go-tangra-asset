@@ -81,6 +81,17 @@ func (r *AssignmentRepo) CloseActiveAssignment(ctx context.Context, assetID stri
 	return nil
 }
 
+func (r *AssignmentRepo) DeleteByAssetID(ctx context.Context, assetID string) (int, error) {
+	n, err := r.entClient.Client().AssetAssignment.Delete().
+		Where(assetassignment.AssetID(assetID)).
+		Exec(ctx)
+	if err != nil {
+		r.log.Errorf("delete assignments by asset failed: %s", err.Error())
+		return 0, assetV1.ErrorInternalServerError("delete assignments failed")
+	}
+	return n, nil
+}
+
 func (r *AssignmentRepo) ListByAssetID(ctx context.Context, assetID string, page, pageSize int) ([]*ent.AssetAssignment, int, error) {
 	query := r.entClient.Client().AssetAssignment.Query().
 		Where(assetassignment.AssetID(assetID))

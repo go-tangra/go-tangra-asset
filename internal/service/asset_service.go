@@ -257,10 +257,45 @@ func (s *AssetService) UpdateAsset(ctx context.Context, req *assetV1.UpdateAsset
 }
 
 func (s *AssetService) DeleteAsset(ctx context.Context, req *assetV1.DeleteAssetRequest) (*emptypb.Empty, error) {
-	err := s.assetRepo.Delete(ctx, req.GetId())
+	id := req.GetId()
+
+	// Get asset first to access photo_key for S3 cleanup
+	asset, err := s.assetRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
+	if asset == nil {
+		return nil, assetV1.ErrorAssetNotFound("asset not found")
+	}
+
+	// Delete assignment history
+	if n, err := s.assignmentRepo.DeleteByAssetID(ctx, id); err != nil {
+		s.log.Warnf("failed to delete assignments for asset %s: %v", id, err)
+	} else if n > 0 {
+		s.log.Infof("deleted %d assignments for asset %s", n, id)
+	}
+
+	// Delete documents and their S3 files
+	docs, _ := s.documentRepo.ListByEntity(ctx, "asset", id)
+	for _, doc := range docs {
+		_ = s.storageClient.Delete(ctx, doc.StorageKey)
+	}
+	if n, err := s.documentRepo.DeleteByEntityID(ctx, "asset", id); err != nil {
+		s.log.Warnf("failed to delete documents for asset %s: %v", id, err)
+	} else if n > 0 {
+		s.log.Infof("deleted %d documents for asset %s", n, id)
+	}
+
+	// Delete photo from S3
+	if asset.PhotoKey != "" {
+		_ = s.storageClient.Delete(ctx, asset.PhotoKey)
+	}
+
+	// Delete the asset
+	if err := s.assetRepo.Delete(ctx, id); err != nil {
+		return nil, err
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
