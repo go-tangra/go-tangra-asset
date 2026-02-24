@@ -331,7 +331,7 @@ onMounted(() => {
                   {{ title }}
                 </span>
                 <span
-                  class="tree-actions flex items-center"
+                  class="tree-actions flex items-center opacity-0 transition-opacity group-hover:opacity-100"
                 >
                   <Button
                     type="text"
@@ -436,13 +436,3 @@ onMounted(() => {
     <LocationDrawerComponent />
   </Page>
 </template>
-
-<style scoped>
-.tree-actions {
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.group:hover > .tree-actions {
-  opacity: 1;
-}
-</style>

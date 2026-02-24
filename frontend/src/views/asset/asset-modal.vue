@@ -1019,8 +1019,8 @@ const documentColumns = [
                 class="cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors"
                 :class="
                   isPhotoDragOver
-                    ? 'drop-zone-active'
-                    : 'drop-zone-idle'
+                    ? 'border-blue-400 bg-blue-50/10'
+                    : 'border-gray-300 hover:border-gray-400'
                 "
                 @click.stop="triggerPhotoInput"
                 @drop.prevent.stop="handlePhotoDrop"
@@ -1089,8 +1089,8 @@ const documentColumns = [
                 class="cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors"
                 :class="
                   isDocDragOver
-                    ? 'drop-zone-active'
-                    : 'drop-zone-idle'
+                    ? 'border-blue-400 bg-blue-50/10'
+                    : 'border-gray-300 hover:border-gray-400'
                 "
                 @click.stop="triggerDocInput"
                 @drop.prevent.stop="handleDocDrop"
@@ -1138,26 +1138,3 @@ const documentColumns = [
     </Teleport>
   </Modal>
 </template>
-
-<style scoped>
-.drop-zone-active {
-  border-color: #60a5fa;
-  background-color: rgb(239 246 255 / 0.1);
-}
-.drop-zone-idle {
-  border-color: #d1d5db;
-}
-.drop-zone-idle:hover {
-  border-color: #9ca3af;
-}
-:global(.dark) .drop-zone-active {
-  border-color: #3b82f6;
-  background-color: rgb(30 58 138 / 0.1);
-}
-:global(.dark) .drop-zone-idle {
-  border-color: #4b5563;
-}
-:global(.dark) .drop-zone-idle:hover {
-  border-color: #6b7280;
-}
-</style>
