@@ -284,7 +284,7 @@ onMounted(() => {
               >
                 <span class="flex-1 truncate">{{ title }}</span>
                 <span
-                  class="tree-actions flex items-center opacity-0 transition-opacity group-hover:opacity-100"
+                  class="tree-actions flex items-center"
                 >
                   <Button
                     type="text"
@@ -384,3 +384,13 @@ onMounted(() => {
     <CategoryDrawerComponent />
   </Page>
 </template>
+
+<style scoped>
+.tree-actions {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.group:hover > .tree-actions {
+  opacity: 1;
+}
+</style>
