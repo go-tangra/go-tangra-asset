@@ -22,3 +22,8 @@ Thumbs.db
 
 # Claude Code
 CLAUDE.md
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.__mf__temp/
