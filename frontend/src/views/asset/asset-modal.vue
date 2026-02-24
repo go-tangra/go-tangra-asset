@@ -298,7 +298,7 @@ function getOptionLabel(options: SelectOption[], id: string | undefined) {
   return options.find((o) => o.value === id)?.label ?? id;
 }
 
-const statusOptions = computed(() => [
+const allStatusOptions = [
   {
     value: 'ASSET_STATUS_DEPLOYABLE',
     label: $t('asset.enum.assetStatus.deployable'),
@@ -315,7 +315,13 @@ const statusOptions = computed(() => [
     value: 'ASSET_STATUS_ARCHIVED',
     label: $t('asset.enum.assetStatus.archived'),
   },
-]);
+];
+
+const statusOptions = computed(() =>
+  isCreateMode.value
+    ? allStatusOptions.filter((o) => o.value !== 'ASSET_STATUS_ASSIGNED')
+    : allStatusOptions,
+);
 
 function statusToColor(status: string | undefined) {
   switch (status) {
