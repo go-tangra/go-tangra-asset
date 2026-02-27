@@ -11,6 +11,7 @@ import {
   LucideLink,
   LucideBan,
   LucideShieldCheck,
+  LucideRefreshCw,
 } from 'shell/vben/icons';
 
 import { notification, Space, Button, Tag, Modal, Select, Input, InputNumber } from 'ant-design-vue';
@@ -29,6 +30,7 @@ import { useAssetAssetStore } from '../../stores/asset-asset.state';
 import { useAssetInsuranceStore } from '../../stores/asset-insurance.state';
 
 import AssetModal from './asset-modal.vue';
+import InventorySyncModal from './inventory-sync-modal.vue';
 
 const assetStore = useAssetAssetStore();
 const insuranceStore = useAssetInsuranceStore();
@@ -349,6 +351,19 @@ const [AssetModalComponent, assetModalApi] = useVbenModal({
   },
 });
 
+const [InventorySyncModalComponent, inventorySyncModalApi] = useVbenModal({
+  connectedComponent: InventorySyncModal,
+  onOpenChange(isOpen: boolean) {
+    if (!isOpen) {
+      gridApi.query();
+    }
+  },
+});
+
+function handleInventorySync() {
+  inventorySyncModalApi.open();
+}
+
 function openModal(row: Asset, mode: 'create' | 'edit' | 'view') {
   assetModalApi.setData({ row, mode });
   assetModalApi.open();
@@ -485,6 +500,10 @@ onMounted(() => {
   <Page auto-content-height>
     <Grid :table-title="$t('asset.page.asset.title')">
       <template #toolbar-tools>
+        <Button class="mr-2" @click="handleInventorySync">
+          <template #icon><LucideRefreshCw class="size-4" /></template>
+          {{ $t('asset.page.asset.inventory.syncButton') }}
+        </Button>
         <Button class="mr-2" type="primary" @click="handleCreate">
           {{ $t('asset.page.asset.create') }}
         </Button>
@@ -565,6 +584,7 @@ onMounted(() => {
     </Grid>
 
     <AssetModalComponent />
+    <InventorySyncModalComponent />
 
     <!-- Assign Modal -->
     <Modal

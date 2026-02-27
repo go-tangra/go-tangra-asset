@@ -52,7 +52,7 @@ export interface Supplier {
   website?: string;
   notes?: string;
   tags?: string;
-  metadata?: string;
+  metadata?: Record<string, unknown>;
   status?: string;
   createTime?: string;
   updateTime?: string;
@@ -72,7 +72,7 @@ export interface Employee {
   employeeNumber?: string;
   notes?: string;
   tags?: string;
-  metadata?: string;
+  metadata?: Record<string, unknown>;
   createTime?: string;
   updateTime?: string;
   createdBy?: number;
@@ -99,7 +99,7 @@ export interface Location {
   childCount?: number;
   assetCount?: number;
   tags?: string;
-  metadata?: string;
+  metadata?: Record<string, unknown>;
   createTime?: string;
   updateTime?: string;
   createdBy?: number;
@@ -118,6 +118,7 @@ export interface Category {
   description?: string;
   parentId?: string;
   icon?: string;
+  metadata?: Record<string, unknown>;
   assetCount?: number;
   childCount?: number;
   createTime?: string;
@@ -151,7 +152,7 @@ export interface Asset {
   purchaseCost?: number;
   notes?: string;
   tags?: string;
-  metadata?: string;
+  metadata?: Record<string, unknown>;
   salvageValue?: number;
   usefulLifeYears?: number;
   depreciationRate?: number;
@@ -203,7 +204,7 @@ export interface Consumable {
   orderNumber?: string;
   notes?: string;
   tags?: string;
-  metadata?: string;
+  metadata?: Record<string, unknown>;
   createTime?: string;
   updateTime?: string;
   createdBy?: number;
@@ -241,6 +242,7 @@ export interface License {
   validFrom?: string;
   validTo?: string;
   notes?: string;
+  metadata?: Record<string, unknown>;
   status?: LicenseStatus;
   createdAt?: string;
   updatedAt?: string;
@@ -267,6 +269,7 @@ export interface InsurancePolicy {
   validTo?: string;
   status?: InsurancePolicyStatus;
   notes?: string;
+  metadata?: Record<string, unknown>;
   assetCount?: number;
   createdAt?: string;
   updatedAt?: string;
@@ -388,6 +391,39 @@ export interface LdapSyncPreviewResponse {
 }
 
 export interface LdapSyncExecuteResponse {
+  createdCount: number;
+  updatedCount: number;
+  skippedCount: number;
+  errorCount: number;
+  errors?: string[];
+}
+
+// ==================== Inventory Sync Types ====================
+
+export type InventorySyncAction =
+  | 'ACTION_CREATE'
+  | 'ACTION_UNSPECIFIED'
+  | 'ACTION_UPDATE';
+
+export interface InventorySyncChange {
+  action: InventorySyncAction;
+  hostname?: string;
+  serial?: string;
+  modelName?: string;
+  changedFields?: string[];
+  existingId?: string;
+}
+
+export interface InventorySyncPreviewResponse {
+  totalInventoryEntries: number;
+  newCount: number;
+  updateCount: number;
+  unchangedCount: number;
+  changes: InventorySyncChange[];
+  warnings?: string[];
+}
+
+export interface InventorySyncExecuteResponse {
   createdCount: number;
   updatedCount: number;
   skippedCount: number;
@@ -808,6 +844,27 @@ export const AssetService = {
   ): Promise<{ content: string; fileName: string; mimeType: string }> => {
     return assetApi.get(
       `/assets/${assetId}/documents/${documentId}/download`,
+      options,
+    );
+  },
+
+  inventorySyncPreview: async (
+    options?: RequestOptions,
+  ): Promise<InventorySyncPreviewResponse> => {
+    return assetApi.post<InventorySyncPreviewResponse>(
+      '/assets/inventory-sync/preview',
+      {},
+      options,
+    );
+  },
+
+  inventorySyncExecute: async (
+    data?: { selectedHostnames?: string[] },
+    options?: RequestOptions,
+  ): Promise<InventorySyncExecuteResponse> => {
+    return assetApi.post<InventorySyncExecuteResponse>(
+      '/assets/inventory-sync/execute',
+      data || {},
       options,
     );
   },

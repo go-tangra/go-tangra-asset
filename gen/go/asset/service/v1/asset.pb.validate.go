@@ -3898,3 +3898,577 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DownloadDocumentResponseValidationError{}
+
+// Validate checks the field values on InventorySyncPreviewRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *InventorySyncPreviewRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InventorySyncPreviewRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// InventorySyncPreviewRequestMultiError, or nil if none found.
+func (m *InventorySyncPreviewRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InventorySyncPreviewRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return InventorySyncPreviewRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// InventorySyncPreviewRequestMultiError is an error wrapping multiple
+// validation errors returned by InventorySyncPreviewRequest.ValidateAll() if
+// the designated constraints aren't met.
+type InventorySyncPreviewRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InventorySyncPreviewRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InventorySyncPreviewRequestMultiError) AllErrors() []error { return m }
+
+// InventorySyncPreviewRequestValidationError is the validation error returned
+// by InventorySyncPreviewRequest.Validate if the designated constraints
+// aren't met.
+type InventorySyncPreviewRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e InventorySyncPreviewRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e InventorySyncPreviewRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e InventorySyncPreviewRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e InventorySyncPreviewRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e InventorySyncPreviewRequestValidationError) ErrorName() string {
+	return "InventorySyncPreviewRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e InventorySyncPreviewRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sInventorySyncPreviewRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = InventorySyncPreviewRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = InventorySyncPreviewRequestValidationError{}
+
+// Validate checks the field values on InventorySyncChange with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *InventorySyncChange) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InventorySyncChange with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// InventorySyncChangeMultiError, or nil if none found.
+func (m *InventorySyncChange) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InventorySyncChange) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Action
+
+	// no validation rules for Hostname
+
+	// no validation rules for Serial
+
+	// no validation rules for ModelName
+
+	// no validation rules for ExistingId
+
+	if len(errors) > 0 {
+		return InventorySyncChangeMultiError(errors)
+	}
+
+	return nil
+}
+
+// InventorySyncChangeMultiError is an error wrapping multiple validation
+// errors returned by InventorySyncChange.ValidateAll() if the designated
+// constraints aren't met.
+type InventorySyncChangeMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InventorySyncChangeMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InventorySyncChangeMultiError) AllErrors() []error { return m }
+
+// InventorySyncChangeValidationError is the validation error returned by
+// InventorySyncChange.Validate if the designated constraints aren't met.
+type InventorySyncChangeValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e InventorySyncChangeValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e InventorySyncChangeValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e InventorySyncChangeValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e InventorySyncChangeValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e InventorySyncChangeValidationError) ErrorName() string {
+	return "InventorySyncChangeValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e InventorySyncChangeValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sInventorySyncChange.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = InventorySyncChangeValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = InventorySyncChangeValidationError{}
+
+// Validate checks the field values on InventorySyncPreviewResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *InventorySyncPreviewResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InventorySyncPreviewResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// InventorySyncPreviewResponseMultiError, or nil if none found.
+func (m *InventorySyncPreviewResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InventorySyncPreviewResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for TotalInventoryEntries
+
+	// no validation rules for NewCount
+
+	// no validation rules for UpdateCount
+
+	// no validation rules for UnchangedCount
+
+	for idx, item := range m.GetChanges() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, InventorySyncPreviewResponseValidationError{
+						field:  fmt.Sprintf("Changes[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, InventorySyncPreviewResponseValidationError{
+						field:  fmt.Sprintf("Changes[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return InventorySyncPreviewResponseValidationError{
+					field:  fmt.Sprintf("Changes[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return InventorySyncPreviewResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// InventorySyncPreviewResponseMultiError is an error wrapping multiple
+// validation errors returned by InventorySyncPreviewResponse.ValidateAll() if
+// the designated constraints aren't met.
+type InventorySyncPreviewResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InventorySyncPreviewResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InventorySyncPreviewResponseMultiError) AllErrors() []error { return m }
+
+// InventorySyncPreviewResponseValidationError is the validation error returned
+// by InventorySyncPreviewResponse.Validate if the designated constraints
+// aren't met.
+type InventorySyncPreviewResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e InventorySyncPreviewResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e InventorySyncPreviewResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e InventorySyncPreviewResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e InventorySyncPreviewResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e InventorySyncPreviewResponseValidationError) ErrorName() string {
+	return "InventorySyncPreviewResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e InventorySyncPreviewResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sInventorySyncPreviewResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = InventorySyncPreviewResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = InventorySyncPreviewResponseValidationError{}
+
+// Validate checks the field values on InventorySyncExecuteRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *InventorySyncExecuteRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InventorySyncExecuteRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// InventorySyncExecuteRequestMultiError, or nil if none found.
+func (m *InventorySyncExecuteRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InventorySyncExecuteRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return InventorySyncExecuteRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// InventorySyncExecuteRequestMultiError is an error wrapping multiple
+// validation errors returned by InventorySyncExecuteRequest.ValidateAll() if
+// the designated constraints aren't met.
+type InventorySyncExecuteRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InventorySyncExecuteRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InventorySyncExecuteRequestMultiError) AllErrors() []error { return m }
+
+// InventorySyncExecuteRequestValidationError is the validation error returned
+// by InventorySyncExecuteRequest.Validate if the designated constraints
+// aren't met.
+type InventorySyncExecuteRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e InventorySyncExecuteRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e InventorySyncExecuteRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e InventorySyncExecuteRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e InventorySyncExecuteRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e InventorySyncExecuteRequestValidationError) ErrorName() string {
+	return "InventorySyncExecuteRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e InventorySyncExecuteRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sInventorySyncExecuteRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = InventorySyncExecuteRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = InventorySyncExecuteRequestValidationError{}
+
+// Validate checks the field values on InventorySyncExecuteResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *InventorySyncExecuteResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InventorySyncExecuteResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// InventorySyncExecuteResponseMultiError, or nil if none found.
+func (m *InventorySyncExecuteResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InventorySyncExecuteResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for CreatedCount
+
+	// no validation rules for UpdatedCount
+
+	// no validation rules for SkippedCount
+
+	// no validation rules for ErrorCount
+
+	if len(errors) > 0 {
+		return InventorySyncExecuteResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// InventorySyncExecuteResponseMultiError is an error wrapping multiple
+// validation errors returned by InventorySyncExecuteResponse.ValidateAll() if
+// the designated constraints aren't met.
+type InventorySyncExecuteResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InventorySyncExecuteResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InventorySyncExecuteResponseMultiError) AllErrors() []error { return m }
+
+// InventorySyncExecuteResponseValidationError is the validation error returned
+// by InventorySyncExecuteResponse.Validate if the designated constraints
+// aren't met.
+type InventorySyncExecuteResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e InventorySyncExecuteResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e InventorySyncExecuteResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e InventorySyncExecuteResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e InventorySyncExecuteResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e InventorySyncExecuteResponseValidationError) ErrorName() string {
+	return "InventorySyncExecuteResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e InventorySyncExecuteResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sInventorySyncExecuteResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = InventorySyncExecuteResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = InventorySyncExecuteResponseValidationError{}

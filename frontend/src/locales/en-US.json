@@ -32,6 +32,7 @@
       "purchaseCost": "Purchase Cost",
       "notes": "Notes",
       "tags": "Tags",
+      "metadata": "Metadata",
       "sectionBasic": "Basic Information",
       "sectionProcurement": "Procurement",
       "sectionAssignment": "Assignment",
@@ -78,7 +79,33 @@
       "depreciationRate": "Depreciation Rate",
       "currentValue": "Current Value",
       "addToPolicy": "Add to Insurance Policy",
-      "selectPolicy": "Insurance Policy"
+      "selectPolicy": "Insurance Policy",
+      "inventory": {
+        "title": "Sync from Inventory",
+        "syncButton": "Sync from Inventory",
+        "sync": "Apply Changes",
+        "fetching": "Fetching inventory data...",
+        "syncing": "Syncing assets...",
+        "totalInventory": "Total Inventory Entries",
+        "newAssets": "New",
+        "updatedAssets": "Updated",
+        "unchanged": "Unchanged",
+        "noChanges": "All assets are up to date with inventory.",
+        "warnings": "Warnings",
+        "action": "Action",
+        "hostname": "Hostname",
+        "serial": "Serial",
+        "model": "Model",
+        "changedFields": "Changed Fields",
+        "syncSuccess": "Inventory sync completed successfully",
+        "syncPartial": "Inventory sync completed with some errors",
+        "syncFailed": "Inventory sync failed",
+        "syncComplete": "Sync Complete",
+        "created": "Created",
+        "updated": "Updated",
+        "skipped": "Skipped",
+        "errors": "Errors"
+      }
     },
     "consumable": {
       "title": "Consumables",
@@ -98,6 +125,7 @@
       "purchaseCost": "Purchase Cost",
       "orderNumber": "Order Number",
       "notes": "Notes",
+      "metadata": "Metadata",
       "lowStock": "Low Stock",
       "sectionDocuments": "Documents",
       "createSuccess": "Consumable created successfully",
@@ -123,6 +151,7 @@
       "createSuccess": "License created successfully",
       "updateSuccess": "License updated successfully",
       "deleteSuccess": "License deleted successfully",
+      "metadata": "Metadata",
       "confirmDelete": "Are you sure you want to delete this license?"
     },
     "insurance": {
@@ -156,7 +185,8 @@
       "confirmDelete": "Are you sure you want to delete this insurance policy?",
       "addAssetSuccess": "Asset added to policy successfully",
       "removeAssetSuccess": "Asset removed from policy successfully",
-      "confirmRemoveAsset": "Are you sure you want to remove this asset from the policy?"
+      "confirmRemoveAsset": "Are you sure you want to remove this asset from the policy?",
+      "metadata": "Metadata"
     },
     "category": {
       "title": "Categories",
@@ -174,6 +204,7 @@
       "createSuccess": "Category created successfully",
       "updateSuccess": "Category updated successfully",
       "deleteSuccess": "Category deleted successfully",
+      "metadata": "Metadata",
       "confirmDelete": "Are you sure you want to delete this category?"
     },
     "supplier": {
@@ -199,6 +230,7 @@
       "createSuccess": "Supplier created successfully",
       "updateSuccess": "Supplier updated successfully",
       "deleteSuccess": "Supplier deleted successfully",
+      "metadata": "Metadata",
       "confirmDelete": "Are you sure you want to delete this supplier?",
       "tabGeneral": "General",
       "tabAddress": "Address",
@@ -221,6 +253,7 @@
       "createSuccess": "Employee created successfully",
       "updateSuccess": "Employee updated successfully",
       "deleteSuccess": "Employee deleted successfully",
+      "metadata": "Metadata",
       "confirmDelete": "Are you sure you want to delete this employee?",
       "tabPersonal": "Personal",
       "tabWork": "Work",
@@ -275,6 +308,7 @@
       "createSuccess": "Location created successfully",
       "updateSuccess": "Location updated successfully",
       "deleteSuccess": "Location deleted successfully",
+      "metadata": "Metadata",
       "confirmDelete": "Are you sure you want to delete this location?"
     },
     "system": {

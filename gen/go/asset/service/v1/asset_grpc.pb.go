@@ -34,6 +34,8 @@ const (
 	AssetService_UploadDocument_FullMethodName       = "/asset.service.v1.AssetService/UploadDocument"
 	AssetService_DeleteDocument_FullMethodName       = "/asset.service.v1.AssetService/DeleteDocument"
 	AssetService_DownloadDocument_FullMethodName     = "/asset.service.v1.AssetService/DownloadDocument"
+	AssetService_InventorySyncPreview_FullMethodName = "/asset.service.v1.AssetService/InventorySyncPreview"
+	AssetService_InventorySyncExecute_FullMethodName = "/asset.service.v1.AssetService/InventorySyncExecute"
 )
 
 // AssetServiceClient is the client API for AssetService service.
@@ -70,6 +72,10 @@ type AssetServiceClient interface {
 	DeleteDocument(ctx context.Context, in *DeleteAssetDocumentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Download a document
 	DownloadDocument(ctx context.Context, in *DownloadAssetDocumentRequest, opts ...grpc.CallOption) (*DownloadDocumentResponse, error)
+	// Preview inventory sync changes
+	InventorySyncPreview(ctx context.Context, in *InventorySyncPreviewRequest, opts ...grpc.CallOption) (*InventorySyncPreviewResponse, error)
+	// Execute inventory sync
+	InventorySyncExecute(ctx context.Context, in *InventorySyncExecuteRequest, opts ...grpc.CallOption) (*InventorySyncExecuteResponse, error)
 }
 
 type assetServiceClient struct {
@@ -220,6 +226,26 @@ func (c *assetServiceClient) DownloadDocument(ctx context.Context, in *DownloadA
 	return out, nil
 }
 
+func (c *assetServiceClient) InventorySyncPreview(ctx context.Context, in *InventorySyncPreviewRequest, opts ...grpc.CallOption) (*InventorySyncPreviewResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InventorySyncPreviewResponse)
+	err := c.cc.Invoke(ctx, AssetService_InventorySyncPreview_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assetServiceClient) InventorySyncExecute(ctx context.Context, in *InventorySyncExecuteRequest, opts ...grpc.CallOption) (*InventorySyncExecuteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InventorySyncExecuteResponse)
+	err := c.cc.Invoke(ctx, AssetService_InventorySyncExecute_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AssetServiceServer is the server API for AssetService service.
 // All implementations must embed UnimplementedAssetServiceServer
 // for forward compatibility.
@@ -254,6 +280,10 @@ type AssetServiceServer interface {
 	DeleteDocument(context.Context, *DeleteAssetDocumentRequest) (*emptypb.Empty, error)
 	// Download a document
 	DownloadDocument(context.Context, *DownloadAssetDocumentRequest) (*DownloadDocumentResponse, error)
+	// Preview inventory sync changes
+	InventorySyncPreview(context.Context, *InventorySyncPreviewRequest) (*InventorySyncPreviewResponse, error)
+	// Execute inventory sync
+	InventorySyncExecute(context.Context, *InventorySyncExecuteRequest) (*InventorySyncExecuteResponse, error)
 	mustEmbedUnimplementedAssetServiceServer()
 }
 
@@ -305,6 +335,12 @@ func (UnimplementedAssetServiceServer) DeleteDocument(context.Context, *DeleteAs
 }
 func (UnimplementedAssetServiceServer) DownloadDocument(context.Context, *DownloadAssetDocumentRequest) (*DownloadDocumentResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DownloadDocument not implemented")
+}
+func (UnimplementedAssetServiceServer) InventorySyncPreview(context.Context, *InventorySyncPreviewRequest) (*InventorySyncPreviewResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method InventorySyncPreview not implemented")
+}
+func (UnimplementedAssetServiceServer) InventorySyncExecute(context.Context, *InventorySyncExecuteRequest) (*InventorySyncExecuteResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method InventorySyncExecute not implemented")
 }
 func (UnimplementedAssetServiceServer) mustEmbedUnimplementedAssetServiceServer() {}
 func (UnimplementedAssetServiceServer) testEmbeddedByValue()                      {}
@@ -579,6 +615,42 @@ func _AssetService_DownloadDocument_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AssetService_InventorySyncPreview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InventorySyncPreviewRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssetServiceServer).InventorySyncPreview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssetService_InventorySyncPreview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssetServiceServer).InventorySyncPreview(ctx, req.(*InventorySyncPreviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssetService_InventorySyncExecute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InventorySyncExecuteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssetServiceServer).InventorySyncExecute(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssetService_InventorySyncExecute_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssetServiceServer).InventorySyncExecute(ctx, req.(*InventorySyncExecuteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AssetService_ServiceDesc is the grpc.ServiceDesc for AssetService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -641,6 +713,14 @@ var AssetService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DownloadDocument",
 			Handler:    _AssetService_DownloadDocument_Handler,
+		},
+		{
+			MethodName: "InventorySyncPreview",
+			Handler:    _AssetService_InventorySyncPreview_Handler,
+		},
+		{
+			MethodName: "InventorySyncExecute",
+			Handler:    _AssetService_InventorySyncExecute_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

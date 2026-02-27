@@ -204,6 +204,28 @@ func (s *redactedAssetServiceServer) DownloadDocument(ctx context.Context, in *D
 	return res, err
 }
 
+// InventorySyncPreview is the redacted wrapper for the actual AssetServiceServer.InventorySyncPreview method
+// Unary RPC
+func (s *redactedAssetServiceServer) InventorySyncPreview(ctx context.Context, in *InventorySyncPreviewRequest) (*InventorySyncPreviewResponse, error) {
+	res, err := s.srv.InventorySyncPreview(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.Apply(res)
+	}
+	return res, err
+}
+
+// InventorySyncExecute is the redacted wrapper for the actual AssetServiceServer.InventorySyncExecute method
+// Unary RPC
+func (s *redactedAssetServiceServer) InventorySyncExecute(ctx context.Context, in *InventorySyncExecuteRequest) (*InventorySyncExecuteResponse, error) {
+	res, err := s.srv.InventorySyncExecute(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.Apply(res)
+	}
+	return res, err
+}
+
 // Redact method implementation for Asset
 func (x *Asset) Redact() string {
 	if x == nil {
@@ -673,5 +695,81 @@ func (x *DownloadDocumentResponse) Redact() string {
 	// Safe field: Content
 
 	// Safe field: MimeType
+	return x.String()
+}
+
+// Redact method implementation for InventorySyncPreviewRequest
+func (x *InventorySyncPreviewRequest) Redact() string {
+	if x == nil {
+		return ""
+	}
+	return x.String()
+}
+
+// Redact method implementation for InventorySyncChange
+func (x *InventorySyncChange) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: Action
+
+	// Safe field: Hostname
+
+	// Safe field: Serial
+
+	// Safe field: ModelName
+
+	// Safe field: ChangedFields
+
+	// Safe field: ExistingId
+	return x.String()
+}
+
+// Redact method implementation for InventorySyncPreviewResponse
+func (x *InventorySyncPreviewResponse) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: TotalInventoryEntries
+
+	// Safe field: NewCount
+
+	// Safe field: UpdateCount
+
+	// Safe field: UnchangedCount
+
+	// Safe field: Changes
+
+	// Safe field: Warnings
+	return x.String()
+}
+
+// Redact method implementation for InventorySyncExecuteRequest
+func (x *InventorySyncExecuteRequest) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: SelectedHostnames
+	return x.String()
+}
+
+// Redact method implementation for InventorySyncExecuteResponse
+func (x *InventorySyncExecuteResponse) Redact() string {
+	if x == nil {
+		return ""
+	}
+
+	// Safe field: CreatedCount
+
+	// Safe field: UpdatedCount
+
+	// Safe field: SkippedCount
+
+	// Safe field: ErrorCount
+
+	// Safe field: Errors
 	return x.String()
 }

@@ -45,4 +45,8 @@ enum AssetErrorReason {
   // LDAP
   LDAP_NOT_CONFIGURED = 400 [(errors.code) = 400]; // LDAP is not configured
   LDAP_SYNC_FAILED = 401 [(errors.code) = 500]; // LDAP sync failed
+
+  // Inventory
+  INVENTORY_NOT_CONFIGURED = 410 [(errors.code) = 400]; // Inventory collector is not configured
+  INVENTORY_SYNC_FAILED = 411 [(errors.code) = 500]; // Inventory sync failed
 }

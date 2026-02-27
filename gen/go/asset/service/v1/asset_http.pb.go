@@ -28,6 +28,8 @@ const OperationAssetServiceDeletePhoto = "/asset.service.v1.AssetService/DeleteP
 const OperationAssetServiceDownloadDocument = "/asset.service.v1.AssetService/DownloadDocument"
 const OperationAssetServiceGetAsset = "/asset.service.v1.AssetService/GetAsset"
 const OperationAssetServiceGetAssignmentHistory = "/asset.service.v1.AssetService/GetAssignmentHistory"
+const OperationAssetServiceInventorySyncExecute = "/asset.service.v1.AssetService/InventorySyncExecute"
+const OperationAssetServiceInventorySyncPreview = "/asset.service.v1.AssetService/InventorySyncPreview"
 const OperationAssetServiceListAssets = "/asset.service.v1.AssetService/ListAssets"
 const OperationAssetServiceListDocuments = "/asset.service.v1.AssetService/ListDocuments"
 const OperationAssetServiceUnassignAsset = "/asset.service.v1.AssetService/UnassignAsset"
@@ -52,6 +54,10 @@ type AssetServiceHTTPServer interface {
 	GetAsset(context.Context, *GetAssetRequest) (*GetAssetResponse, error)
 	// GetAssignmentHistory Get assignment history for an asset
 	GetAssignmentHistory(context.Context, *GetAssignmentHistoryRequest) (*GetAssignmentHistoryResponse, error)
+	// InventorySyncExecute Execute inventory sync
+	InventorySyncExecute(context.Context, *InventorySyncExecuteRequest) (*InventorySyncExecuteResponse, error)
+	// InventorySyncPreview Preview inventory sync changes
+	InventorySyncPreview(context.Context, *InventorySyncPreviewRequest) (*InventorySyncPreviewResponse, error)
 	// ListAssets List assets with filtering
 	ListAssets(context.Context, *ListAssetsRequest) (*ListAssetsResponse, error)
 	// ListDocuments List documents for an asset
@@ -82,6 +88,8 @@ func RegisterAssetServiceHTTPServer(s *http.Server, srv AssetServiceHTTPServer) 
 	r.POST("/v1/assets/{id}/documents", _AssetService_UploadDocument0_HTTP_Handler(srv))
 	r.DELETE("/v1/assets/{asset_id}/documents/{id}", _AssetService_DeleteDocument0_HTTP_Handler(srv))
 	r.GET("/v1/assets/{asset_id}/documents/{id}/download", _AssetService_DownloadDocument0_HTTP_Handler(srv))
+	r.POST("/v1/assets/inventory-sync/preview", _AssetService_InventorySyncPreview0_HTTP_Handler(srv))
+	r.POST("/v1/assets/inventory-sync/execute", _AssetService_InventorySyncExecute0_HTTP_Handler(srv))
 }
 
 func _AssetService_CreateAsset0_HTTP_Handler(srv AssetServiceHTTPServer) func(ctx http.Context) error {
@@ -404,6 +412,50 @@ func _AssetService_DownloadDocument0_HTTP_Handler(srv AssetServiceHTTPServer) fu
 	}
 }
 
+func _AssetService_InventorySyncPreview0_HTTP_Handler(srv AssetServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in InventorySyncPreviewRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAssetServiceInventorySyncPreview)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.InventorySyncPreview(ctx, req.(*InventorySyncPreviewRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*InventorySyncPreviewResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AssetService_InventorySyncExecute0_HTTP_Handler(srv AssetServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in InventorySyncExecuteRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAssetServiceInventorySyncExecute)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.InventorySyncExecute(ctx, req.(*InventorySyncExecuteRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*InventorySyncExecuteResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type AssetServiceHTTPClient interface {
 	// AssignAsset Assign an asset to an employee
 	AssignAsset(ctx context.Context, req *AssignAssetRequest, opts ...http.CallOption) (rsp *AssignAssetResponse, err error)
@@ -421,6 +473,10 @@ type AssetServiceHTTPClient interface {
 	GetAsset(ctx context.Context, req *GetAssetRequest, opts ...http.CallOption) (rsp *GetAssetResponse, err error)
 	// GetAssignmentHistory Get assignment history for an asset
 	GetAssignmentHistory(ctx context.Context, req *GetAssignmentHistoryRequest, opts ...http.CallOption) (rsp *GetAssignmentHistoryResponse, err error)
+	// InventorySyncExecute Execute inventory sync
+	InventorySyncExecute(ctx context.Context, req *InventorySyncExecuteRequest, opts ...http.CallOption) (rsp *InventorySyncExecuteResponse, err error)
+	// InventorySyncPreview Preview inventory sync changes
+	InventorySyncPreview(ctx context.Context, req *InventorySyncPreviewRequest, opts ...http.CallOption) (rsp *InventorySyncPreviewResponse, err error)
 	// ListAssets List assets with filtering
 	ListAssets(ctx context.Context, req *ListAssetsRequest, opts ...http.CallOption) (rsp *ListAssetsResponse, err error)
 	// ListDocuments List documents for an asset
@@ -549,6 +605,34 @@ func (c *AssetServiceHTTPClientImpl) GetAssignmentHistory(ctx context.Context, i
 	opts = append(opts, http.Operation(OperationAssetServiceGetAssignmentHistory))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// InventorySyncExecute Execute inventory sync
+func (c *AssetServiceHTTPClientImpl) InventorySyncExecute(ctx context.Context, in *InventorySyncExecuteRequest, opts ...http.CallOption) (*InventorySyncExecuteResponse, error) {
+	var out InventorySyncExecuteResponse
+	pattern := "/v1/assets/inventory-sync/execute"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAssetServiceInventorySyncExecute))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// InventorySyncPreview Preview inventory sync changes
+func (c *AssetServiceHTTPClientImpl) InventorySyncPreview(ctx context.Context, in *InventorySyncPreviewRequest, opts ...http.CallOption) (*InventorySyncPreviewResponse, error) {
+	var out InventorySyncPreviewResponse
+	pattern := "/v1/assets/inventory-sync/preview"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAssetServiceInventorySyncPreview))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

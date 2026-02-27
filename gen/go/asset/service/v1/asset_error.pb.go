@@ -59,6 +59,9 @@ const (
 	// LDAP
 	AssetErrorReason_LDAP_NOT_CONFIGURED AssetErrorReason = 400 // LDAP is not configured
 	AssetErrorReason_LDAP_SYNC_FAILED    AssetErrorReason = 401 // LDAP sync failed
+	// Inventory
+	AssetErrorReason_INVENTORY_NOT_CONFIGURED AssetErrorReason = 410 // Inventory collector is not configured
+	AssetErrorReason_INVENTORY_SYNC_FAILED    AssetErrorReason = 411 // Inventory sync failed
 )
 
 // Enum value maps for AssetErrorReason.
@@ -93,6 +96,8 @@ var (
 		301: "STORAGE_ERROR",
 		400: "LDAP_NOT_CONFIGURED",
 		401: "LDAP_SYNC_FAILED",
+		410: "INVENTORY_NOT_CONFIGURED",
+		411: "INVENTORY_SYNC_FAILED",
 	}
 	AssetErrorReason_value = map[string]int32{
 		"BAD_REQUEST":                0,
@@ -124,6 +129,8 @@ var (
 		"STORAGE_ERROR":              301,
 		"LDAP_NOT_CONFIGURED":        400,
 		"LDAP_SYNC_FAILED":           401,
+		"INVENTORY_NOT_CONFIGURED":   410,
+		"INVENTORY_SYNC_FAILED":      411,
 	}
 )
 
@@ -158,7 +165,7 @@ var File_asset_service_v1_asset_error_proto protoreflect.FileDescriptor
 
 const file_asset_service_v1_asset_error_proto_rawDesc = "" +
 	"\n" +
-	"\"asset/service/v1/asset_error.proto\x12\x10asset.service.v1\x1a\x13errors/errors.proto*\xa1\a\n" +
+	"\"asset/service/v1/asset_error.proto\x12\x10asset.service.v1\x1a\x13errors/errors.proto*\xe8\a\n" +
 	"\x10AssetErrorReason\x12\x15\n" +
 	"\vBAD_REQUEST\x10\x00\x1a\x04\xa8E\x90\x03\x12\x1b\n" +
 	"\x11VALIDATION_FAILED\x10\x01\x1a\x04\xa8E\x90\x03\x12#\n" +
@@ -188,7 +195,9 @@ const file_asset_service_v1_asset_error_proto_rawDesc = "" +
 	"\x15INTERNAL_SERVER_ERROR\x10\xac\x02\x1a\x04\xa8E\xf4\x03\x12\x18\n" +
 	"\rSTORAGE_ERROR\x10\xad\x02\x1a\x04\xa8E\xf4\x03\x12\x1e\n" +
 	"\x13LDAP_NOT_CONFIGURED\x10\x90\x03\x1a\x04\xa8E\x90\x03\x12\x1b\n" +
-	"\x10LDAP_SYNC_FAILED\x10\x91\x03\x1a\x04\xa8E\xf4\x03\x1a\x04\xa0E\xf4\x03B\xcf\x01\n" +
+	"\x10LDAP_SYNC_FAILED\x10\x91\x03\x1a\x04\xa8E\xf4\x03\x12#\n" +
+	"\x18INVENTORY_NOT_CONFIGURED\x10\x9a\x03\x1a\x04\xa8E\x90\x03\x12 \n" +
+	"\x15INVENTORY_SYNC_FAILED\x10\x9b\x03\x1a\x04\xa8E\xf4\x03\x1a\x04\xa0E\xf4\x03B\xcf\x01\n" +
 	"\x14com.asset.service.v1B\x0fAssetErrorProtoP\x01ZDgithub.com/go-tangra/go-tangra-asset/gen/go/asset/service/v1;assetpb\xa2\x02\x03ASX\xaa\x02\x10Asset.Service.V1\xca\x02\x10Asset\\Service\\V1\xe2\x02\x1cAsset\\Service\\V1\\GPBMetadata\xea\x02\x12Asset::Service::V1b\x06proto3"
 
 var (

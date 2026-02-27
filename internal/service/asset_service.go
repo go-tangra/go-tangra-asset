@@ -26,12 +26,13 @@ func generateAssetTag() string {
 type AssetService struct {
 	assetV1.UnimplementedAssetServiceServer
 
-	log            *log.Helper
-	assetRepo      *data.AssetRepo
-	assignmentRepo *data.AssignmentRepo
-	documentRepo   *data.DocumentRepo
-	employeeRepo   *data.EmployeeRepo
-	storageClient  *data.StorageClient
+	log             *log.Helper
+	assetRepo       *data.AssetRepo
+	assignmentRepo  *data.AssignmentRepo
+	documentRepo    *data.DocumentRepo
+	employeeRepo    *data.EmployeeRepo
+	storageClient   *data.StorageClient
+	inventoryClient *data.InventoryClient
 }
 
 func NewAssetService(
@@ -41,14 +42,16 @@ func NewAssetService(
 	documentRepo *data.DocumentRepo,
 	employeeRepo *data.EmployeeRepo,
 	storageClient *data.StorageClient,
+	inventoryClient *data.InventoryClient,
 ) *AssetService {
 	return &AssetService{
-		log:            ctx.NewLoggerHelper("asset/service/asset"),
-		assetRepo:      assetRepo,
-		assignmentRepo: assignmentRepo,
-		documentRepo:   documentRepo,
-		employeeRepo:   employeeRepo,
-		storageClient:  storageClient,
+		log:             ctx.NewLoggerHelper("asset/service/asset"),
+		assetRepo:       assetRepo,
+		assignmentRepo:  assignmentRepo,
+		documentRepo:    documentRepo,
+		employeeRepo:    employeeRepo,
+		storageClient:   storageClient,
+		inventoryClient: inventoryClient,
 	}
 }
 
@@ -565,6 +568,99 @@ func (s *AssetService) DownloadDocument(ctx context.Context, req *assetV1.Downlo
 		FileName: doc.FileName,
 		Content:  content,
 		MimeType: doc.MimeType,
+	}, nil
+}
+
+func (s *AssetService) InventorySyncPreview(ctx context.Context, _ *assetV1.InventorySyncPreviewRequest) (*assetV1.InventorySyncPreviewResponse, error) {
+	if !s.inventoryClient.IsConfigured() {
+		return nil, assetV1.ErrorInventoryNotConfigured("inventory collector is not configured")
+	}
+
+	tenantID := getTenantID(ctx)
+	preview, _, err := s.buildInventoryPreview(ctx, tenantID)
+	if err != nil {
+		return nil, err
+	}
+
+	return preview, nil
+}
+
+func (s *AssetService) InventorySyncExecute(ctx context.Context, req *assetV1.InventorySyncExecuteRequest) (*assetV1.InventorySyncExecuteResponse, error) {
+	if !s.inventoryClient.IsConfigured() {
+		return nil, assetV1.ErrorInventoryNotConfigured("inventory collector is not configured")
+	}
+
+	tenantID := getTenantID(ctx)
+	preview, inventoryMap, err := s.buildInventoryPreview(ctx, tenantID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Build a set of selected hostnames for filtering
+	selectedHostnames := make(map[string]bool)
+	if len(req.GetSelectedHostnames()) > 0 {
+		for _, h := range req.GetSelectedHostnames() {
+			selectedHostnames[h] = true
+		}
+	}
+
+	var (
+		createdCount int32
+		updatedCount int32
+		skippedCount int32
+		errorCount   int32
+		syncErrors   []string
+	)
+
+	for _, change := range preview.Changes {
+		hostname := change.Hostname
+
+		// Filter by selected hostnames if specified
+		if len(selectedHostnames) > 0 && !selectedHostnames[hostname] {
+			skippedCount++
+			continue
+		}
+
+		inv := inventoryMap[hostname]
+		if inv == nil {
+			skippedCount++
+			continue
+		}
+
+		switch change.Action {
+		case assetV1.InventorySyncChange_ACTION_CREATE:
+			name := inv.Hostname
+			if name == "" {
+				name = "Unknown"
+			}
+
+			opts := buildInventoryCreateOpts(inv)
+			_, createErr := s.assetRepo.Create(ctx, tenantID, generateAssetTag(), name, opts...)
+			if createErr != nil {
+				errorCount++
+				syncErrors = append(syncErrors, "create "+hostname+": "+createErr.Error())
+			} else {
+				createdCount++
+			}
+
+		case assetV1.InventorySyncChange_ACTION_UPDATE:
+			updates := buildInventoryUpdateMap(inv, change.ChangedFields)
+			_, updateErr := s.assetRepo.Update(ctx, change.ExistingId, updates)
+			if updateErr != nil {
+				errorCount++
+				syncErrors = append(syncErrors, "update "+hostname+": "+updateErr.Error())
+			} else {
+				updatedCount++
+			}
+		}
+	}
+
+	return &assetV1.InventorySyncExecuteResponse{
+		CreatedCount: createdCount,
+		UpdatedCount: updatedCount,
+		SkippedCount: skippedCount,
+		ErrorCount:   errorCount,
+		Errors:       syncErrors,
 	}, nil
 }
 

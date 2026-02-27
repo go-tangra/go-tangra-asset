@@ -416,3 +416,31 @@ func IsLdapSyncFailed(err error) bool {
 func ErrorLdapSyncFailed(format string, args ...interface{}) *errors.Error {
 	return errors.New(500, AssetErrorReason_LDAP_SYNC_FAILED.String(), fmt.Sprintf(format, args...))
 }
+
+// Inventory
+func IsInventoryNotConfigured(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AssetErrorReason_INVENTORY_NOT_CONFIGURED.String() && e.Code == 400
+}
+
+// Inventory
+func ErrorInventoryNotConfigured(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, AssetErrorReason_INVENTORY_NOT_CONFIGURED.String(), fmt.Sprintf(format, args...))
+}
+
+// Inventory sync failed
+func IsInventorySyncFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == AssetErrorReason_INVENTORY_SYNC_FAILED.String() && e.Code == 500
+}
+
+// Inventory sync failed
+func ErrorInventorySyncFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, AssetErrorReason_INVENTORY_SYNC_FAILED.String(), fmt.Sprintf(format, args...))
+}

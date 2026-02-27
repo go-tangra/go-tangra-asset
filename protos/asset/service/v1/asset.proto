@@ -439,6 +439,45 @@ message DownloadDocumentResponse {
   string mime_type = 3 [json_name = "mimeType"];
 }
 
+// --- Inventory Sync ---
+
+message InventorySyncPreviewRequest {}
+
+message InventorySyncChange {
+  enum Action {
+    ACTION_UNSPECIFIED = 0;
+    ACTION_CREATE = 1;
+    ACTION_UPDATE = 2;
+  }
+  Action action = 1 [json_name = "action"];
+  string hostname = 2 [json_name = "hostname"];
+  string serial = 3 [json_name = "serial"];
+  string model_name = 4 [json_name = "modelName"];
+  repeated string changed_fields = 5 [json_name = "changedFields"];
+  string existing_id = 6 [json_name = "existingId"];
+}
+
+message InventorySyncPreviewResponse {
+  int32 total_inventory_entries = 1 [json_name = "totalInventoryEntries"];
+  int32 new_count = 2 [json_name = "newCount"];
+  int32 update_count = 3 [json_name = "updateCount"];
+  int32 unchanged_count = 4 [json_name = "unchangedCount"];
+  repeated InventorySyncChange changes = 5 [json_name = "changes"];
+  repeated string warnings = 6 [json_name = "warnings"];
+}
+
+message InventorySyncExecuteRequest {
+  repeated string selected_hostnames = 1 [json_name = "selectedHostnames"];
+}
+
+message InventorySyncExecuteResponse {
+  int32 created_count = 1 [json_name = "createdCount"];
+  int32 updated_count = 2 [json_name = "updatedCount"];
+  int32 skipped_count = 3 [json_name = "skippedCount"];
+  int32 error_count = 4 [json_name = "errorCount"];
+  repeated string errors = 5 [json_name = "errors"];
+}
+
 // AssetService manages IT assets
 service AssetService {
   // Create a new asset
@@ -542,6 +581,22 @@ service AssetService {
   rpc DownloadDocument(DownloadAssetDocumentRequest) returns (DownloadDocumentResponse) {
     option (google.api.http) = {
       get: "/v1/assets/{asset_id}/documents/{id}/download"
+    };
+  }
+
+  // Preview inventory sync changes
+  rpc InventorySyncPreview(InventorySyncPreviewRequest) returns (InventorySyncPreviewResponse) {
+    option (google.api.http) = {
+      post: "/v1/assets/inventory-sync/preview"
+      body: "*"
+    };
+  }
+
+  // Execute inventory sync
+  rpc InventorySyncExecute(InventorySyncExecuteRequest) returns (InventorySyncExecuteResponse) {
+    option (google.api.http) = {
+      post: "/v1/assets/inventory-sync/execute"
+      body: "*"
     };
   }
 }

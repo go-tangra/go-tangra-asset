@@ -202,6 +202,17 @@ func (r *AssetRepo) Update(ctx context.Context, id string, updates map[string]in
 	return entity, nil
 }
 
+func (r *AssetRepo) ListAll(ctx context.Context, tenantID uint32) ([]*ent.Asset, error) {
+	entities, err := r.entClient.Client().Asset.Query().
+		Where(asset.TenantID(tenantID)).
+		All(ctx)
+	if err != nil {
+		r.log.Errorf("list all assets failed: %s", err.Error())
+		return nil, assetV1.ErrorInternalServerError("list all assets failed")
+	}
+	return entities, nil
+}
+
 func (r *AssetRepo) Delete(ctx context.Context, id string) error {
 	err := r.entClient.Client().Asset.DeleteOneID(id).Exec(ctx)
 	if err != nil {

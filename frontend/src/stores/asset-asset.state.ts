@@ -8,6 +8,8 @@ import {
   type ListAssetsResponse,
   type ListAssignmentsResponse,
   type ListDocumentsResponse,
+  type InventorySyncPreviewResponse,
+  type InventorySyncExecuteResponse,
 } from '../api/services';
 import type { Paging } from '../api/services';
 
@@ -126,6 +128,18 @@ export const useAssetAssetStore = defineStore('asset-asset', () => {
     return await AssetService.downloadDocument(assetId, documentId);
   }
 
+  async function inventorySyncPreview(): Promise<InventorySyncPreviewResponse> {
+    return await AssetService.inventorySyncPreview();
+  }
+
+  async function inventorySyncExecute(
+    selectedHostnames?: string[],
+  ): Promise<InventorySyncExecuteResponse> {
+    return await AssetService.inventorySyncExecute(
+      selectedHostnames ? { selectedHostnames } : undefined,
+    );
+  }
+
   function $reset() {}
 
   return {
@@ -144,5 +158,7 @@ export const useAssetAssetStore = defineStore('asset-asset', () => {
     uploadDocument,
     deleteDocument,
     downloadDocument,
+    inventorySyncPreview,
+    inventorySyncExecute,
   };
 });

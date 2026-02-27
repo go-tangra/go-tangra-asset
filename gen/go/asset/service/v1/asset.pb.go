@@ -136,6 +136,55 @@ func (AssignmentAction) EnumDescriptor() ([]byte, []int) {
 	return file_asset_service_v1_asset_proto_rawDescGZIP(), []int{1}
 }
 
+type InventorySyncChange_Action int32
+
+const (
+	InventorySyncChange_ACTION_UNSPECIFIED InventorySyncChange_Action = 0
+	InventorySyncChange_ACTION_CREATE      InventorySyncChange_Action = 1
+	InventorySyncChange_ACTION_UPDATE      InventorySyncChange_Action = 2
+)
+
+// Enum value maps for InventorySyncChange_Action.
+var (
+	InventorySyncChange_Action_name = map[int32]string{
+		0: "ACTION_UNSPECIFIED",
+		1: "ACTION_CREATE",
+		2: "ACTION_UPDATE",
+	}
+	InventorySyncChange_Action_value = map[string]int32{
+		"ACTION_UNSPECIFIED": 0,
+		"ACTION_CREATE":      1,
+		"ACTION_UPDATE":      2,
+	}
+)
+
+func (x InventorySyncChange_Action) Enum() *InventorySyncChange_Action {
+	p := new(InventorySyncChange_Action)
+	*p = x
+	return p
+}
+
+func (x InventorySyncChange_Action) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (InventorySyncChange_Action) Descriptor() protoreflect.EnumDescriptor {
+	return file_asset_service_v1_asset_proto_enumTypes[2].Descriptor()
+}
+
+func (InventorySyncChange_Action) Type() protoreflect.EnumType {
+	return &file_asset_service_v1_asset_proto_enumTypes[2]
+}
+
+func (x InventorySyncChange_Action) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use InventorySyncChange_Action.Descriptor instead.
+func (InventorySyncChange_Action) EnumDescriptor() ([]byte, []int) {
+	return file_asset_service_v1_asset_proto_rawDescGZIP(), []int{29, 0}
+}
+
 // Asset represents an IT asset (laptop, PC, printer, etc.)
 type Asset struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -2207,6 +2256,330 @@ func (x *DownloadDocumentResponse) GetMimeType() string {
 	return ""
 }
 
+type InventorySyncPreviewRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InventorySyncPreviewRequest) Reset() {
+	*x = InventorySyncPreviewRequest{}
+	mi := &file_asset_service_v1_asset_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InventorySyncPreviewRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InventorySyncPreviewRequest) ProtoMessage() {}
+
+func (x *InventorySyncPreviewRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_asset_service_v1_asset_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InventorySyncPreviewRequest.ProtoReflect.Descriptor instead.
+func (*InventorySyncPreviewRequest) Descriptor() ([]byte, []int) {
+	return file_asset_service_v1_asset_proto_rawDescGZIP(), []int{28}
+}
+
+type InventorySyncChange struct {
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	Action        InventorySyncChange_Action `protobuf:"varint,1,opt,name=action,proto3,enum=asset.service.v1.InventorySyncChange_Action" json:"action,omitempty"`
+	Hostname      string                     `protobuf:"bytes,2,opt,name=hostname,proto3" json:"hostname,omitempty"`
+	Serial        string                     `protobuf:"bytes,3,opt,name=serial,proto3" json:"serial,omitempty"`
+	ModelName     string                     `protobuf:"bytes,4,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
+	ChangedFields []string                   `protobuf:"bytes,5,rep,name=changed_fields,json=changedFields,proto3" json:"changed_fields,omitempty"`
+	ExistingId    string                     `protobuf:"bytes,6,opt,name=existing_id,json=existingId,proto3" json:"existing_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InventorySyncChange) Reset() {
+	*x = InventorySyncChange{}
+	mi := &file_asset_service_v1_asset_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InventorySyncChange) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InventorySyncChange) ProtoMessage() {}
+
+func (x *InventorySyncChange) ProtoReflect() protoreflect.Message {
+	mi := &file_asset_service_v1_asset_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InventorySyncChange.ProtoReflect.Descriptor instead.
+func (*InventorySyncChange) Descriptor() ([]byte, []int) {
+	return file_asset_service_v1_asset_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *InventorySyncChange) GetAction() InventorySyncChange_Action {
+	if x != nil {
+		return x.Action
+	}
+	return InventorySyncChange_ACTION_UNSPECIFIED
+}
+
+func (x *InventorySyncChange) GetHostname() string {
+	if x != nil {
+		return x.Hostname
+	}
+	return ""
+}
+
+func (x *InventorySyncChange) GetSerial() string {
+	if x != nil {
+		return x.Serial
+	}
+	return ""
+}
+
+func (x *InventorySyncChange) GetModelName() string {
+	if x != nil {
+		return x.ModelName
+	}
+	return ""
+}
+
+func (x *InventorySyncChange) GetChangedFields() []string {
+	if x != nil {
+		return x.ChangedFields
+	}
+	return nil
+}
+
+func (x *InventorySyncChange) GetExistingId() string {
+	if x != nil {
+		return x.ExistingId
+	}
+	return ""
+}
+
+type InventorySyncPreviewResponse struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	TotalInventoryEntries int32                  `protobuf:"varint,1,opt,name=total_inventory_entries,json=totalInventoryEntries,proto3" json:"total_inventory_entries,omitempty"`
+	NewCount              int32                  `protobuf:"varint,2,opt,name=new_count,json=newCount,proto3" json:"new_count,omitempty"`
+	UpdateCount           int32                  `protobuf:"varint,3,opt,name=update_count,json=updateCount,proto3" json:"update_count,omitempty"`
+	UnchangedCount        int32                  `protobuf:"varint,4,opt,name=unchanged_count,json=unchangedCount,proto3" json:"unchanged_count,omitempty"`
+	Changes               []*InventorySyncChange `protobuf:"bytes,5,rep,name=changes,proto3" json:"changes,omitempty"`
+	Warnings              []string               `protobuf:"bytes,6,rep,name=warnings,proto3" json:"warnings,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *InventorySyncPreviewResponse) Reset() {
+	*x = InventorySyncPreviewResponse{}
+	mi := &file_asset_service_v1_asset_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InventorySyncPreviewResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InventorySyncPreviewResponse) ProtoMessage() {}
+
+func (x *InventorySyncPreviewResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_asset_service_v1_asset_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InventorySyncPreviewResponse.ProtoReflect.Descriptor instead.
+func (*InventorySyncPreviewResponse) Descriptor() ([]byte, []int) {
+	return file_asset_service_v1_asset_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *InventorySyncPreviewResponse) GetTotalInventoryEntries() int32 {
+	if x != nil {
+		return x.TotalInventoryEntries
+	}
+	return 0
+}
+
+func (x *InventorySyncPreviewResponse) GetNewCount() int32 {
+	if x != nil {
+		return x.NewCount
+	}
+	return 0
+}
+
+func (x *InventorySyncPreviewResponse) GetUpdateCount() int32 {
+	if x != nil {
+		return x.UpdateCount
+	}
+	return 0
+}
+
+func (x *InventorySyncPreviewResponse) GetUnchangedCount() int32 {
+	if x != nil {
+		return x.UnchangedCount
+	}
+	return 0
+}
+
+func (x *InventorySyncPreviewResponse) GetChanges() []*InventorySyncChange {
+	if x != nil {
+		return x.Changes
+	}
+	return nil
+}
+
+func (x *InventorySyncPreviewResponse) GetWarnings() []string {
+	if x != nil {
+		return x.Warnings
+	}
+	return nil
+}
+
+type InventorySyncExecuteRequest struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	SelectedHostnames []string               `protobuf:"bytes,1,rep,name=selected_hostnames,json=selectedHostnames,proto3" json:"selected_hostnames,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *InventorySyncExecuteRequest) Reset() {
+	*x = InventorySyncExecuteRequest{}
+	mi := &file_asset_service_v1_asset_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InventorySyncExecuteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InventorySyncExecuteRequest) ProtoMessage() {}
+
+func (x *InventorySyncExecuteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_asset_service_v1_asset_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InventorySyncExecuteRequest.ProtoReflect.Descriptor instead.
+func (*InventorySyncExecuteRequest) Descriptor() ([]byte, []int) {
+	return file_asset_service_v1_asset_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *InventorySyncExecuteRequest) GetSelectedHostnames() []string {
+	if x != nil {
+		return x.SelectedHostnames
+	}
+	return nil
+}
+
+type InventorySyncExecuteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CreatedCount  int32                  `protobuf:"varint,1,opt,name=created_count,json=createdCount,proto3" json:"created_count,omitempty"`
+	UpdatedCount  int32                  `protobuf:"varint,2,opt,name=updated_count,json=updatedCount,proto3" json:"updated_count,omitempty"`
+	SkippedCount  int32                  `protobuf:"varint,3,opt,name=skipped_count,json=skippedCount,proto3" json:"skipped_count,omitempty"`
+	ErrorCount    int32                  `protobuf:"varint,4,opt,name=error_count,json=errorCount,proto3" json:"error_count,omitempty"`
+	Errors        []string               `protobuf:"bytes,5,rep,name=errors,proto3" json:"errors,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InventorySyncExecuteResponse) Reset() {
+	*x = InventorySyncExecuteResponse{}
+	mi := &file_asset_service_v1_asset_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InventorySyncExecuteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InventorySyncExecuteResponse) ProtoMessage() {}
+
+func (x *InventorySyncExecuteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_asset_service_v1_asset_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InventorySyncExecuteResponse.ProtoReflect.Descriptor instead.
+func (*InventorySyncExecuteResponse) Descriptor() ([]byte, []int) {
+	return file_asset_service_v1_asset_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *InventorySyncExecuteResponse) GetCreatedCount() int32 {
+	if x != nil {
+		return x.CreatedCount
+	}
+	return 0
+}
+
+func (x *InventorySyncExecuteResponse) GetUpdatedCount() int32 {
+	if x != nil {
+		return x.UpdatedCount
+	}
+	return 0
+}
+
+func (x *InventorySyncExecuteResponse) GetSkippedCount() int32 {
+	if x != nil {
+		return x.SkippedCount
+	}
+	return 0
+}
+
+func (x *InventorySyncExecuteResponse) GetErrorCount() int32 {
+	if x != nil {
+		return x.ErrorCount
+	}
+	return 0
+}
+
+func (x *InventorySyncExecuteResponse) GetErrors() []string {
+	if x != nil {
+		return x.Errors
+	}
+	return nil
+}
+
 var File_asset_service_v1_asset_proto protoreflect.FileDescriptor
 
 const file_asset_service_v1_asset_proto_rawDesc = "" +
@@ -2516,7 +2889,37 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\x18DownloadDocumentResponse\x12\x1b\n" +
 	"\tfile_name\x18\x01 \x01(\tR\bfileName\x12\x18\n" +
 	"\acontent\x18\x02 \x01(\fR\acontent\x12\x1b\n" +
-	"\tmime_type\x18\x03 \x01(\tR\bmimeType*\x97\x01\n" +
+	"\tmime_type\x18\x03 \x01(\tR\bmimeType\"\x1d\n" +
+	"\x1bInventorySyncPreviewRequest\"\xbe\x02\n" +
+	"\x13InventorySyncChange\x12D\n" +
+	"\x06action\x18\x01 \x01(\x0e2,.asset.service.v1.InventorySyncChange.ActionR\x06action\x12\x1a\n" +
+	"\bhostname\x18\x02 \x01(\tR\bhostname\x12\x16\n" +
+	"\x06serial\x18\x03 \x01(\tR\x06serial\x12\x1d\n" +
+	"\n" +
+	"model_name\x18\x04 \x01(\tR\tmodelName\x12%\n" +
+	"\x0echanged_fields\x18\x05 \x03(\tR\rchangedFields\x12\x1f\n" +
+	"\vexisting_id\x18\x06 \x01(\tR\n" +
+	"existingId\"F\n" +
+	"\x06Action\x12\x16\n" +
+	"\x12ACTION_UNSPECIFIED\x10\x00\x12\x11\n" +
+	"\rACTION_CREATE\x10\x01\x12\x11\n" +
+	"\rACTION_UPDATE\x10\x02\"\x9c\x02\n" +
+	"\x1cInventorySyncPreviewResponse\x126\n" +
+	"\x17total_inventory_entries\x18\x01 \x01(\x05R\x15totalInventoryEntries\x12\x1b\n" +
+	"\tnew_count\x18\x02 \x01(\x05R\bnewCount\x12!\n" +
+	"\fupdate_count\x18\x03 \x01(\x05R\vupdateCount\x12'\n" +
+	"\x0funchanged_count\x18\x04 \x01(\x05R\x0eunchangedCount\x12?\n" +
+	"\achanges\x18\x05 \x03(\v2%.asset.service.v1.InventorySyncChangeR\achanges\x12\x1a\n" +
+	"\bwarnings\x18\x06 \x03(\tR\bwarnings\"L\n" +
+	"\x1bInventorySyncExecuteRequest\x12-\n" +
+	"\x12selected_hostnames\x18\x01 \x03(\tR\x11selectedHostnames\"\xc6\x01\n" +
+	"\x1cInventorySyncExecuteResponse\x12#\n" +
+	"\rcreated_count\x18\x01 \x01(\x05R\fcreatedCount\x12#\n" +
+	"\rupdated_count\x18\x02 \x01(\x05R\fupdatedCount\x12#\n" +
+	"\rskipped_count\x18\x03 \x01(\x05R\fskippedCount\x12\x1f\n" +
+	"\verror_count\x18\x04 \x01(\x05R\n" +
+	"errorCount\x12\x16\n" +
+	"\x06errors\x18\x05 \x03(\tR\x06errors*\x97\x01\n" +
 	"\vAssetStatus\x12\x1c\n" +
 	"\x18ASSET_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17ASSET_STATUS_DEPLOYABLE\x10\x01\x12\x19\n" +
@@ -2527,7 +2930,7 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\x1dASSIGNMENT_ACTION_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aASSIGNMENT_ACTION_ASSIGNED\x10\x01\x12 \n" +
 	"\x1cASSIGNMENT_ACTION_UNASSIGNED\x10\x02\x12!\n" +
-	"\x1dASSIGNMENT_ACTION_TRANSFERRED\x10\x032\x9b\x0e\n" +
+	"\x1dASSIGNMENT_ACTION_TRANSFERRED\x10\x032\xe7\x10\n" +
 	"\fAssetService\x12q\n" +
 	"\vCreateAsset\x12$.asset.service.v1.CreateAssetRequest\x1a%.asset.service.v1.CreateAssetResponse\"\x15\x82\xd3\xe4\x93\x02\x0f:\x01*\"\n" +
 	"/v1/assets\x12j\n" +
@@ -2545,7 +2948,9 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\rListDocuments\x12+.asset.service.v1.ListAssetDocumentsRequest\x1a,.asset.service.v1.ListAssetDocumentsResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/assets/{id}/documents\x12\x93\x01\n" +
 	"\x0eUploadDocument\x12,.asset.service.v1.UploadAssetDocumentRequest\x1a-.asset.service.v1.UploadAssetDocumentResponse\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/assets/{id}/documents\x12\x84\x01\n" +
 	"\x0eDeleteDocument\x12,.asset.service.v1.DeleteAssetDocumentRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&*$/v1/assets/{asset_id}/documents/{id}\x12\xa5\x01\n" +
-	"\x10DownloadDocument\x12..asset.service.v1.DownloadAssetDocumentRequest\x1a*.asset.service.v1.DownloadDocumentResponse\"5\x82\xd3\xe4\x93\x02/\x12-/v1/assets/{asset_id}/documents/{id}/downloadB\xca\x01\n" +
+	"\x10DownloadDocument\x12..asset.service.v1.DownloadAssetDocumentRequest\x1a*.asset.service.v1.DownloadDocumentResponse\"5\x82\xd3\xe4\x93\x02/\x12-/v1/assets/{asset_id}/documents/{id}/download\x12\xa3\x01\n" +
+	"\x14InventorySyncPreview\x12-.asset.service.v1.InventorySyncPreviewRequest\x1a..asset.service.v1.InventorySyncPreviewResponse\",\x82\xd3\xe4\x93\x02&:\x01*\"!/v1/assets/inventory-sync/preview\x12\xa3\x01\n" +
+	"\x14InventorySyncExecute\x12-.asset.service.v1.InventorySyncExecuteRequest\x1a..asset.service.v1.InventorySyncExecuteResponse\",\x82\xd3\xe4\x93\x02&:\x01*\"!/v1/assets/inventory-sync/executeB\xca\x01\n" +
 	"\x14com.asset.service.v1B\n" +
 	"AssetProtoP\x01ZDgithub.com/go-tangra/go-tangra-asset/gen/go/asset/service/v1;assetpb\xa2\x02\x03ASX\xaa\x02\x10Asset.Service.V1\xca\x02\x10Asset\\Service\\V1\xe2\x02\x1cAsset\\Service\\V1\\GPBMetadata\xea\x02\x12Asset::Service::V1b\x06proto3"
 
@@ -2561,103 +2966,115 @@ func file_asset_service_v1_asset_proto_rawDescGZIP() []byte {
 	return file_asset_service_v1_asset_proto_rawDescData
 }
 
-var file_asset_service_v1_asset_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_asset_service_v1_asset_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_asset_service_v1_asset_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_asset_service_v1_asset_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
 var file_asset_service_v1_asset_proto_goTypes = []any{
 	(AssetStatus)(0),                     // 0: asset.service.v1.AssetStatus
 	(AssignmentAction)(0),                // 1: asset.service.v1.AssignmentAction
-	(*Asset)(nil),                        // 2: asset.service.v1.Asset
-	(*AssetAssignment)(nil),              // 3: asset.service.v1.AssetAssignment
-	(*AssetDocument)(nil),                // 4: asset.service.v1.AssetDocument
-	(*CreateAssetRequest)(nil),           // 5: asset.service.v1.CreateAssetRequest
-	(*CreateAssetResponse)(nil),          // 6: asset.service.v1.CreateAssetResponse
-	(*GetAssetRequest)(nil),              // 7: asset.service.v1.GetAssetRequest
-	(*GetAssetResponse)(nil),             // 8: asset.service.v1.GetAssetResponse
-	(*ListAssetsRequest)(nil),            // 9: asset.service.v1.ListAssetsRequest
-	(*ListAssetsResponse)(nil),           // 10: asset.service.v1.ListAssetsResponse
-	(*UpdateAssetRequest)(nil),           // 11: asset.service.v1.UpdateAssetRequest
-	(*UpdateAssetResponse)(nil),          // 12: asset.service.v1.UpdateAssetResponse
-	(*DeleteAssetRequest)(nil),           // 13: asset.service.v1.DeleteAssetRequest
-	(*AssignAssetRequest)(nil),           // 14: asset.service.v1.AssignAssetRequest
-	(*AssignAssetResponse)(nil),          // 15: asset.service.v1.AssignAssetResponse
-	(*UnassignAssetRequest)(nil),         // 16: asset.service.v1.UnassignAssetRequest
-	(*UnassignAssetResponse)(nil),        // 17: asset.service.v1.UnassignAssetResponse
-	(*GetAssignmentHistoryRequest)(nil),  // 18: asset.service.v1.GetAssignmentHistoryRequest
-	(*GetAssignmentHistoryResponse)(nil), // 19: asset.service.v1.GetAssignmentHistoryResponse
-	(*UploadPhotoRequest)(nil),           // 20: asset.service.v1.UploadPhotoRequest
-	(*UploadPhotoResponse)(nil),          // 21: asset.service.v1.UploadPhotoResponse
-	(*DeletePhotoRequest)(nil),           // 22: asset.service.v1.DeletePhotoRequest
-	(*ListAssetDocumentsRequest)(nil),    // 23: asset.service.v1.ListAssetDocumentsRequest
-	(*ListAssetDocumentsResponse)(nil),   // 24: asset.service.v1.ListAssetDocumentsResponse
-	(*UploadAssetDocumentRequest)(nil),   // 25: asset.service.v1.UploadAssetDocumentRequest
-	(*UploadAssetDocumentResponse)(nil),  // 26: asset.service.v1.UploadAssetDocumentResponse
-	(*DeleteAssetDocumentRequest)(nil),   // 27: asset.service.v1.DeleteAssetDocumentRequest
-	(*DownloadAssetDocumentRequest)(nil), // 28: asset.service.v1.DownloadAssetDocumentRequest
-	(*DownloadDocumentResponse)(nil),     // 29: asset.service.v1.DownloadDocumentResponse
-	(*timestamppb.Timestamp)(nil),        // 30: google.protobuf.Timestamp
-	(*structpb.Struct)(nil),              // 31: google.protobuf.Struct
-	(*fieldmaskpb.FieldMask)(nil),        // 32: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),                // 33: google.protobuf.Empty
+	(InventorySyncChange_Action)(0),      // 2: asset.service.v1.InventorySyncChange.Action
+	(*Asset)(nil),                        // 3: asset.service.v1.Asset
+	(*AssetAssignment)(nil),              // 4: asset.service.v1.AssetAssignment
+	(*AssetDocument)(nil),                // 5: asset.service.v1.AssetDocument
+	(*CreateAssetRequest)(nil),           // 6: asset.service.v1.CreateAssetRequest
+	(*CreateAssetResponse)(nil),          // 7: asset.service.v1.CreateAssetResponse
+	(*GetAssetRequest)(nil),              // 8: asset.service.v1.GetAssetRequest
+	(*GetAssetResponse)(nil),             // 9: asset.service.v1.GetAssetResponse
+	(*ListAssetsRequest)(nil),            // 10: asset.service.v1.ListAssetsRequest
+	(*ListAssetsResponse)(nil),           // 11: asset.service.v1.ListAssetsResponse
+	(*UpdateAssetRequest)(nil),           // 12: asset.service.v1.UpdateAssetRequest
+	(*UpdateAssetResponse)(nil),          // 13: asset.service.v1.UpdateAssetResponse
+	(*DeleteAssetRequest)(nil),           // 14: asset.service.v1.DeleteAssetRequest
+	(*AssignAssetRequest)(nil),           // 15: asset.service.v1.AssignAssetRequest
+	(*AssignAssetResponse)(nil),          // 16: asset.service.v1.AssignAssetResponse
+	(*UnassignAssetRequest)(nil),         // 17: asset.service.v1.UnassignAssetRequest
+	(*UnassignAssetResponse)(nil),        // 18: asset.service.v1.UnassignAssetResponse
+	(*GetAssignmentHistoryRequest)(nil),  // 19: asset.service.v1.GetAssignmentHistoryRequest
+	(*GetAssignmentHistoryResponse)(nil), // 20: asset.service.v1.GetAssignmentHistoryResponse
+	(*UploadPhotoRequest)(nil),           // 21: asset.service.v1.UploadPhotoRequest
+	(*UploadPhotoResponse)(nil),          // 22: asset.service.v1.UploadPhotoResponse
+	(*DeletePhotoRequest)(nil),           // 23: asset.service.v1.DeletePhotoRequest
+	(*ListAssetDocumentsRequest)(nil),    // 24: asset.service.v1.ListAssetDocumentsRequest
+	(*ListAssetDocumentsResponse)(nil),   // 25: asset.service.v1.ListAssetDocumentsResponse
+	(*UploadAssetDocumentRequest)(nil),   // 26: asset.service.v1.UploadAssetDocumentRequest
+	(*UploadAssetDocumentResponse)(nil),  // 27: asset.service.v1.UploadAssetDocumentResponse
+	(*DeleteAssetDocumentRequest)(nil),   // 28: asset.service.v1.DeleteAssetDocumentRequest
+	(*DownloadAssetDocumentRequest)(nil), // 29: asset.service.v1.DownloadAssetDocumentRequest
+	(*DownloadDocumentResponse)(nil),     // 30: asset.service.v1.DownloadDocumentResponse
+	(*InventorySyncPreviewRequest)(nil),  // 31: asset.service.v1.InventorySyncPreviewRequest
+	(*InventorySyncChange)(nil),          // 32: asset.service.v1.InventorySyncChange
+	(*InventorySyncPreviewResponse)(nil), // 33: asset.service.v1.InventorySyncPreviewResponse
+	(*InventorySyncExecuteRequest)(nil),  // 34: asset.service.v1.InventorySyncExecuteRequest
+	(*InventorySyncExecuteResponse)(nil), // 35: asset.service.v1.InventorySyncExecuteResponse
+	(*timestamppb.Timestamp)(nil),        // 36: google.protobuf.Timestamp
+	(*structpb.Struct)(nil),              // 37: google.protobuf.Struct
+	(*fieldmaskpb.FieldMask)(nil),        // 38: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),                // 39: google.protobuf.Empty
 }
 var file_asset_service_v1_asset_proto_depIdxs = []int32{
 	0,  // 0: asset.service.v1.Asset.status:type_name -> asset.service.v1.AssetStatus
-	30, // 1: asset.service.v1.Asset.purchase_date:type_name -> google.protobuf.Timestamp
-	31, // 2: asset.service.v1.Asset.metadata:type_name -> google.protobuf.Struct
-	30, // 3: asset.service.v1.Asset.created_at:type_name -> google.protobuf.Timestamp
-	30, // 4: asset.service.v1.Asset.updated_at:type_name -> google.protobuf.Timestamp
+	36, // 1: asset.service.v1.Asset.purchase_date:type_name -> google.protobuf.Timestamp
+	37, // 2: asset.service.v1.Asset.metadata:type_name -> google.protobuf.Struct
+	36, // 3: asset.service.v1.Asset.created_at:type_name -> google.protobuf.Timestamp
+	36, // 4: asset.service.v1.Asset.updated_at:type_name -> google.protobuf.Timestamp
 	1,  // 5: asset.service.v1.AssetAssignment.action:type_name -> asset.service.v1.AssignmentAction
-	30, // 6: asset.service.v1.AssetAssignment.assigned_at:type_name -> google.protobuf.Timestamp
-	30, // 7: asset.service.v1.AssetAssignment.returned_at:type_name -> google.protobuf.Timestamp
-	30, // 8: asset.service.v1.AssetDocument.created_at:type_name -> google.protobuf.Timestamp
+	36, // 6: asset.service.v1.AssetAssignment.assigned_at:type_name -> google.protobuf.Timestamp
+	36, // 7: asset.service.v1.AssetAssignment.returned_at:type_name -> google.protobuf.Timestamp
+	36, // 8: asset.service.v1.AssetDocument.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 9: asset.service.v1.CreateAssetRequest.status:type_name -> asset.service.v1.AssetStatus
-	30, // 10: asset.service.v1.CreateAssetRequest.purchase_date:type_name -> google.protobuf.Timestamp
-	31, // 11: asset.service.v1.CreateAssetRequest.metadata:type_name -> google.protobuf.Struct
-	2,  // 12: asset.service.v1.CreateAssetResponse.asset:type_name -> asset.service.v1.Asset
-	2,  // 13: asset.service.v1.GetAssetResponse.asset:type_name -> asset.service.v1.Asset
+	36, // 10: asset.service.v1.CreateAssetRequest.purchase_date:type_name -> google.protobuf.Timestamp
+	37, // 11: asset.service.v1.CreateAssetRequest.metadata:type_name -> google.protobuf.Struct
+	3,  // 12: asset.service.v1.CreateAssetResponse.asset:type_name -> asset.service.v1.Asset
+	3,  // 13: asset.service.v1.GetAssetResponse.asset:type_name -> asset.service.v1.Asset
 	0,  // 14: asset.service.v1.ListAssetsRequest.status:type_name -> asset.service.v1.AssetStatus
-	2,  // 15: asset.service.v1.ListAssetsResponse.items:type_name -> asset.service.v1.Asset
-	2,  // 16: asset.service.v1.UpdateAssetRequest.data:type_name -> asset.service.v1.Asset
-	32, // 17: asset.service.v1.UpdateAssetRequest.update_mask:type_name -> google.protobuf.FieldMask
-	2,  // 18: asset.service.v1.UpdateAssetResponse.asset:type_name -> asset.service.v1.Asset
-	2,  // 19: asset.service.v1.AssignAssetResponse.asset:type_name -> asset.service.v1.Asset
-	2,  // 20: asset.service.v1.UnassignAssetResponse.asset:type_name -> asset.service.v1.Asset
-	3,  // 21: asset.service.v1.GetAssignmentHistoryResponse.items:type_name -> asset.service.v1.AssetAssignment
-	2,  // 22: asset.service.v1.UploadPhotoResponse.asset:type_name -> asset.service.v1.Asset
-	4,  // 23: asset.service.v1.ListAssetDocumentsResponse.items:type_name -> asset.service.v1.AssetDocument
-	4,  // 24: asset.service.v1.UploadAssetDocumentResponse.document:type_name -> asset.service.v1.AssetDocument
-	5,  // 25: asset.service.v1.AssetService.CreateAsset:input_type -> asset.service.v1.CreateAssetRequest
-	7,  // 26: asset.service.v1.AssetService.GetAsset:input_type -> asset.service.v1.GetAssetRequest
-	9,  // 27: asset.service.v1.AssetService.ListAssets:input_type -> asset.service.v1.ListAssetsRequest
-	11, // 28: asset.service.v1.AssetService.UpdateAsset:input_type -> asset.service.v1.UpdateAssetRequest
-	13, // 29: asset.service.v1.AssetService.DeleteAsset:input_type -> asset.service.v1.DeleteAssetRequest
-	14, // 30: asset.service.v1.AssetService.AssignAsset:input_type -> asset.service.v1.AssignAssetRequest
-	16, // 31: asset.service.v1.AssetService.UnassignAsset:input_type -> asset.service.v1.UnassignAssetRequest
-	18, // 32: asset.service.v1.AssetService.GetAssignmentHistory:input_type -> asset.service.v1.GetAssignmentHistoryRequest
-	20, // 33: asset.service.v1.AssetService.UploadPhoto:input_type -> asset.service.v1.UploadPhotoRequest
-	22, // 34: asset.service.v1.AssetService.DeletePhoto:input_type -> asset.service.v1.DeletePhotoRequest
-	23, // 35: asset.service.v1.AssetService.ListDocuments:input_type -> asset.service.v1.ListAssetDocumentsRequest
-	25, // 36: asset.service.v1.AssetService.UploadDocument:input_type -> asset.service.v1.UploadAssetDocumentRequest
-	27, // 37: asset.service.v1.AssetService.DeleteDocument:input_type -> asset.service.v1.DeleteAssetDocumentRequest
-	28, // 38: asset.service.v1.AssetService.DownloadDocument:input_type -> asset.service.v1.DownloadAssetDocumentRequest
-	6,  // 39: asset.service.v1.AssetService.CreateAsset:output_type -> asset.service.v1.CreateAssetResponse
-	8,  // 40: asset.service.v1.AssetService.GetAsset:output_type -> asset.service.v1.GetAssetResponse
-	10, // 41: asset.service.v1.AssetService.ListAssets:output_type -> asset.service.v1.ListAssetsResponse
-	12, // 42: asset.service.v1.AssetService.UpdateAsset:output_type -> asset.service.v1.UpdateAssetResponse
-	33, // 43: asset.service.v1.AssetService.DeleteAsset:output_type -> google.protobuf.Empty
-	15, // 44: asset.service.v1.AssetService.AssignAsset:output_type -> asset.service.v1.AssignAssetResponse
-	17, // 45: asset.service.v1.AssetService.UnassignAsset:output_type -> asset.service.v1.UnassignAssetResponse
-	19, // 46: asset.service.v1.AssetService.GetAssignmentHistory:output_type -> asset.service.v1.GetAssignmentHistoryResponse
-	21, // 47: asset.service.v1.AssetService.UploadPhoto:output_type -> asset.service.v1.UploadPhotoResponse
-	33, // 48: asset.service.v1.AssetService.DeletePhoto:output_type -> google.protobuf.Empty
-	24, // 49: asset.service.v1.AssetService.ListDocuments:output_type -> asset.service.v1.ListAssetDocumentsResponse
-	26, // 50: asset.service.v1.AssetService.UploadDocument:output_type -> asset.service.v1.UploadAssetDocumentResponse
-	33, // 51: asset.service.v1.AssetService.DeleteDocument:output_type -> google.protobuf.Empty
-	29, // 52: asset.service.v1.AssetService.DownloadDocument:output_type -> asset.service.v1.DownloadDocumentResponse
-	39, // [39:53] is the sub-list for method output_type
-	25, // [25:39] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	3,  // 15: asset.service.v1.ListAssetsResponse.items:type_name -> asset.service.v1.Asset
+	3,  // 16: asset.service.v1.UpdateAssetRequest.data:type_name -> asset.service.v1.Asset
+	38, // 17: asset.service.v1.UpdateAssetRequest.update_mask:type_name -> google.protobuf.FieldMask
+	3,  // 18: asset.service.v1.UpdateAssetResponse.asset:type_name -> asset.service.v1.Asset
+	3,  // 19: asset.service.v1.AssignAssetResponse.asset:type_name -> asset.service.v1.Asset
+	3,  // 20: asset.service.v1.UnassignAssetResponse.asset:type_name -> asset.service.v1.Asset
+	4,  // 21: asset.service.v1.GetAssignmentHistoryResponse.items:type_name -> asset.service.v1.AssetAssignment
+	3,  // 22: asset.service.v1.UploadPhotoResponse.asset:type_name -> asset.service.v1.Asset
+	5,  // 23: asset.service.v1.ListAssetDocumentsResponse.items:type_name -> asset.service.v1.AssetDocument
+	5,  // 24: asset.service.v1.UploadAssetDocumentResponse.document:type_name -> asset.service.v1.AssetDocument
+	2,  // 25: asset.service.v1.InventorySyncChange.action:type_name -> asset.service.v1.InventorySyncChange.Action
+	32, // 26: asset.service.v1.InventorySyncPreviewResponse.changes:type_name -> asset.service.v1.InventorySyncChange
+	6,  // 27: asset.service.v1.AssetService.CreateAsset:input_type -> asset.service.v1.CreateAssetRequest
+	8,  // 28: asset.service.v1.AssetService.GetAsset:input_type -> asset.service.v1.GetAssetRequest
+	10, // 29: asset.service.v1.AssetService.ListAssets:input_type -> asset.service.v1.ListAssetsRequest
+	12, // 30: asset.service.v1.AssetService.UpdateAsset:input_type -> asset.service.v1.UpdateAssetRequest
+	14, // 31: asset.service.v1.AssetService.DeleteAsset:input_type -> asset.service.v1.DeleteAssetRequest
+	15, // 32: asset.service.v1.AssetService.AssignAsset:input_type -> asset.service.v1.AssignAssetRequest
+	17, // 33: asset.service.v1.AssetService.UnassignAsset:input_type -> asset.service.v1.UnassignAssetRequest
+	19, // 34: asset.service.v1.AssetService.GetAssignmentHistory:input_type -> asset.service.v1.GetAssignmentHistoryRequest
+	21, // 35: asset.service.v1.AssetService.UploadPhoto:input_type -> asset.service.v1.UploadPhotoRequest
+	23, // 36: asset.service.v1.AssetService.DeletePhoto:input_type -> asset.service.v1.DeletePhotoRequest
+	24, // 37: asset.service.v1.AssetService.ListDocuments:input_type -> asset.service.v1.ListAssetDocumentsRequest
+	26, // 38: asset.service.v1.AssetService.UploadDocument:input_type -> asset.service.v1.UploadAssetDocumentRequest
+	28, // 39: asset.service.v1.AssetService.DeleteDocument:input_type -> asset.service.v1.DeleteAssetDocumentRequest
+	29, // 40: asset.service.v1.AssetService.DownloadDocument:input_type -> asset.service.v1.DownloadAssetDocumentRequest
+	31, // 41: asset.service.v1.AssetService.InventorySyncPreview:input_type -> asset.service.v1.InventorySyncPreviewRequest
+	34, // 42: asset.service.v1.AssetService.InventorySyncExecute:input_type -> asset.service.v1.InventorySyncExecuteRequest
+	7,  // 43: asset.service.v1.AssetService.CreateAsset:output_type -> asset.service.v1.CreateAssetResponse
+	9,  // 44: asset.service.v1.AssetService.GetAsset:output_type -> asset.service.v1.GetAssetResponse
+	11, // 45: asset.service.v1.AssetService.ListAssets:output_type -> asset.service.v1.ListAssetsResponse
+	13, // 46: asset.service.v1.AssetService.UpdateAsset:output_type -> asset.service.v1.UpdateAssetResponse
+	39, // 47: asset.service.v1.AssetService.DeleteAsset:output_type -> google.protobuf.Empty
+	16, // 48: asset.service.v1.AssetService.AssignAsset:output_type -> asset.service.v1.AssignAssetResponse
+	18, // 49: asset.service.v1.AssetService.UnassignAsset:output_type -> asset.service.v1.UnassignAssetResponse
+	20, // 50: asset.service.v1.AssetService.GetAssignmentHistory:output_type -> asset.service.v1.GetAssignmentHistoryResponse
+	22, // 51: asset.service.v1.AssetService.UploadPhoto:output_type -> asset.service.v1.UploadPhotoResponse
+	39, // 52: asset.service.v1.AssetService.DeletePhoto:output_type -> google.protobuf.Empty
+	25, // 53: asset.service.v1.AssetService.ListDocuments:output_type -> asset.service.v1.ListAssetDocumentsResponse
+	27, // 54: asset.service.v1.AssetService.UploadDocument:output_type -> asset.service.v1.UploadAssetDocumentResponse
+	39, // 55: asset.service.v1.AssetService.DeleteDocument:output_type -> google.protobuf.Empty
+	30, // 56: asset.service.v1.AssetService.DownloadDocument:output_type -> asset.service.v1.DownloadDocumentResponse
+	33, // 57: asset.service.v1.AssetService.InventorySyncPreview:output_type -> asset.service.v1.InventorySyncPreviewResponse
+	35, // 58: asset.service.v1.AssetService.InventorySyncExecute:output_type -> asset.service.v1.InventorySyncExecuteResponse
+	43, // [43:59] is the sub-list for method output_type
+	27, // [27:43] is the sub-list for method input_type
+	27, // [27:27] is the sub-list for extension type_name
+	27, // [27:27] is the sub-list for extension extendee
+	0,  // [0:27] is the sub-list for field type_name
 }
 
 func init() { file_asset_service_v1_asset_proto_init() }
@@ -2682,8 +3099,8 @@ func file_asset_service_v1_asset_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_asset_service_v1_asset_proto_rawDesc), len(file_asset_service_v1_asset_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   28,
+			NumEnums:      3,
+			NumMessages:   33,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

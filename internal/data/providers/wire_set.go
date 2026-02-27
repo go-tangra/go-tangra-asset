@@ -16,6 +16,7 @@ var ProviderSet = wire.NewSet(
 	data.NewEntClient,
 	data.NewStorageClient,
 	data.NewLdapClient,
+	data.NewInventoryClient,
 	data.NewSupplierRepo,
 	data.NewEmployeeRepo,
 	data.NewLocationRepo,

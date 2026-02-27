@@ -46,7 +46,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	assetService := service.NewAssetService(context, assetRepo, assignmentRepo, documentRepo, employeeRepo, storageClient)
+	inventoryClient := data.NewInventoryClient(context)
+	assetService := service.NewAssetService(context, assetRepo, assignmentRepo, documentRepo, employeeRepo, storageClient, inventoryClient)
 	consumableRepo := data.NewConsumableRepo(context, entClient)
 	consumableService := service.NewConsumableService(context, consumableRepo, documentRepo, storageClient)
 	licenseRepo := data.NewLicenseRepo(context, entClient)
