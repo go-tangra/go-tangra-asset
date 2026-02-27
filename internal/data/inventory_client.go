@@ -12,16 +12,18 @@ import (
 	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
+	grpcMD "google.golang.org/grpc/metadata"
 
 	collectorv1 "github.com/go-tangra/go-tangra-inventory/gen/go/inventory/collector/v1"
 )
 
 // InventoryClient wraps a gRPC client for the inventory collector service
 type InventoryClient struct {
-	conn     *grpc.ClientConn
-	log      *log.Helper
-	endpoint string
-	client   collectorv1.InventoryCollectorServiceClient
+	conn      *grpc.ClientConn
+	log       *log.Helper
+	endpoint  string
+	apiSecret string
+	client    collectorv1.InventoryCollectorServiceClient
 }
 
 // NewInventoryClient creates a new inventory collector gRPC client
@@ -33,6 +35,8 @@ func NewInventoryClient(ctx *bootstrap.Context) (*InventoryClient, func(), error
 		l.Info("ASSET_INVENTORY_GRPC_ENDPOINT not set, inventory sync disabled")
 		return &InventoryClient{log: l}, func() {}, nil
 	}
+
+	apiSecret := os.Getenv("ASSET_INVENTORY_API_SECRET")
 
 	l.Infof("Connecting to inventory collector at: %s", endpoint)
 
@@ -78,10 +82,11 @@ func NewInventoryClient(ctx *bootstrap.Context) (*InventoryClient, func(), error
 	}
 
 	ic := &InventoryClient{
-		conn:     conn,
-		log:      l,
-		endpoint: endpoint,
-		client:   collectorv1.NewInventoryCollectorServiceClient(conn),
+		conn:      conn,
+		log:       l,
+		endpoint:  endpoint,
+		apiSecret: apiSecret,
+		client:    collectorv1.NewInventoryCollectorServiceClient(conn),
 	}
 
 	cleanup := func() {
@@ -99,13 +104,21 @@ func (c *InventoryClient) IsConfigured() bool {
 	return c != nil && c.conn != nil
 }
 
+// withAuth appends x-api-secret metadata to the outgoing context when configured.
+func (c *InventoryClient) withAuth(ctx context.Context) context.Context {
+	if c.apiSecret != "" {
+		ctx = grpcMD.AppendToOutgoingContext(ctx, "x-api-secret", c.apiSecret)
+	}
+	return ctx
+}
+
 // FetchInventories fetches all inventory summaries from the collector
 func (c *InventoryClient) FetchInventories(ctx context.Context) ([]*collectorv1.InventorySummary, error) {
 	if !c.IsConfigured() {
 		return nil, fmt.Errorf("inventory collector is not configured")
 	}
 
-	resp, err := c.client.ListInventories(ctx, &collectorv1.ListInventoriesRequest{
+	resp, err := c.client.ListInventories(c.withAuth(ctx), &collectorv1.ListInventoriesRequest{
 		PageSize: 10000,
 	})
 	if err != nil {
@@ -123,7 +136,7 @@ func (c *InventoryClient) FetchLatestByHostname(ctx context.Context, hostname st
 		return nil, fmt.Errorf("inventory collector is not configured")
 	}
 
-	resp, err := c.client.GetLatestByHostname(ctx, &collectorv1.GetLatestByHostnameRequest{
+	resp, err := c.client.GetLatestByHostname(c.withAuth(ctx), &collectorv1.GetLatestByHostnameRequest{
 		Hostname: hostname,
 	})
 	if err != nil {
