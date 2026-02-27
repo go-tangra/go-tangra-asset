@@ -46,7 +46,12 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	inventoryClient := data.NewInventoryClient(context)
+	inventoryClient, cleanup3, err := data.NewInventoryClient(context)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	assetService := service.NewAssetService(context, assetRepo, assignmentRepo, documentRepo, employeeRepo, storageClient, inventoryClient)
 	consumableRepo := data.NewConsumableRepo(context, entClient)
 	consumableService := service.NewConsumableService(context, consumableRepo, documentRepo, storageClient)
@@ -59,6 +64,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	httpServer := server.NewHTTPServer(context)
 	app := newApp(context, grpcServer, httpServer)
 	return app, func() {
+		cleanup3()
 		cleanup2()
 		cleanup()
 	}, nil

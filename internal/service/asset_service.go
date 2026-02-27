@@ -629,7 +629,7 @@ func (s *AssetService) InventorySyncExecute(ctx context.Context, req *assetV1.In
 
 		switch change.Action {
 		case assetV1.InventorySyncChange_ACTION_CREATE:
-			name := inv.Hostname
+			name := inv.GetHostname()
 			if name == "" {
 				name = "Unknown"
 			}

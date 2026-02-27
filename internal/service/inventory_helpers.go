@@ -3,25 +3,23 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 
-	"github.com/go-tangra/go-tangra-asset/internal/data"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent"
 	assetV1 "github.com/go-tangra/go-tangra-asset/gen/go/asset/service/v1"
+	collectorv1 "github.com/go-tangra/go-tangra-inventory/gen/go/inventory/collector/v1"
 )
 
 // computeInventoryChangedFields compares an existing asset with inventory data and returns the list of changed fields
-func computeInventoryChangedFields(existing *ent.Asset, inv *data.InventoryData) []string {
+func computeInventoryChangedFields(existing *ent.Asset, inv *collectorv1.Inventory) []string {
 	var changed []string
 
-	if inv.Hostname != "" && !strings.EqualFold(inv.Hostname, existing.Name) {
+	if inv.GetHostname() != "" && !strings.EqualFold(inv.GetHostname(), existing.Name) {
 		changed = append(changed, "name")
 	}
 
-	serial := ""
-	if inv.System != nil {
-		serial = inv.System.SerialNumber
-	}
+	serial := inv.GetSystem().GetSerialNumber()
 	if serial != "" && serial != existing.Serial {
 		changed = append(changed, "serial")
 	}
@@ -31,10 +29,7 @@ func computeInventoryChangedFields(existing *ent.Asset, inv *data.InventoryData)
 		changed = append(changed, "model_name")
 	}
 
-	modelNumber := ""
-	if inv.System != nil {
-		modelNumber = inv.System.Version
-	}
+	modelNumber := inv.GetSystem().GetVersion()
 	if modelNumber != "" && modelNumber != existing.ModelNumber {
 		changed = append(changed, "model_number")
 	}
@@ -52,12 +47,13 @@ func computeInventoryChangedFields(existing *ent.Asset, inv *data.InventoryData)
 }
 
 // buildModelName creates a model name from system manufacturer + product name
-func buildModelName(inv *data.InventoryData) string {
-	if inv.System == nil {
+func buildModelName(inv *collectorv1.Inventory) string {
+	sys := inv.GetSystem()
+	if sys == nil {
 		return ""
 	}
-	manufacturer := strings.TrimSpace(inv.System.Manufacturer)
-	productName := strings.TrimSpace(inv.System.ProductName)
+	manufacturer := strings.TrimSpace(sys.GetManufacturer())
+	productName := strings.TrimSpace(sys.GetProductName())
 	if manufacturer == "" && productName == "" {
 		return ""
 	}
@@ -71,11 +67,11 @@ func buildModelName(inv *data.InventoryData) string {
 }
 
 // buildInventoryCreateOpts creates functional options for AssetCreate from inventory data
-func buildInventoryCreateOpts(inv *data.InventoryData) []func(*ent.AssetCreate) {
+func buildInventoryCreateOpts(inv *collectorv1.Inventory) []func(*ent.AssetCreate) {
 	var opts []func(*ent.AssetCreate)
 
-	if inv.System != nil && inv.System.SerialNumber != "" {
-		opts = append(opts, func(c *ent.AssetCreate) { c.SetSerial(inv.System.SerialNumber) })
+	if serial := inv.GetSystem().GetSerialNumber(); serial != "" {
+		opts = append(opts, func(c *ent.AssetCreate) { c.SetSerial(serial) })
 	}
 
 	modelName := buildModelName(inv)
@@ -83,8 +79,8 @@ func buildInventoryCreateOpts(inv *data.InventoryData) []func(*ent.AssetCreate) 
 		opts = append(opts, func(c *ent.AssetCreate) { c.SetModelName(modelName) })
 	}
 
-	if inv.System != nil && inv.System.Version != "" {
-		opts = append(opts, func(c *ent.AssetCreate) { c.SetModelNumber(inv.System.Version) })
+	if version := inv.GetSystem().GetVersion(); version != "" {
+		opts = append(opts, func(c *ent.AssetCreate) { c.SetModelNumber(version) })
 	}
 
 	meta := buildInventoryMetadata(inv)
@@ -96,23 +92,19 @@ func buildInventoryCreateOpts(inv *data.InventoryData) []func(*ent.AssetCreate) 
 }
 
 // buildInventoryUpdateMap creates an update map from inventory data for changed fields
-func buildInventoryUpdateMap(inv *data.InventoryData, changedFields []string) map[string]interface{} {
+func buildInventoryUpdateMap(inv *collectorv1.Inventory, changedFields []string) map[string]interface{} {
 	updates := make(map[string]interface{})
 
 	for _, field := range changedFields {
 		switch field {
 		case "name":
-			updates["name"] = inv.Hostname
+			updates["name"] = inv.GetHostname()
 		case "serial":
-			if inv.System != nil {
-				updates["serial"] = inv.System.SerialNumber
-			}
+			updates["serial"] = inv.GetSystem().GetSerialNumber()
 		case "model_name":
 			updates["model_name"] = buildModelName(inv)
 		case "model_number":
-			if inv.System != nil {
-				updates["model_number"] = inv.System.Version
-			}
+			updates["model_number"] = inv.GetSystem().GetVersion()
 		case "metadata":
 			updates["metadata"] = buildInventoryMetadata(inv)
 		}
@@ -121,78 +113,106 @@ func buildInventoryUpdateMap(inv *data.InventoryData, changedFields []string) ma
 	return updates
 }
 
+// formatBytes converts bytes to a human-readable string
+func formatBytes(b uint64) string {
+	switch {
+	case b >= 1<<30:
+		return fmt.Sprintf("%.1f GB", float64(b)/float64(1<<30))
+	case b >= 1<<20:
+		return fmt.Sprintf("%.1f MB", float64(b)/float64(1<<20))
+	case b >= 1<<10:
+		return fmt.Sprintf("%.1f KB", float64(b)/float64(1<<10))
+	default:
+		return fmt.Sprintf("%d B", b)
+	}
+}
+
 // buildInventoryMetadata converts full SMBIOS data to a metadata map
-func buildInventoryMetadata(inv *data.InventoryData) map[string]interface{} {
+func buildInventoryMetadata(inv *collectorv1.Inventory) map[string]interface{} {
 	meta := make(map[string]interface{})
 
-	if inv.System != nil {
+	if sys := inv.GetSystem(); sys != nil {
 		meta["system"] = map[string]interface{}{
-			"manufacturer":  inv.System.Manufacturer,
-			"product_name":  inv.System.ProductName,
-			"version":       inv.System.Version,
-			"serial_number": inv.System.SerialNumber,
-			"uuid":          inv.System.UUID,
-			"sku_number":    inv.System.SKUNumber,
-			"family":        inv.System.Family,
+			"manufacturer":  sys.GetManufacturer(),
+			"product_name":  sys.GetProductName(),
+			"version":       sys.GetVersion(),
+			"serial_number": sys.GetSerialNumber(),
+			"uuid":          sys.GetUuid(),
+			"wake_up_type":  sys.GetWakeUpType(),
+			"sku_number":    sys.GetSkuNumber(),
+			"family":        sys.GetFamily(),
 		}
 	}
 
-	if inv.BIOS != nil {
+	if bios := inv.GetBios(); bios != nil {
 		meta["bios"] = map[string]interface{}{
-			"vendor":       inv.BIOS.Vendor,
-			"version":      inv.BIOS.Version,
-			"release_date": inv.BIOS.ReleaseDate,
+			"vendor":       bios.GetVendor(),
+			"version":      bios.GetVersion(),
+			"release_date": bios.GetReleaseDate(),
 		}
 	}
 
-	if inv.Baseboard != nil {
+	if bb := inv.GetBaseboard(); bb != nil {
 		meta["baseboard"] = map[string]interface{}{
-			"manufacturer":  inv.Baseboard.Manufacturer,
-			"product":       inv.Baseboard.Product,
-			"version":       inv.Baseboard.Version,
-			"serial_number": inv.Baseboard.SerialNumber,
+			"manufacturer":  bb.GetManufacturer(),
+			"product":       bb.GetProduct(),
+			"version":       bb.GetVersion(),
+			"serial_number": bb.GetSerialNumber(),
+			"asset_tag":     bb.GetAssetTag(),
 		}
 	}
 
-	if inv.Chassis != nil {
+	if chassis := inv.GetChassis(); chassis != nil {
 		meta["chassis"] = map[string]interface{}{
-			"manufacturer":  inv.Chassis.Manufacturer,
-			"type":          inv.Chassis.Type,
-			"serial_number": inv.Chassis.SerialNumber,
-			"asset_tag":     inv.Chassis.AssetTag,
+			"manufacturer":    chassis.GetManufacturer(),
+			"version":         chassis.GetVersion(),
+			"serial_number":   chassis.GetSerialNumber(),
+			"asset_tag_number": chassis.GetAssetTagNumber(),
+			"sku_number":      chassis.GetSkuNumber(),
 		}
 	}
 
-	if len(inv.Processors) > 0 {
-		procs := make([]interface{}, len(inv.Processors))
-		for i, p := range inv.Processors {
-			procs[i] = map[string]interface{}{
-				"socket_designation": p.SocketDesignation,
-				"manufacturer":      p.Manufacturer,
-				"version":           p.Version,
-				"max_speed":         p.MaxSpeed,
-				"current_speed":     p.CurrentSpeed,
-				"core_count":        p.CoreCount,
-				"thread_count":      p.ThreadCount,
+	if procs := inv.GetProcessors(); len(procs) > 0 {
+		procsList := make([]interface{}, len(procs))
+		for i, p := range procs {
+			procsList[i] = map[string]interface{}{
+				"socket_designation": p.GetSocketDesignation(),
+				"manufacturer":      p.GetManufacturer(),
+				"version":           p.GetVersion(),
+				"max_speed":         fmt.Sprintf("%d MHz", p.GetMaxSpeedMhz()),
+				"current_speed":     fmt.Sprintf("%d MHz", p.GetCurrentSpeedMhz()),
+				"core_count":        p.GetCoreCount(),
+				"core_enabled":      p.GetCoreEnabled(),
+				"thread_count":      p.GetThreadCount(),
+				"serial_number":     p.GetSerialNumber(),
+				"asset_tag":         p.GetAssetTag(),
+				"part_number":       p.GetPartNumber(),
 			}
 		}
-		meta["processors"] = procs
+		meta["processors"] = procsList
 	}
 
-	if inv.Memory != nil {
+	if mem := inv.GetMemory(); mem != nil {
 		memData := map[string]interface{}{
-			"total_capacity": inv.Memory.TotalCapacity,
+			"total_physical_bytes": mem.GetTotalPhysicalBytes(),
+			"total_capacity":      formatBytes(mem.GetTotalPhysicalBytes()),
 		}
-		if len(inv.Memory.Devices) > 0 {
-			devices := make([]interface{}, len(inv.Memory.Devices))
-			for i, d := range inv.Memory.Devices {
+		if modules := mem.GetModules(); len(modules) > 0 {
+			devices := make([]interface{}, len(modules))
+			for i, m := range modules {
 				devices[i] = map[string]interface{}{
-					"size":          d.Size,
-					"type":          d.Type,
-					"speed":         d.Speed,
-					"manufacturer":  d.Manufacturer,
-					"serial_number": d.SerialNumber,
-					"locator":       d.Locator,
+					"device_locator":       m.GetDeviceLocator(),
+					"bank_locator":         m.GetBankLocator(),
+					"capacity_bytes":       m.GetCapacityBytes(),
+					"size":                 formatBytes(m.GetCapacityBytes()),
+					"form_factor":          m.GetFormFactor(),
+					"type":                 m.GetMemoryType(),
+					"speed":                fmt.Sprintf("%d MT/s", m.GetSpeedMtS()),
+					"configured_speed":     fmt.Sprintf("%d MT/s", m.GetConfiguredSpeedMtS()),
+					"manufacturer":         m.GetManufacturer(),
+					"serial_number":        m.GetSerialNumber(),
+					"asset_tag":            m.GetAssetTag(),
+					"part_number":          m.GetPartNumber(),
 				}
 			}
 			memData["devices"] = devices
@@ -200,18 +220,16 @@ func buildInventoryMetadata(inv *data.InventoryData) map[string]interface{} {
 		meta["memory"] = memData
 	}
 
-	if len(inv.Monitors) > 0 {
-		monitors := make([]interface{}, len(inv.Monitors))
-		for i, m := range inv.Monitors {
-			monitors[i] = map[string]interface{}{
-				"name":                m.Name,
-				"manufacturer":        m.Manufacturer,
-				"serial_number":       m.SerialNumber,
-				"product_id":          m.ProductID,
-				"year_of_manufacture": m.YearOfMfg,
+	if monitors := inv.GetMonitor(); len(monitors) > 0 {
+		monList := make([]interface{}, len(monitors))
+		for i, m := range monitors {
+			monList[i] = map[string]interface{}{
+				"model":         m.GetModel(),
+				"manufacturer":  m.GetManufacturer(),
+				"serial_number": m.GetSerialNumber(),
 			}
 		}
-		meta["monitors"] = monitors
+		meta["monitors"] = monList
 	}
 
 	if len(meta) == 0 {
@@ -222,7 +240,7 @@ func buildInventoryMetadata(inv *data.InventoryData) map[string]interface{} {
 }
 
 // buildInventoryPreview generates a sync preview by comparing inventory entries against existing assets
-func (s *AssetService) buildInventoryPreview(ctx context.Context, tenantID uint32) (*assetV1.InventorySyncPreviewResponse, map[string]*data.InventoryData, error) {
+func (s *AssetService) buildInventoryPreview(ctx context.Context, tenantID uint32) (*assetV1.InventorySyncPreviewResponse, map[string]*collectorv1.Inventory, error) {
 	summaries, err := s.inventoryClient.FetchInventories(ctx)
 	if err != nil {
 		return nil, nil, assetV1.ErrorInventorySyncFailed("failed to fetch inventories: %v", err)
@@ -249,18 +267,19 @@ func (s *AssetService) buildInventoryPreview(ctx context.Context, tenantID uint3
 	uniqueHostnames := make(map[string]struct{})
 	var hostnames []string
 	for _, s := range summaries {
-		if s.Hostname == "" {
+		hostname := s.GetHostname()
+		if hostname == "" {
 			continue
 		}
-		lower := strings.ToLower(s.Hostname)
+		lower := strings.ToLower(hostname)
 		if _, exists := uniqueHostnames[lower]; !exists {
 			uniqueHostnames[lower] = struct{}{}
-			hostnames = append(hostnames, s.Hostname)
+			hostnames = append(hostnames, hostname)
 		}
 	}
 
 	// Fetch full inventory for each unique hostname
-	inventoryMap := make(map[string]*data.InventoryData)
+	inventoryMap := make(map[string]*collectorv1.Inventory)
 	var warnings []string
 	for _, hostname := range hostnames {
 		inv, fetchErr := s.inventoryClient.FetchLatestByHostname(ctx, hostname)
@@ -278,8 +297,8 @@ func (s *AssetService) buildInventoryPreview(ctx context.Context, tenantID uint3
 		var existing *ent.Asset
 
 		// Match by serial first, then by hostname
-		if inv.System != nil && inv.System.SerialNumber != "" {
-			existing = bySerial[inv.System.SerialNumber]
+		if serial := inv.GetSystem().GetSerialNumber(); serial != "" {
+			existing = bySerial[serial]
 		}
 		if existing == nil {
 			existing = byName[strings.ToLower(hostname)]
@@ -332,9 +351,6 @@ func (s *AssetService) buildInventoryPreview(ctx context.Context, tenantID uint3
 }
 
 // getInventorySerial extracts the serial number from inventory data
-func getInventorySerial(inv *data.InventoryData) string {
-	if inv.System != nil {
-		return inv.System.SerialNumber
-	}
-	return ""
+func getInventorySerial(inv *collectorv1.Inventory) string {
+	return inv.GetSystem().GetSerialNumber()
 }
