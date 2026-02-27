@@ -284,16 +284,8 @@ func (_c *SupplierCreate) SetNillableTags(v *string) *SupplierCreate {
 }
 
 // SetMetadata sets the "metadata" field.
-func (_c *SupplierCreate) SetMetadata(v string) *SupplierCreate {
+func (_c *SupplierCreate) SetMetadata(v map[string]interface{}) *SupplierCreate {
 	_c.mutation.SetMetadata(v)
-	return _c
-}
-
-// SetNillableMetadata sets the "metadata" field if the given value is not nil.
-func (_c *SupplierCreate) SetNillableMetadata(v *string) *SupplierCreate {
-	if v != nil {
-		_c.SetMetadata(*v)
-	}
 	return _c
 }
 
@@ -531,7 +523,7 @@ func (_c *SupplierCreate) createSpec() (*Supplier, *sqlgraph.CreateSpec) {
 		_node.Tags = value
 	}
 	if value, ok := _c.mutation.Metadata(); ok {
-		_spec.SetField(supplier.FieldMetadata, field.TypeString, value)
+		_spec.SetField(supplier.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
@@ -935,7 +927,7 @@ func (u *SupplierUpsert) ClearTags() *SupplierUpsert {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *SupplierUpsert) SetMetadata(v string) *SupplierUpsert {
+func (u *SupplierUpsert) SetMetadata(v map[string]interface{}) *SupplierUpsert {
 	u.Set(supplier.FieldMetadata, v)
 	return u
 }
@@ -1389,7 +1381,7 @@ func (u *SupplierUpsertOne) ClearTags() *SupplierUpsertOne {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *SupplierUpsertOne) SetMetadata(v string) *SupplierUpsertOne {
+func (u *SupplierUpsertOne) SetMetadata(v map[string]interface{}) *SupplierUpsertOne {
 	return u.Update(func(s *SupplierUpsert) {
 		s.SetMetadata(v)
 	})
@@ -2016,7 +2008,7 @@ func (u *SupplierUpsertBulk) ClearTags() *SupplierUpsertBulk {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *SupplierUpsertBulk) SetMetadata(v string) *SupplierUpsertBulk {
+func (u *SupplierUpsertBulk) SetMetadata(v map[string]interface{}) *SupplierUpsertBulk {
 	return u.Update(func(s *SupplierUpsert) {
 		s.SetMetadata(v)
 	})

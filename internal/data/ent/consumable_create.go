@@ -299,16 +299,8 @@ func (_c *ConsumableCreate) SetNillableTags(v *string) *ConsumableCreate {
 }
 
 // SetMetadata sets the "metadata" field.
-func (_c *ConsumableCreate) SetMetadata(v string) *ConsumableCreate {
+func (_c *ConsumableCreate) SetMetadata(v map[string]interface{}) *ConsumableCreate {
 	_c.mutation.SetMetadata(v)
-	return _c
-}
-
-// SetNillableMetadata sets the "metadata" field if the given value is not nil.
-func (_c *ConsumableCreate) SetNillableMetadata(v *string) *ConsumableCreate {
-	if v != nil {
-		_c.SetMetadata(*v)
-	}
 	return _c
 }
 
@@ -511,7 +503,7 @@ func (_c *ConsumableCreate) createSpec() (*Consumable, *sqlgraph.CreateSpec) {
 		_node.Tags = value
 	}
 	if value, ok := _c.mutation.Metadata(); ok {
-		_spec.SetField(consumable.FieldMetadata, field.TypeString, value)
+		_spec.SetField(consumable.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
 	}
 	if nodes := _c.mutation.CategoryIDs(); len(nodes) > 0 {
@@ -954,7 +946,7 @@ func (u *ConsumableUpsert) ClearTags() *ConsumableUpsert {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *ConsumableUpsert) SetMetadata(v string) *ConsumableUpsert {
+func (u *ConsumableUpsert) SetMetadata(v map[string]interface{}) *ConsumableUpsert {
 	u.Set(consumable.FieldMetadata, v)
 	return u
 }
@@ -1418,7 +1410,7 @@ func (u *ConsumableUpsertOne) ClearTags() *ConsumableUpsertOne {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *ConsumableUpsertOne) SetMetadata(v string) *ConsumableUpsertOne {
+func (u *ConsumableUpsertOne) SetMetadata(v map[string]interface{}) *ConsumableUpsertOne {
 	return u.Update(func(s *ConsumableUpsert) {
 		s.SetMetadata(v)
 	})
@@ -2052,7 +2044,7 @@ func (u *ConsumableUpsertBulk) ClearTags() *ConsumableUpsertBulk {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *ConsumableUpsertBulk) SetMetadata(v string) *ConsumableUpsertBulk {
+func (u *ConsumableUpsertBulk) SetMetadata(v map[string]interface{}) *ConsumableUpsertBulk {
 	return u.Update(func(s *ConsumableUpsert) {
 		s.SetMetadata(v)
 	})

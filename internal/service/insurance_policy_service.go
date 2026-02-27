@@ -63,6 +63,9 @@ func (s *InsurancePolicyService) CreateInsurancePolicy(ctx context.Context, req 
 	if req.Notes != nil {
 		opts = append(opts, func(c *ent.InsurancePolicyCreate) { c.SetNotes(*req.Notes) })
 	}
+	if req.Metadata != nil {
+		opts = append(opts, func(c *ent.InsurancePolicyCreate) { c.SetMetadata(req.Metadata.AsMap()) })
+	}
 	if req.Status != nil {
 		opts = append(opts, func(c *ent.InsurancePolicyCreate) { c.SetStatus(insurancePolicyStatusToString(*req.Status)) })
 	}
@@ -165,6 +168,9 @@ func (s *InsurancePolicyService) UpdateInsurancePolicy(ctx context.Context, req 
 		}
 		if req.Data.Notes != nil {
 			updates["notes"] = *req.Data.Notes
+		}
+		if req.Data.Metadata != nil {
+			updates["metadata"] = req.Data.Metadata.AsMap()
 		}
 		if req.Data.Status != nil {
 			updates["status"] = insurancePolicyStatusToString(*req.Data.Status)
@@ -287,6 +293,7 @@ func insurancePolicyToProto(e *ent.InsurancePolicy, assetCount int) *assetV1.Ins
 		Provider:     ptrString(e.Provider),
 		CoverageType: coverageTypeFromString(e.CoverageType).Enum(),
 		Notes:        ptrString(e.Notes),
+		Metadata:     mapToStruct(e.Metadata),
 		Status:       insurancePolicyStatusFromString(e.Status).Enum(),
 		AssetCount:   ptrInt32(int32(assetCount)),
 		CreatedBy:    e.CreateBy,

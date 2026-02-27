@@ -89,7 +89,7 @@ func (Consumable) Fields() []ent.Field {
 			Optional().
 			Comment("Custom tags (JSON)"),
 
-		field.Text("metadata").
+		field.JSON("metadata", map[string]interface{}{}).
 			Optional().
 			Comment("Custom metadata (JSON)"),
 	}

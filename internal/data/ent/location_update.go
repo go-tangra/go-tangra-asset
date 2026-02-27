@@ -421,16 +421,8 @@ func (_u *LocationUpdate) ClearTags() *LocationUpdate {
 }
 
 // SetMetadata sets the "metadata" field.
-func (_u *LocationUpdate) SetMetadata(v string) *LocationUpdate {
+func (_u *LocationUpdate) SetMetadata(v map[string]interface{}) *LocationUpdate {
 	_u.mutation.SetMetadata(v)
-	return _u
-}
-
-// SetNillableMetadata sets the "metadata" field if the given value is not nil.
-func (_u *LocationUpdate) SetNillableMetadata(v *string) *LocationUpdate {
-	if v != nil {
-		_u.SetMetadata(*v)
-	}
 	return _u
 }
 
@@ -742,10 +734,10 @@ func (_u *LocationUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(location.FieldTags, field.TypeString)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
-		_spec.SetField(location.FieldMetadata, field.TypeString, value)
+		_spec.SetField(location.FieldMetadata, field.TypeJSON, value)
 	}
 	if _u.mutation.MetadataCleared() {
-		_spec.ClearField(location.FieldMetadata, field.TypeString)
+		_spec.ClearField(location.FieldMetadata, field.TypeJSON)
 	}
 	if _u.mutation.ParentCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1323,16 +1315,8 @@ func (_u *LocationUpdateOne) ClearTags() *LocationUpdateOne {
 }
 
 // SetMetadata sets the "metadata" field.
-func (_u *LocationUpdateOne) SetMetadata(v string) *LocationUpdateOne {
+func (_u *LocationUpdateOne) SetMetadata(v map[string]interface{}) *LocationUpdateOne {
 	_u.mutation.SetMetadata(v)
-	return _u
-}
-
-// SetNillableMetadata sets the "metadata" field if the given value is not nil.
-func (_u *LocationUpdateOne) SetNillableMetadata(v *string) *LocationUpdateOne {
-	if v != nil {
-		_u.SetMetadata(*v)
-	}
 	return _u
 }
 
@@ -1674,10 +1658,10 @@ func (_u *LocationUpdateOne) sqlSave(ctx context.Context) (_node *Location, err 
 		_spec.ClearField(location.FieldTags, field.TypeString)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
-		_spec.SetField(location.FieldMetadata, field.TypeString, value)
+		_spec.SetField(location.FieldMetadata, field.TypeJSON, value)
 	}
 	if _u.mutation.MetadataCleared() {
-		_spec.ClearField(location.FieldMetadata, field.TypeString)
+		_spec.ClearField(location.FieldMetadata, field.TypeJSON)
 	}
 	if _u.mutation.ParentCleared() {
 		edge := &sqlgraph.EdgeSpec{

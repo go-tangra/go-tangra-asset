@@ -8,6 +8,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
+import "google/protobuf/struct.proto";
 import "redact/v3/redact.proto";
 
 // Employee represents a person who can be assigned assets
@@ -46,7 +47,7 @@ message Employee {
   optional string tags = 11 [json_name = "tags"];
 
   // Custom metadata (JSON)
-  optional string metadata = 12 [json_name = "metadata"];
+  google.protobuf.Struct metadata = 12 [json_name = "metadata"];
 
   // Creation timestamp
   optional google.protobuf.Timestamp created_at = 20 [json_name = "createdAt"];
@@ -89,7 +90,7 @@ message CreateEmployeeRequest {
   optional string employee_number = 8 [json_name = "employeeNumber"];
   optional string notes = 9 [json_name = "notes"];
   optional string tags = 10 [json_name = "tags"];
-  optional string metadata = 11 [json_name = "metadata"];
+  google.protobuf.Struct metadata = 11 [json_name = "metadata"];
 }
 
 message CreateEmployeeResponse {

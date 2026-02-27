@@ -103,7 +103,7 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetV1.CreateAsset
 		opts = append(opts, func(c *ent.AssetCreate) { c.SetTags(*req.Tags) })
 	}
 	if req.Metadata != nil {
-		opts = append(opts, func(c *ent.AssetCreate) { c.SetMetadata(*req.Metadata) })
+		opts = append(opts, func(c *ent.AssetCreate) { c.SetMetadata(req.Metadata.AsMap()) })
 	}
 	if req.SalvageValue != nil {
 		opts = append(opts, func(c *ent.AssetCreate) { c.SetSalvageValue(*req.SalvageValue) })
@@ -233,7 +233,7 @@ func (s *AssetService) UpdateAsset(ctx context.Context, req *assetV1.UpdateAsset
 			updates["tags"] = *req.Data.Tags
 		}
 		if req.Data.Metadata != nil {
-			updates["metadata"] = *req.Data.Metadata
+			updates["metadata"] = req.Data.Metadata.AsMap()
 		}
 		if req.Data.SalvageValue != nil {
 			updates["salvage_value"] = *req.Data.SalvageValue
@@ -593,7 +593,7 @@ func assetToProto(e *ent.Asset) *assetV1.Asset {
 		OrderNumber:  ptrString(e.OrderNumber),
 		Notes:        ptrString(e.Notes),
 		Tags:         ptrString(e.Tags),
-		Metadata:     ptrString(e.Metadata),
+		Metadata:     mapToStruct(e.Metadata),
 		CreatedBy:    e.CreateBy,
 		UpdatedBy:    e.UpdateBy,
 	}

@@ -8,6 +8,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
+import "google/protobuf/struct.proto";
 import "redact/v3/redact.proto";
 
 // Supplier represents a vendor/supplier of assets and consumables
@@ -58,7 +59,7 @@ message Supplier {
   optional string tags = 15 [json_name = "tags"];
 
   // Custom metadata (JSON)
-  optional string metadata = 16 [json_name = "metadata"];
+  google.protobuf.Struct metadata = 16 [json_name = "metadata"];
 
   // Supplier status: 1=Active, 2=Inactive
   optional int32 status = 17 [json_name = "status"];
@@ -102,7 +103,7 @@ message CreateSupplierRequest {
   optional string website = 12 [json_name = "website"];
   optional string notes = 13 [json_name = "notes"];
   optional string tags = 14 [json_name = "tags"];
-  optional string metadata = 15 [json_name = "metadata"];
+  google.protobuf.Struct metadata = 15 [json_name = "metadata"];
   optional int32 status = 16 [json_name = "status"];
 }
 

@@ -67,6 +67,10 @@ func (License) Fields() []ent.Field {
 			Optional().
 			Comment("Notes"),
 
+		field.JSON("metadata", map[string]interface{}{}).
+			Optional().
+			Comment("Custom metadata (JSON)"),
+
 		field.String("status").
 			Optional().
 			Default("ACTIVE").

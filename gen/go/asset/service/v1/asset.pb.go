@@ -13,6 +13,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -177,7 +178,7 @@ type Asset struct {
 	// Custom tags (JSON)
 	Tags *string `protobuf:"bytes,19,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
 	// Custom metadata (JSON)
-	Metadata *string `protobuf:"bytes,20,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"`
+	Metadata *structpb.Struct `protobuf:"bytes,20,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	// Salvage value (typically 10% of purchase cost)
 	SalvageValue *float64 `protobuf:"fixed64,21,opt,name=salvage_value,json=salvageValue,proto3,oneof" json:"salvage_value,omitempty"`
 	// Useful life in years
@@ -359,11 +360,11 @@ func (x *Asset) GetTags() string {
 	return ""
 }
 
-func (x *Asset) GetMetadata() string {
-	if x != nil && x.Metadata != nil {
-		return *x.Metadata
+func (x *Asset) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
 	}
-	return ""
+	return nil
 }
 
 func (x *Asset) GetSalvageValue() float64 {
@@ -697,7 +698,7 @@ type CreateAssetRequest struct {
 	PurchaseCost     *float64               `protobuf:"fixed64,14,opt,name=purchase_cost,json=purchaseCost,proto3,oneof" json:"purchase_cost,omitempty"`
 	Notes            *string                `protobuf:"bytes,15,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
 	Tags             *string                `protobuf:"bytes,16,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
-	Metadata         *string                `protobuf:"bytes,17,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"`
+	Metadata         *structpb.Struct       `protobuf:"bytes,17,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	SalvageValue     *float64               `protobuf:"fixed64,18,opt,name=salvage_value,json=salvageValue,proto3,oneof" json:"salvage_value,omitempty"`
 	UsefulLifeYears  *int32                 `protobuf:"varint,19,opt,name=useful_life_years,json=usefulLifeYears,proto3,oneof" json:"useful_life_years,omitempty"`
 	DepreciationRate *float64               `protobuf:"fixed64,20,opt,name=depreciation_rate,json=depreciationRate,proto3,oneof" json:"depreciation_rate,omitempty"`
@@ -847,11 +848,11 @@ func (x *CreateAssetRequest) GetTags() string {
 	return ""
 }
 
-func (x *CreateAssetRequest) GetMetadata() string {
-	if x != nil && x.Metadata != nil {
-		return *x.Metadata
+func (x *CreateAssetRequest) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
 	}
-	return ""
+	return nil
 }
 
 func (x *CreateAssetRequest) GetSalvageValue() float64 {
@@ -2210,7 +2211,7 @@ var File_asset_service_v1_asset_proto protoreflect.FileDescriptor
 
 const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\n" +
-	"\x1casset/service/v1/asset.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\"\xdb\v\n" +
+	"\x1casset/service/v1/asset.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xe2\v\n" +
 	"\x05Asset\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12 \n" +
@@ -2237,19 +2238,19 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\forder_number\x18\x10 \x01(\tH\x0fR\vorderNumber\x88\x01\x01\x12(\n" +
 	"\rpurchase_cost\x18\x11 \x01(\x01H\x10R\fpurchaseCost\x88\x01\x01\x12\x19\n" +
 	"\x05notes\x18\x12 \x01(\tH\x11R\x05notes\x88\x01\x01\x12\x17\n" +
-	"\x04tags\x18\x13 \x01(\tH\x12R\x04tags\x88\x01\x01\x12\x1f\n" +
-	"\bmetadata\x18\x14 \x01(\tH\x13R\bmetadata\x88\x01\x01\x12(\n" +
-	"\rsalvage_value\x18\x15 \x01(\x01H\x14R\fsalvageValue\x88\x01\x01\x12/\n" +
-	"\x11useful_life_years\x18\x16 \x01(\x05H\x15R\x0fusefulLifeYears\x88\x01\x01\x120\n" +
-	"\x11depreciation_rate\x18\x17 \x01(\x01H\x16R\x10depreciationRate\x88\x01\x01\x12>\n" +
+	"\x04tags\x18\x13 \x01(\tH\x12R\x04tags\x88\x01\x01\x123\n" +
+	"\bmetadata\x18\x14 \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12(\n" +
+	"\rsalvage_value\x18\x15 \x01(\x01H\x13R\fsalvageValue\x88\x01\x01\x12/\n" +
+	"\x11useful_life_years\x18\x16 \x01(\x05H\x14R\x0fusefulLifeYears\x88\x01\x01\x120\n" +
+	"\x11depreciation_rate\x18\x17 \x01(\x01H\x15R\x10depreciationRate\x88\x01\x01\x12>\n" +
 	"\n" +
-	"created_at\x18\x1e \x01(\v2\x1a.google.protobuf.TimestampH\x17R\tcreatedAt\x88\x01\x01\x12>\n" +
+	"created_at\x18\x1e \x01(\v2\x1a.google.protobuf.TimestampH\x16R\tcreatedAt\x88\x01\x01\x12>\n" +
 	"\n" +
-	"updated_at\x18\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x18R\tupdatedAt\x88\x01\x01\x12\"\n" +
+	"updated_at\x18\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x17R\tupdatedAt\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"created_by\x18  \x01(\rH\x19R\tcreatedBy\x88\x01\x01\x12\"\n" +
+	"created_by\x18  \x01(\rH\x18R\tcreatedBy\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"updated_by\x18! \x01(\rH\x1aR\tupdatedBy\x88\x01\x01B\x05\n" +
+	"updated_by\x18! \x01(\rH\x19R\tupdatedBy\x88\x01\x01B\x05\n" +
 	"\x03_idB\f\n" +
 	"\n" +
 	"_tenant_idB\f\n" +
@@ -2271,8 +2272,7 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\r_order_numberB\x10\n" +
 	"\x0e_purchase_costB\b\n" +
 	"\x06_notesB\a\n" +
-	"\x05_tagsB\v\n" +
-	"\t_metadataB\x10\n" +
+	"\x05_tagsB\x10\n" +
 	"\x0e_salvage_valueB\x14\n" +
 	"\x12_useful_life_yearsB\x14\n" +
 	"\x12_depreciation_rateB\r\n" +
@@ -2339,7 +2339,7 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\t_checksumB\x0e\n" +
 	"\f_descriptionB\r\n" +
 	"\v_created_atB\r\n" +
-	"\v_created_by\"\xfb\b\n" +
+	"\v_created_by\"\x82\t\n" +
 	"\x12CreateAssetRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12*\n" +
 	"\tasset_tag\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01H\x01R\bassetTag\x88\x01\x01\x12!\n" +
@@ -2362,11 +2362,11 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\forder_number\x18\r \x01(\tH\fR\vorderNumber\x88\x01\x01\x12(\n" +
 	"\rpurchase_cost\x18\x0e \x01(\x01H\rR\fpurchaseCost\x88\x01\x01\x12\x19\n" +
 	"\x05notes\x18\x0f \x01(\tH\x0eR\x05notes\x88\x01\x01\x12\x17\n" +
-	"\x04tags\x18\x10 \x01(\tH\x0fR\x04tags\x88\x01\x01\x12\x1f\n" +
-	"\bmetadata\x18\x11 \x01(\tH\x10R\bmetadata\x88\x01\x01\x12(\n" +
-	"\rsalvage_value\x18\x12 \x01(\x01H\x11R\fsalvageValue\x88\x01\x01\x12/\n" +
-	"\x11useful_life_years\x18\x13 \x01(\x05H\x12R\x0fusefulLifeYears\x88\x01\x01\x120\n" +
-	"\x11depreciation_rate\x18\x14 \x01(\x01H\x13R\x10depreciationRate\x88\x01\x01B\f\n" +
+	"\x04tags\x18\x10 \x01(\tH\x0fR\x04tags\x88\x01\x01\x123\n" +
+	"\bmetadata\x18\x11 \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12(\n" +
+	"\rsalvage_value\x18\x12 \x01(\x01H\x10R\fsalvageValue\x88\x01\x01\x12/\n" +
+	"\x11useful_life_years\x18\x13 \x01(\x05H\x11R\x0fusefulLifeYears\x88\x01\x01\x120\n" +
+	"\x11depreciation_rate\x18\x14 \x01(\x01H\x12R\x10depreciationRate\x88\x01\x01B\f\n" +
 	"\n" +
 	"_tenant_idB\f\n" +
 	"\n" +
@@ -2384,8 +2384,7 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\r_order_numberB\x10\n" +
 	"\x0e_purchase_costB\b\n" +
 	"\x06_notesB\a\n" +
-	"\x05_tagsB\v\n" +
-	"\t_metadataB\x10\n" +
+	"\x05_tagsB\x10\n" +
 	"\x0e_salvage_valueB\x14\n" +
 	"\x12_useful_life_yearsB\x14\n" +
 	"\x12_depreciation_rate\"D\n" +
@@ -2596,66 +2595,69 @@ var file_asset_service_v1_asset_proto_goTypes = []any{
 	(*DownloadAssetDocumentRequest)(nil), // 28: asset.service.v1.DownloadAssetDocumentRequest
 	(*DownloadDocumentResponse)(nil),     // 29: asset.service.v1.DownloadDocumentResponse
 	(*timestamppb.Timestamp)(nil),        // 30: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),        // 31: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),                // 32: google.protobuf.Empty
+	(*structpb.Struct)(nil),              // 31: google.protobuf.Struct
+	(*fieldmaskpb.FieldMask)(nil),        // 32: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),                // 33: google.protobuf.Empty
 }
 var file_asset_service_v1_asset_proto_depIdxs = []int32{
 	0,  // 0: asset.service.v1.Asset.status:type_name -> asset.service.v1.AssetStatus
 	30, // 1: asset.service.v1.Asset.purchase_date:type_name -> google.protobuf.Timestamp
-	30, // 2: asset.service.v1.Asset.created_at:type_name -> google.protobuf.Timestamp
-	30, // 3: asset.service.v1.Asset.updated_at:type_name -> google.protobuf.Timestamp
-	1,  // 4: asset.service.v1.AssetAssignment.action:type_name -> asset.service.v1.AssignmentAction
-	30, // 5: asset.service.v1.AssetAssignment.assigned_at:type_name -> google.protobuf.Timestamp
-	30, // 6: asset.service.v1.AssetAssignment.returned_at:type_name -> google.protobuf.Timestamp
-	30, // 7: asset.service.v1.AssetDocument.created_at:type_name -> google.protobuf.Timestamp
-	0,  // 8: asset.service.v1.CreateAssetRequest.status:type_name -> asset.service.v1.AssetStatus
-	30, // 9: asset.service.v1.CreateAssetRequest.purchase_date:type_name -> google.protobuf.Timestamp
-	2,  // 10: asset.service.v1.CreateAssetResponse.asset:type_name -> asset.service.v1.Asset
-	2,  // 11: asset.service.v1.GetAssetResponse.asset:type_name -> asset.service.v1.Asset
-	0,  // 12: asset.service.v1.ListAssetsRequest.status:type_name -> asset.service.v1.AssetStatus
-	2,  // 13: asset.service.v1.ListAssetsResponse.items:type_name -> asset.service.v1.Asset
-	2,  // 14: asset.service.v1.UpdateAssetRequest.data:type_name -> asset.service.v1.Asset
-	31, // 15: asset.service.v1.UpdateAssetRequest.update_mask:type_name -> google.protobuf.FieldMask
-	2,  // 16: asset.service.v1.UpdateAssetResponse.asset:type_name -> asset.service.v1.Asset
-	2,  // 17: asset.service.v1.AssignAssetResponse.asset:type_name -> asset.service.v1.Asset
-	2,  // 18: asset.service.v1.UnassignAssetResponse.asset:type_name -> asset.service.v1.Asset
-	3,  // 19: asset.service.v1.GetAssignmentHistoryResponse.items:type_name -> asset.service.v1.AssetAssignment
-	2,  // 20: asset.service.v1.UploadPhotoResponse.asset:type_name -> asset.service.v1.Asset
-	4,  // 21: asset.service.v1.ListAssetDocumentsResponse.items:type_name -> asset.service.v1.AssetDocument
-	4,  // 22: asset.service.v1.UploadAssetDocumentResponse.document:type_name -> asset.service.v1.AssetDocument
-	5,  // 23: asset.service.v1.AssetService.CreateAsset:input_type -> asset.service.v1.CreateAssetRequest
-	7,  // 24: asset.service.v1.AssetService.GetAsset:input_type -> asset.service.v1.GetAssetRequest
-	9,  // 25: asset.service.v1.AssetService.ListAssets:input_type -> asset.service.v1.ListAssetsRequest
-	11, // 26: asset.service.v1.AssetService.UpdateAsset:input_type -> asset.service.v1.UpdateAssetRequest
-	13, // 27: asset.service.v1.AssetService.DeleteAsset:input_type -> asset.service.v1.DeleteAssetRequest
-	14, // 28: asset.service.v1.AssetService.AssignAsset:input_type -> asset.service.v1.AssignAssetRequest
-	16, // 29: asset.service.v1.AssetService.UnassignAsset:input_type -> asset.service.v1.UnassignAssetRequest
-	18, // 30: asset.service.v1.AssetService.GetAssignmentHistory:input_type -> asset.service.v1.GetAssignmentHistoryRequest
-	20, // 31: asset.service.v1.AssetService.UploadPhoto:input_type -> asset.service.v1.UploadPhotoRequest
-	22, // 32: asset.service.v1.AssetService.DeletePhoto:input_type -> asset.service.v1.DeletePhotoRequest
-	23, // 33: asset.service.v1.AssetService.ListDocuments:input_type -> asset.service.v1.ListAssetDocumentsRequest
-	25, // 34: asset.service.v1.AssetService.UploadDocument:input_type -> asset.service.v1.UploadAssetDocumentRequest
-	27, // 35: asset.service.v1.AssetService.DeleteDocument:input_type -> asset.service.v1.DeleteAssetDocumentRequest
-	28, // 36: asset.service.v1.AssetService.DownloadDocument:input_type -> asset.service.v1.DownloadAssetDocumentRequest
-	6,  // 37: asset.service.v1.AssetService.CreateAsset:output_type -> asset.service.v1.CreateAssetResponse
-	8,  // 38: asset.service.v1.AssetService.GetAsset:output_type -> asset.service.v1.GetAssetResponse
-	10, // 39: asset.service.v1.AssetService.ListAssets:output_type -> asset.service.v1.ListAssetsResponse
-	12, // 40: asset.service.v1.AssetService.UpdateAsset:output_type -> asset.service.v1.UpdateAssetResponse
-	32, // 41: asset.service.v1.AssetService.DeleteAsset:output_type -> google.protobuf.Empty
-	15, // 42: asset.service.v1.AssetService.AssignAsset:output_type -> asset.service.v1.AssignAssetResponse
-	17, // 43: asset.service.v1.AssetService.UnassignAsset:output_type -> asset.service.v1.UnassignAssetResponse
-	19, // 44: asset.service.v1.AssetService.GetAssignmentHistory:output_type -> asset.service.v1.GetAssignmentHistoryResponse
-	21, // 45: asset.service.v1.AssetService.UploadPhoto:output_type -> asset.service.v1.UploadPhotoResponse
-	32, // 46: asset.service.v1.AssetService.DeletePhoto:output_type -> google.protobuf.Empty
-	24, // 47: asset.service.v1.AssetService.ListDocuments:output_type -> asset.service.v1.ListAssetDocumentsResponse
-	26, // 48: asset.service.v1.AssetService.UploadDocument:output_type -> asset.service.v1.UploadAssetDocumentResponse
-	32, // 49: asset.service.v1.AssetService.DeleteDocument:output_type -> google.protobuf.Empty
-	29, // 50: asset.service.v1.AssetService.DownloadDocument:output_type -> asset.service.v1.DownloadDocumentResponse
-	37, // [37:51] is the sub-list for method output_type
-	23, // [23:37] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	31, // 2: asset.service.v1.Asset.metadata:type_name -> google.protobuf.Struct
+	30, // 3: asset.service.v1.Asset.created_at:type_name -> google.protobuf.Timestamp
+	30, // 4: asset.service.v1.Asset.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 5: asset.service.v1.AssetAssignment.action:type_name -> asset.service.v1.AssignmentAction
+	30, // 6: asset.service.v1.AssetAssignment.assigned_at:type_name -> google.protobuf.Timestamp
+	30, // 7: asset.service.v1.AssetAssignment.returned_at:type_name -> google.protobuf.Timestamp
+	30, // 8: asset.service.v1.AssetDocument.created_at:type_name -> google.protobuf.Timestamp
+	0,  // 9: asset.service.v1.CreateAssetRequest.status:type_name -> asset.service.v1.AssetStatus
+	30, // 10: asset.service.v1.CreateAssetRequest.purchase_date:type_name -> google.protobuf.Timestamp
+	31, // 11: asset.service.v1.CreateAssetRequest.metadata:type_name -> google.protobuf.Struct
+	2,  // 12: asset.service.v1.CreateAssetResponse.asset:type_name -> asset.service.v1.Asset
+	2,  // 13: asset.service.v1.GetAssetResponse.asset:type_name -> asset.service.v1.Asset
+	0,  // 14: asset.service.v1.ListAssetsRequest.status:type_name -> asset.service.v1.AssetStatus
+	2,  // 15: asset.service.v1.ListAssetsResponse.items:type_name -> asset.service.v1.Asset
+	2,  // 16: asset.service.v1.UpdateAssetRequest.data:type_name -> asset.service.v1.Asset
+	32, // 17: asset.service.v1.UpdateAssetRequest.update_mask:type_name -> google.protobuf.FieldMask
+	2,  // 18: asset.service.v1.UpdateAssetResponse.asset:type_name -> asset.service.v1.Asset
+	2,  // 19: asset.service.v1.AssignAssetResponse.asset:type_name -> asset.service.v1.Asset
+	2,  // 20: asset.service.v1.UnassignAssetResponse.asset:type_name -> asset.service.v1.Asset
+	3,  // 21: asset.service.v1.GetAssignmentHistoryResponse.items:type_name -> asset.service.v1.AssetAssignment
+	2,  // 22: asset.service.v1.UploadPhotoResponse.asset:type_name -> asset.service.v1.Asset
+	4,  // 23: asset.service.v1.ListAssetDocumentsResponse.items:type_name -> asset.service.v1.AssetDocument
+	4,  // 24: asset.service.v1.UploadAssetDocumentResponse.document:type_name -> asset.service.v1.AssetDocument
+	5,  // 25: asset.service.v1.AssetService.CreateAsset:input_type -> asset.service.v1.CreateAssetRequest
+	7,  // 26: asset.service.v1.AssetService.GetAsset:input_type -> asset.service.v1.GetAssetRequest
+	9,  // 27: asset.service.v1.AssetService.ListAssets:input_type -> asset.service.v1.ListAssetsRequest
+	11, // 28: asset.service.v1.AssetService.UpdateAsset:input_type -> asset.service.v1.UpdateAssetRequest
+	13, // 29: asset.service.v1.AssetService.DeleteAsset:input_type -> asset.service.v1.DeleteAssetRequest
+	14, // 30: asset.service.v1.AssetService.AssignAsset:input_type -> asset.service.v1.AssignAssetRequest
+	16, // 31: asset.service.v1.AssetService.UnassignAsset:input_type -> asset.service.v1.UnassignAssetRequest
+	18, // 32: asset.service.v1.AssetService.GetAssignmentHistory:input_type -> asset.service.v1.GetAssignmentHistoryRequest
+	20, // 33: asset.service.v1.AssetService.UploadPhoto:input_type -> asset.service.v1.UploadPhotoRequest
+	22, // 34: asset.service.v1.AssetService.DeletePhoto:input_type -> asset.service.v1.DeletePhotoRequest
+	23, // 35: asset.service.v1.AssetService.ListDocuments:input_type -> asset.service.v1.ListAssetDocumentsRequest
+	25, // 36: asset.service.v1.AssetService.UploadDocument:input_type -> asset.service.v1.UploadAssetDocumentRequest
+	27, // 37: asset.service.v1.AssetService.DeleteDocument:input_type -> asset.service.v1.DeleteAssetDocumentRequest
+	28, // 38: asset.service.v1.AssetService.DownloadDocument:input_type -> asset.service.v1.DownloadAssetDocumentRequest
+	6,  // 39: asset.service.v1.AssetService.CreateAsset:output_type -> asset.service.v1.CreateAssetResponse
+	8,  // 40: asset.service.v1.AssetService.GetAsset:output_type -> asset.service.v1.GetAssetResponse
+	10, // 41: asset.service.v1.AssetService.ListAssets:output_type -> asset.service.v1.ListAssetsResponse
+	12, // 42: asset.service.v1.AssetService.UpdateAsset:output_type -> asset.service.v1.UpdateAssetResponse
+	33, // 43: asset.service.v1.AssetService.DeleteAsset:output_type -> google.protobuf.Empty
+	15, // 44: asset.service.v1.AssetService.AssignAsset:output_type -> asset.service.v1.AssignAssetResponse
+	17, // 45: asset.service.v1.AssetService.UnassignAsset:output_type -> asset.service.v1.UnassignAssetResponse
+	19, // 46: asset.service.v1.AssetService.GetAssignmentHistory:output_type -> asset.service.v1.GetAssignmentHistoryResponse
+	21, // 47: asset.service.v1.AssetService.UploadPhoto:output_type -> asset.service.v1.UploadPhotoResponse
+	33, // 48: asset.service.v1.AssetService.DeletePhoto:output_type -> google.protobuf.Empty
+	24, // 49: asset.service.v1.AssetService.ListDocuments:output_type -> asset.service.v1.ListAssetDocumentsResponse
+	26, // 50: asset.service.v1.AssetService.UploadDocument:output_type -> asset.service.v1.UploadAssetDocumentResponse
+	33, // 51: asset.service.v1.AssetService.DeleteDocument:output_type -> google.protobuf.Empty
+	29, // 52: asset.service.v1.AssetService.DownloadDocument:output_type -> asset.service.v1.DownloadDocumentResponse
+	39, // [39:53] is the sub-list for method output_type
+	25, // [25:39] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_asset_service_v1_asset_proto_init() }

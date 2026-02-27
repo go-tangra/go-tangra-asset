@@ -1,5 +1,20 @@
 package service
 
+import (
+	"google.golang.org/protobuf/types/known/structpb"
+)
+
+func mapToStruct(m map[string]interface{}) *structpb.Struct {
+	if m == nil {
+		return nil
+	}
+	s, err := structpb.NewStruct(m)
+	if err != nil {
+		return nil
+	}
+	return s
+}
+
 func ptrString(s string) *string {
 	if s == "" {
 		return nil

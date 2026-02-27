@@ -8,6 +8,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
+import "google/protobuf/struct.proto";
 
 // AssetStatus represents the lifecycle state of an asset
 enum AssetStatus {
@@ -86,7 +87,7 @@ message Asset {
   optional string tags = 19 [json_name = "tags"];
 
   // Custom metadata (JSON)
-  optional string metadata = 20 [json_name = "metadata"];
+  google.protobuf.Struct metadata = 20 [json_name = "metadata"];
 
   // Salvage value (typically 10% of purchase cost)
   optional double salvage_value = 21 [json_name = "salvageValue"];
@@ -209,7 +210,7 @@ message CreateAssetRequest {
   optional double purchase_cost = 14 [json_name = "purchaseCost"];
   optional string notes = 15 [json_name = "notes"];
   optional string tags = 16 [json_name = "tags"];
-  optional string metadata = 17 [json_name = "metadata"];
+  google.protobuf.Struct metadata = 17 [json_name = "metadata"];
   optional double salvage_value = 18 [json_name = "salvageValue"];
   optional int32 useful_life_years = 19 [json_name = "usefulLifeYears"];
   optional double depreciation_rate = 20 [json_name = "depreciationRate"];

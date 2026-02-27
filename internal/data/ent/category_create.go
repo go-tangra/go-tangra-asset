@@ -157,6 +157,12 @@ func (_c *CategoryCreate) SetNillableIcon(v *string) *CategoryCreate {
 	return _c
 }
 
+// SetMetadata sets the "metadata" field.
+func (_c *CategoryCreate) SetMetadata(v map[string]interface{}) *CategoryCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *CategoryCreate) SetID(v string) *CategoryCreate {
 	_c.mutation.SetID(v)
@@ -343,6 +349,10 @@ func (_c *CategoryCreate) createSpec() (*Category, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Icon(); ok {
 		_spec.SetField(category.FieldIcon, field.TypeString, value)
 		_node.Icon = value
+	}
+	if value, ok := _c.mutation.Metadata(); ok {
+		_spec.SetField(category.FieldMetadata, field.TypeJSON, value)
+		_node.Metadata = value
 	}
 	if nodes := _c.mutation.ParentIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -611,6 +621,24 @@ func (u *CategoryUpsert) ClearIcon() *CategoryUpsert {
 	return u
 }
 
+// SetMetadata sets the "metadata" field.
+func (u *CategoryUpsert) SetMetadata(v map[string]interface{}) *CategoryUpsert {
+	u.Set(category.FieldMetadata, v)
+	return u
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *CategoryUpsert) UpdateMetadata() *CategoryUpsert {
+	u.SetExcluded(category.FieldMetadata)
+	return u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (u *CategoryUpsert) ClearMetadata() *CategoryUpsert {
+	u.SetNull(category.FieldMetadata)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -837,6 +865,27 @@ func (u *CategoryUpsertOne) UpdateIcon() *CategoryUpsertOne {
 func (u *CategoryUpsertOne) ClearIcon() *CategoryUpsertOne {
 	return u.Update(func(s *CategoryUpsert) {
 		s.ClearIcon()
+	})
+}
+
+// SetMetadata sets the "metadata" field.
+func (u *CategoryUpsertOne) SetMetadata(v map[string]interface{}) *CategoryUpsertOne {
+	return u.Update(func(s *CategoryUpsert) {
+		s.SetMetadata(v)
+	})
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *CategoryUpsertOne) UpdateMetadata() *CategoryUpsertOne {
+	return u.Update(func(s *CategoryUpsert) {
+		s.UpdateMetadata()
+	})
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (u *CategoryUpsertOne) ClearMetadata() *CategoryUpsertOne {
+	return u.Update(func(s *CategoryUpsert) {
+		s.ClearMetadata()
 	})
 }
 
@@ -1233,6 +1282,27 @@ func (u *CategoryUpsertBulk) UpdateIcon() *CategoryUpsertBulk {
 func (u *CategoryUpsertBulk) ClearIcon() *CategoryUpsertBulk {
 	return u.Update(func(s *CategoryUpsert) {
 		s.ClearIcon()
+	})
+}
+
+// SetMetadata sets the "metadata" field.
+func (u *CategoryUpsertBulk) SetMetadata(v map[string]interface{}) *CategoryUpsertBulk {
+	return u.Update(func(s *CategoryUpsert) {
+		s.SetMetadata(v)
+	})
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *CategoryUpsertBulk) UpdateMetadata() *CategoryUpsertBulk {
+	return u.Update(func(s *CategoryUpsert) {
+		s.UpdateMetadata()
+	})
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (u *CategoryUpsertBulk) ClearMetadata() *CategoryUpsertBulk {
+	return u.Update(func(s *CategoryUpsert) {
+		s.ClearMetadata()
 	})
 }
 

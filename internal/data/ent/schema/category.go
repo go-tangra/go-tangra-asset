@@ -46,6 +46,10 @@ func (Category) Fields() []ent.Field {
 		field.String("icon").
 			Optional().
 			Comment("Icon name"),
+
+		field.JSON("metadata", map[string]interface{}{}).
+			Optional().
+			Comment("Custom metadata (JSON)"),
 	}
 }
 

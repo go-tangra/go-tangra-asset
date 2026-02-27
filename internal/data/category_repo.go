@@ -106,6 +106,9 @@ func (r *CategoryRepo) Update(ctx context.Context, id string, updates map[string
 	if icon, ok := updates["icon"].(string); ok {
 		update = update.SetIcon(icon)
 	}
+	if metadata, ok := updates["metadata"].(map[string]interface{}); ok {
+		update = update.SetMetadata(metadata)
+	}
 
 	update = update.SetUpdateTime(time.Now())
 

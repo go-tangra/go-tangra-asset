@@ -14,6 +14,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -121,7 +122,7 @@ type Location struct {
 	// Custom tags (JSON)
 	Tags *string `protobuf:"bytes,19,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
 	// Custom metadata (JSON)
-	Metadata *string `protobuf:"bytes,20,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"`
+	Metadata *structpb.Struct `protobuf:"bytes,20,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	// Creation timestamp
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,30,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
 	// Last update timestamp
@@ -297,11 +298,11 @@ func (x *Location) GetTags() string {
 	return ""
 }
 
-func (x *Location) GetMetadata() string {
-	if x != nil && x.Metadata != nil {
-		return *x.Metadata
+func (x *Location) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
 	}
-	return ""
+	return nil
 }
 
 func (x *Location) GetCreatedAt() *timestamppb.Timestamp {
@@ -350,7 +351,7 @@ type CreateLocationRequest struct {
 	Email         *string                `protobuf:"bytes,13,opt,name=email,proto3,oneof" json:"email,omitempty"`
 	Status        *LocationStatus        `protobuf:"varint,14,opt,name=status,proto3,enum=asset.service.v1.LocationStatus,oneof" json:"status,omitempty"`
 	Tags          *string                `protobuf:"bytes,15,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
-	Metadata      *string                `protobuf:"bytes,16,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"`
+	Metadata      *structpb.Struct       `protobuf:"bytes,16,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -490,11 +491,11 @@ func (x *CreateLocationRequest) GetTags() string {
 	return ""
 }
 
-func (x *CreateLocationRequest) GetMetadata() string {
-	if x != nil && x.Metadata != nil {
-		return *x.Metadata
+func (x *CreateLocationRequest) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
 	}
-	return ""
+	return nil
 }
 
 type CreateLocationResponse struct {
@@ -1096,7 +1097,7 @@ var File_asset_service_v1_location_proto protoreflect.FileDescriptor
 
 const file_asset_service_v1_location_proto_rawDesc = "" +
 	"\n" +
-	"\x1fasset/service/v1/location.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x16redact/v3/redact.proto\"\x8d\t\n" +
+	"\x1fasset/service/v1/location.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x16redact/v3/redact.proto\"\x94\t\n" +
 	"\bLocation\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\x17\n" +
@@ -1121,16 +1122,16 @@ const file_asset_service_v1_location_proto_rawDesc = "" +
 	"childCount\x88\x01\x01\x12$\n" +
 	"\vasset_count\x18\x12 \x01(\x05H\x11R\n" +
 	"assetCount\x88\x01\x01\x12\x17\n" +
-	"\x04tags\x18\x13 \x01(\tH\x12R\x04tags\x88\x01\x01\x12\x1f\n" +
-	"\bmetadata\x18\x14 \x01(\tH\x13R\bmetadata\x88\x01\x01\x12>\n" +
+	"\x04tags\x18\x13 \x01(\tH\x12R\x04tags\x88\x01\x01\x123\n" +
+	"\bmetadata\x18\x14 \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12>\n" +
 	"\n" +
-	"created_at\x18\x1e \x01(\v2\x1a.google.protobuf.TimestampH\x14R\tcreatedAt\x88\x01\x01\x12>\n" +
+	"created_at\x18\x1e \x01(\v2\x1a.google.protobuf.TimestampH\x13R\tcreatedAt\x88\x01\x01\x12>\n" +
 	"\n" +
-	"updated_at\x18\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x15R\tupdatedAt\x88\x01\x01\x12\"\n" +
+	"updated_at\x18\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x14R\tupdatedAt\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"created_by\x18  \x01(\rH\x16R\tcreatedBy\x88\x01\x01\x12\"\n" +
+	"created_by\x18  \x01(\rH\x15R\tcreatedBy\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"updated_by\x18! \x01(\rH\x17R\tupdatedBy\x88\x01\x01B\x05\n" +
+	"updated_by\x18! \x01(\rH\x16R\tupdatedBy\x88\x01\x01B\x05\n" +
 	"\x03_idB\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
@@ -1154,12 +1155,11 @@ const file_asset_service_v1_location_proto_rawDesc = "" +
 	"\a_statusB\x0e\n" +
 	"\f_child_countB\x0e\n" +
 	"\f_asset_countB\a\n" +
-	"\x05_tagsB\v\n" +
-	"\t_metadataB\r\n" +
+	"\x05_tagsB\r\n" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
-	"\v_updated_by\"\x80\x06\n" +
+	"\v_updated_by\"\x87\x06\n" +
 	"\x15CreateLocationRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x01\x18\xff\x01H\x01R\x04name\x88\x01\x01\x12\x17\n" +
@@ -1178,8 +1178,8 @@ const file_asset_service_v1_location_proto_rawDesc = "" +
 	"\x05phone\x18\f \x01(\tB\x06ڶ\x1a\x02z\x00H\vR\x05phone\x88\x01\x01\x12!\n" +
 	"\x05email\x18\r \x01(\tB\x06ڶ\x1a\x02z\x00H\fR\x05email\x88\x01\x01\x12=\n" +
 	"\x06status\x18\x0e \x01(\x0e2 .asset.service.v1.LocationStatusH\rR\x06status\x88\x01\x01\x12\x17\n" +
-	"\x04tags\x18\x0f \x01(\tH\x0eR\x04tags\x88\x01\x01\x12\x1f\n" +
-	"\bmetadata\x18\x10 \x01(\tH\x0fR\bmetadata\x88\x01\x01B\f\n" +
+	"\x04tags\x18\x0f \x01(\tH\x0eR\x04tags\x88\x01\x01\x123\n" +
+	"\bmetadata\x18\x10 \x01(\v2\x17.google.protobuf.StructR\bmetadataB\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
 	"\x05_nameB\a\n" +
@@ -1199,8 +1199,7 @@ const file_asset_service_v1_location_proto_rawDesc = "" +
 	"\x06_phoneB\b\n" +
 	"\x06_emailB\t\n" +
 	"\a_statusB\a\n" +
-	"\x05_tagsB\v\n" +
-	"\t_metadata\"P\n" +
+	"\x05_tags\"P\n" +
 	"\x16CreateLocationResponse\x126\n" +
 	"\blocation\x18\x01 \x01(\v2\x1a.asset.service.v1.LocationR\blocation\"0\n" +
 	"\x12GetLocationRequest\x12\x1a\n" +
@@ -1303,42 +1302,45 @@ var file_asset_service_v1_location_proto_goTypes = []any{
 	(*GetLocationTreeRequest)(nil),  // 11: asset.service.v1.GetLocationTreeRequest
 	(*LocationTreeNode)(nil),        // 12: asset.service.v1.LocationTreeNode
 	(*GetLocationTreeResponse)(nil), // 13: asset.service.v1.GetLocationTreeResponse
-	(*timestamppb.Timestamp)(nil),   // 14: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),   // 15: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),           // 16: google.protobuf.Empty
+	(*structpb.Struct)(nil),         // 14: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil),   // 15: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),   // 16: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),           // 17: google.protobuf.Empty
 }
 var file_asset_service_v1_location_proto_depIdxs = []int32{
 	0,  // 0: asset.service.v1.Location.status:type_name -> asset.service.v1.LocationStatus
-	14, // 1: asset.service.v1.Location.created_at:type_name -> google.protobuf.Timestamp
-	14, // 2: asset.service.v1.Location.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 3: asset.service.v1.CreateLocationRequest.status:type_name -> asset.service.v1.LocationStatus
-	1,  // 4: asset.service.v1.CreateLocationResponse.location:type_name -> asset.service.v1.Location
-	1,  // 5: asset.service.v1.GetLocationResponse.location:type_name -> asset.service.v1.Location
-	0,  // 6: asset.service.v1.ListLocationsRequest.status:type_name -> asset.service.v1.LocationStatus
-	1,  // 7: asset.service.v1.ListLocationsResponse.items:type_name -> asset.service.v1.Location
-	1,  // 8: asset.service.v1.UpdateLocationRequest.data:type_name -> asset.service.v1.Location
-	15, // 9: asset.service.v1.UpdateLocationRequest.update_mask:type_name -> google.protobuf.FieldMask
-	1,  // 10: asset.service.v1.UpdateLocationResponse.location:type_name -> asset.service.v1.Location
-	1,  // 11: asset.service.v1.LocationTreeNode.location:type_name -> asset.service.v1.Location
-	12, // 12: asset.service.v1.LocationTreeNode.children:type_name -> asset.service.v1.LocationTreeNode
-	12, // 13: asset.service.v1.GetLocationTreeResponse.nodes:type_name -> asset.service.v1.LocationTreeNode
-	2,  // 14: asset.service.v1.LocationService.CreateLocation:input_type -> asset.service.v1.CreateLocationRequest
-	4,  // 15: asset.service.v1.LocationService.GetLocation:input_type -> asset.service.v1.GetLocationRequest
-	6,  // 16: asset.service.v1.LocationService.ListLocations:input_type -> asset.service.v1.ListLocationsRequest
-	8,  // 17: asset.service.v1.LocationService.UpdateLocation:input_type -> asset.service.v1.UpdateLocationRequest
-	10, // 18: asset.service.v1.LocationService.DeleteLocation:input_type -> asset.service.v1.DeleteLocationRequest
-	11, // 19: asset.service.v1.LocationService.GetLocationTree:input_type -> asset.service.v1.GetLocationTreeRequest
-	3,  // 20: asset.service.v1.LocationService.CreateLocation:output_type -> asset.service.v1.CreateLocationResponse
-	5,  // 21: asset.service.v1.LocationService.GetLocation:output_type -> asset.service.v1.GetLocationResponse
-	7,  // 22: asset.service.v1.LocationService.ListLocations:output_type -> asset.service.v1.ListLocationsResponse
-	9,  // 23: asset.service.v1.LocationService.UpdateLocation:output_type -> asset.service.v1.UpdateLocationResponse
-	16, // 24: asset.service.v1.LocationService.DeleteLocation:output_type -> google.protobuf.Empty
-	13, // 25: asset.service.v1.LocationService.GetLocationTree:output_type -> asset.service.v1.GetLocationTreeResponse
-	20, // [20:26] is the sub-list for method output_type
-	14, // [14:20] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	14, // 1: asset.service.v1.Location.metadata:type_name -> google.protobuf.Struct
+	15, // 2: asset.service.v1.Location.created_at:type_name -> google.protobuf.Timestamp
+	15, // 3: asset.service.v1.Location.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 4: asset.service.v1.CreateLocationRequest.status:type_name -> asset.service.v1.LocationStatus
+	14, // 5: asset.service.v1.CreateLocationRequest.metadata:type_name -> google.protobuf.Struct
+	1,  // 6: asset.service.v1.CreateLocationResponse.location:type_name -> asset.service.v1.Location
+	1,  // 7: asset.service.v1.GetLocationResponse.location:type_name -> asset.service.v1.Location
+	0,  // 8: asset.service.v1.ListLocationsRequest.status:type_name -> asset.service.v1.LocationStatus
+	1,  // 9: asset.service.v1.ListLocationsResponse.items:type_name -> asset.service.v1.Location
+	1,  // 10: asset.service.v1.UpdateLocationRequest.data:type_name -> asset.service.v1.Location
+	16, // 11: asset.service.v1.UpdateLocationRequest.update_mask:type_name -> google.protobuf.FieldMask
+	1,  // 12: asset.service.v1.UpdateLocationResponse.location:type_name -> asset.service.v1.Location
+	1,  // 13: asset.service.v1.LocationTreeNode.location:type_name -> asset.service.v1.Location
+	12, // 14: asset.service.v1.LocationTreeNode.children:type_name -> asset.service.v1.LocationTreeNode
+	12, // 15: asset.service.v1.GetLocationTreeResponse.nodes:type_name -> asset.service.v1.LocationTreeNode
+	2,  // 16: asset.service.v1.LocationService.CreateLocation:input_type -> asset.service.v1.CreateLocationRequest
+	4,  // 17: asset.service.v1.LocationService.GetLocation:input_type -> asset.service.v1.GetLocationRequest
+	6,  // 18: asset.service.v1.LocationService.ListLocations:input_type -> asset.service.v1.ListLocationsRequest
+	8,  // 19: asset.service.v1.LocationService.UpdateLocation:input_type -> asset.service.v1.UpdateLocationRequest
+	10, // 20: asset.service.v1.LocationService.DeleteLocation:input_type -> asset.service.v1.DeleteLocationRequest
+	11, // 21: asset.service.v1.LocationService.GetLocationTree:input_type -> asset.service.v1.GetLocationTreeRequest
+	3,  // 22: asset.service.v1.LocationService.CreateLocation:output_type -> asset.service.v1.CreateLocationResponse
+	5,  // 23: asset.service.v1.LocationService.GetLocation:output_type -> asset.service.v1.GetLocationResponse
+	7,  // 24: asset.service.v1.LocationService.ListLocations:output_type -> asset.service.v1.ListLocationsResponse
+	9,  // 25: asset.service.v1.LocationService.UpdateLocation:output_type -> asset.service.v1.UpdateLocationResponse
+	17, // 26: asset.service.v1.LocationService.DeleteLocation:output_type -> google.protobuf.Empty
+	13, // 27: asset.service.v1.LocationService.GetLocationTree:output_type -> asset.service.v1.GetLocationTreeResponse
+	22, // [22:28] is the sub-list for method output_type
+	16, // [16:22] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_asset_service_v1_location_proto_init() }

@@ -13,6 +13,7 @@ import (
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -28,6 +29,7 @@ var (
 	_ timestamppb.Timestamp
 	_ emptypb.Empty
 	_ fieldmaskpb.FieldMask
+	_ structpb.Struct
 )
 
 // RegisterRedactedLicenseServiceServer wraps the LicenseServiceServer with the redacted server and registers the service in GRPC
@@ -173,6 +175,8 @@ func (x *License) Redact() string {
 
 	// Safe field: Notes
 
+	// Safe field: Metadata
+
 	// Safe field: Status
 
 	// Safe field: CreatedAt
@@ -208,6 +212,8 @@ func (x *CreateLicenseRequest) Redact() string {
 	// Safe field: ValidTo
 
 	// Safe field: Notes
+
+	// Safe field: Metadata
 
 	// Safe field: Status
 	return x.String()

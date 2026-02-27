@@ -253,6 +253,12 @@ func (_c *InsurancePolicyCreate) SetNillableNotes(v *string) *InsurancePolicyCre
 	return _c
 }
 
+// SetMetadata sets the "metadata" field.
+func (_c *InsurancePolicyCreate) SetMetadata(v map[string]interface{}) *InsurancePolicyCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *InsurancePolicyCreate) SetID(v string) *InsurancePolicyCreate {
 	_c.mutation.SetID(v)
@@ -425,6 +431,10 @@ func (_c *InsurancePolicyCreate) createSpec() (*InsurancePolicy, *sqlgraph.Creat
 	if value, ok := _c.mutation.Notes(); ok {
 		_spec.SetField(insurancepolicy.FieldNotes, field.TypeString, value)
 		_node.Notes = value
+	}
+	if value, ok := _c.mutation.Metadata(); ok {
+		_spec.SetField(insurancepolicy.FieldMetadata, field.TypeJSON, value)
+		_node.Metadata = value
 	}
 	return _node, _spec
 }
@@ -769,6 +779,24 @@ func (u *InsurancePolicyUpsert) UpdateNotes() *InsurancePolicyUpsert {
 // ClearNotes clears the value of the "notes" field.
 func (u *InsurancePolicyUpsert) ClearNotes() *InsurancePolicyUpsert {
 	u.SetNull(insurancepolicy.FieldNotes)
+	return u
+}
+
+// SetMetadata sets the "metadata" field.
+func (u *InsurancePolicyUpsert) SetMetadata(v map[string]interface{}) *InsurancePolicyUpsert {
+	u.Set(insurancepolicy.FieldMetadata, v)
+	return u
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *InsurancePolicyUpsert) UpdateMetadata() *InsurancePolicyUpsert {
+	u.SetExcluded(insurancepolicy.FieldMetadata)
+	return u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (u *InsurancePolicyUpsert) ClearMetadata() *InsurancePolicyUpsert {
+	u.SetNull(insurancepolicy.FieldMetadata)
 	return u
 }
 
@@ -1166,6 +1194,27 @@ func (u *InsurancePolicyUpsertOne) UpdateNotes() *InsurancePolicyUpsertOne {
 func (u *InsurancePolicyUpsertOne) ClearNotes() *InsurancePolicyUpsertOne {
 	return u.Update(func(s *InsurancePolicyUpsert) {
 		s.ClearNotes()
+	})
+}
+
+// SetMetadata sets the "metadata" field.
+func (u *InsurancePolicyUpsertOne) SetMetadata(v map[string]interface{}) *InsurancePolicyUpsertOne {
+	return u.Update(func(s *InsurancePolicyUpsert) {
+		s.SetMetadata(v)
+	})
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *InsurancePolicyUpsertOne) UpdateMetadata() *InsurancePolicyUpsertOne {
+	return u.Update(func(s *InsurancePolicyUpsert) {
+		s.UpdateMetadata()
+	})
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (u *InsurancePolicyUpsertOne) ClearMetadata() *InsurancePolicyUpsertOne {
+	return u.Update(func(s *InsurancePolicyUpsert) {
+		s.ClearMetadata()
 	})
 }
 
@@ -1730,6 +1779,27 @@ func (u *InsurancePolicyUpsertBulk) UpdateNotes() *InsurancePolicyUpsertBulk {
 func (u *InsurancePolicyUpsertBulk) ClearNotes() *InsurancePolicyUpsertBulk {
 	return u.Update(func(s *InsurancePolicyUpsert) {
 		s.ClearNotes()
+	})
+}
+
+// SetMetadata sets the "metadata" field.
+func (u *InsurancePolicyUpsertBulk) SetMetadata(v map[string]interface{}) *InsurancePolicyUpsertBulk {
+	return u.Update(func(s *InsurancePolicyUpsert) {
+		s.SetMetadata(v)
+	})
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *InsurancePolicyUpsertBulk) UpdateMetadata() *InsurancePolicyUpsertBulk {
+	return u.Update(func(s *InsurancePolicyUpsert) {
+		s.UpdateMetadata()
+	})
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (u *InsurancePolicyUpsertBulk) ClearMetadata() *InsurancePolicyUpsertBulk {
+	return u.Update(func(s *InsurancePolicyUpsert) {
+		s.ClearMetadata()
 	})
 }
 

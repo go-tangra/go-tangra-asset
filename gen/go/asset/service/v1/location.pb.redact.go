@@ -13,6 +13,7 @@ import (
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -28,6 +29,7 @@ var (
 	_ timestamppb.Timestamp
 	_ emptypb.Empty
 	_ fieldmaskpb.FieldMask
+	_ structpb.Struct
 	_ redact.FieldRules
 )
 

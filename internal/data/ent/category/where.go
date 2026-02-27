@@ -705,6 +705,16 @@ func IconContainsFold(v string) predicate.Category {
 	return predicate.Category(sql.FieldContainsFold(FieldIcon, v))
 }
 
+// MetadataIsNil applies the IsNil predicate on the "metadata" field.
+func MetadataIsNil() predicate.Category {
+	return predicate.Category(sql.FieldIsNull(FieldMetadata))
+}
+
+// MetadataNotNil applies the NotNil predicate on the "metadata" field.
+func MetadataNotNil() predicate.Category {
+	return predicate.Category(sql.FieldNotNull(FieldMetadata))
+}
+
 // HasParent applies the HasEdge predicate on the "parent" edge.
 func HasParent() predicate.Category {
 	return predicate.Category(func(s *sql.Selector) {

@@ -13,6 +13,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -62,7 +63,7 @@ type Consumable struct {
 	// Custom tags (JSON)
 	Tags *string `protobuf:"bytes,16,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
 	// Custom metadata (JSON)
-	Metadata *string `protobuf:"bytes,17,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"`
+	Metadata *structpb.Struct `protobuf:"bytes,17,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	// Creation timestamp
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,30,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
 	// Last update timestamp
@@ -217,11 +218,11 @@ func (x *Consumable) GetTags() string {
 	return ""
 }
 
-func (x *Consumable) GetMetadata() string {
-	if x != nil && x.Metadata != nil {
-		return *x.Metadata
+func (x *Consumable) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
 	}
-	return ""
+	return nil
 }
 
 func (x *Consumable) GetCreatedAt() *timestamppb.Timestamp {
@@ -270,7 +271,7 @@ type CreateConsumableRequest struct {
 	OrderNumber   *string                `protobuf:"bytes,13,opt,name=order_number,json=orderNumber,proto3,oneof" json:"order_number,omitempty"`
 	Notes         *string                `protobuf:"bytes,14,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
 	Tags          *string                `protobuf:"bytes,15,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
-	Metadata      *string                `protobuf:"bytes,16,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"`
+	Metadata      *structpb.Struct       `protobuf:"bytes,16,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -410,11 +411,11 @@ func (x *CreateConsumableRequest) GetTags() string {
 	return ""
 }
 
-func (x *CreateConsumableRequest) GetMetadata() string {
-	if x != nil && x.Metadata != nil {
-		return *x.Metadata
+func (x *CreateConsumableRequest) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
 	}
-	return ""
+	return nil
 }
 
 type CreateConsumableResponse struct {
@@ -1192,7 +1193,7 @@ var File_asset_service_v1_consumable_proto protoreflect.FileDescriptor
 
 const file_asset_service_v1_consumable_proto_rawDesc = "" +
 	"\n" +
-	"!asset/service/v1/consumable.proto\x12\x10asset.service.v1\x1a\x1casset/service/v1/asset.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\"\xe0\b\n" +
+	"!asset/service/v1/consumable.proto\x12\x10asset.service.v1\x1a\x1casset/service/v1/asset.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xe7\b\n" +
 	"\n" +
 	"Consumable\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
@@ -1217,16 +1218,16 @@ const file_asset_service_v1_consumable_proto_rawDesc = "" +
 	"\rpurchase_cost\x18\r \x01(\x01H\fR\fpurchaseCost\x88\x01\x01\x12&\n" +
 	"\forder_number\x18\x0e \x01(\tH\rR\vorderNumber\x88\x01\x01\x12\x19\n" +
 	"\x05notes\x18\x0f \x01(\tH\x0eR\x05notes\x88\x01\x01\x12\x17\n" +
-	"\x04tags\x18\x10 \x01(\tH\x0fR\x04tags\x88\x01\x01\x12\x1f\n" +
-	"\bmetadata\x18\x11 \x01(\tH\x10R\bmetadata\x88\x01\x01\x12>\n" +
+	"\x04tags\x18\x10 \x01(\tH\x0fR\x04tags\x88\x01\x01\x123\n" +
+	"\bmetadata\x18\x11 \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12>\n" +
 	"\n" +
-	"created_at\x18\x1e \x01(\v2\x1a.google.protobuf.TimestampH\x11R\tcreatedAt\x88\x01\x01\x12>\n" +
+	"created_at\x18\x1e \x01(\v2\x1a.google.protobuf.TimestampH\x10R\tcreatedAt\x88\x01\x01\x12>\n" +
 	"\n" +
-	"updated_at\x18\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x12R\tupdatedAt\x88\x01\x01\x12\"\n" +
+	"updated_at\x18\x1f \x01(\v2\x1a.google.protobuf.TimestampH\x11R\tupdatedAt\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"created_by\x18  \x01(\rH\x13R\tcreatedBy\x88\x01\x01\x12\"\n" +
+	"created_by\x18  \x01(\rH\x12R\tcreatedBy\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"updated_by\x18! \x01(\rH\x14R\tupdatedBy\x88\x01\x01B\x05\n" +
+	"updated_by\x18! \x01(\rH\x13R\tupdatedBy\x88\x01\x01B\x05\n" +
 	"\x03_idB\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
@@ -1243,12 +1244,11 @@ const file_asset_service_v1_consumable_proto_rawDesc = "" +
 	"\x0e_purchase_costB\x0f\n" +
 	"\r_order_numberB\b\n" +
 	"\x06_notesB\a\n" +
-	"\x05_tagsB\v\n" +
-	"\t_metadataB\r\n" +
+	"\x05_tagsB\r\n" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
-	"\v_updated_by\"\xe1\x06\n" +
+	"\v_updated_by\"\xe8\x06\n" +
 	"\x17CreateConsumableRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x01\x18\xff\x01H\x01R\x04name\x88\x01\x01\x12%\n" +
@@ -1271,8 +1271,8 @@ const file_asset_service_v1_consumable_proto_rawDesc = "" +
 	"\rpurchase_cost\x18\f \x01(\x01H\vR\fpurchaseCost\x88\x01\x01\x12&\n" +
 	"\forder_number\x18\r \x01(\tH\fR\vorderNumber\x88\x01\x01\x12\x19\n" +
 	"\x05notes\x18\x0e \x01(\tH\rR\x05notes\x88\x01\x01\x12\x17\n" +
-	"\x04tags\x18\x0f \x01(\tH\x0eR\x04tags\x88\x01\x01\x12\x1f\n" +
-	"\bmetadata\x18\x10 \x01(\tH\x0fR\bmetadata\x88\x01\x01B\f\n" +
+	"\x04tags\x18\x0f \x01(\tH\x0eR\x04tags\x88\x01\x01\x123\n" +
+	"\bmetadata\x18\x10 \x01(\v2\x17.google.protobuf.StructR\bmetadataB\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
 	"\x05_nameB\x0e\n" +
@@ -1288,8 +1288,7 @@ const file_asset_service_v1_consumable_proto_rawDesc = "" +
 	"\x0e_purchase_costB\x0f\n" +
 	"\r_order_numberB\b\n" +
 	"\x06_notesB\a\n" +
-	"\x05_tagsB\v\n" +
-	"\t_metadata\"X\n" +
+	"\x05_tags\"X\n" +
 	"\x18CreateConsumableResponse\x12<\n" +
 	"\n" +
 	"consumable\x18\x01 \x01(\v2\x1c.asset.service.v1.ConsumableR\n" +
@@ -1416,47 +1415,50 @@ var file_asset_service_v1_consumable_proto_goTypes = []any{
 	(*DeleteConsumableDocumentRequest)(nil),   // 14: asset.service.v1.DeleteConsumableDocumentRequest
 	(*DownloadConsumableDocumentRequest)(nil), // 15: asset.service.v1.DownloadConsumableDocumentRequest
 	(*timestamppb.Timestamp)(nil),             // 16: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),             // 17: google.protobuf.FieldMask
-	(*AssetDocument)(nil),                     // 18: asset.service.v1.AssetDocument
-	(*emptypb.Empty)(nil),                     // 19: google.protobuf.Empty
-	(*DownloadDocumentResponse)(nil),          // 20: asset.service.v1.DownloadDocumentResponse
+	(*structpb.Struct)(nil),                   // 17: google.protobuf.Struct
+	(*fieldmaskpb.FieldMask)(nil),             // 18: google.protobuf.FieldMask
+	(*AssetDocument)(nil),                     // 19: asset.service.v1.AssetDocument
+	(*emptypb.Empty)(nil),                     // 20: google.protobuf.Empty
+	(*DownloadDocumentResponse)(nil),          // 21: asset.service.v1.DownloadDocumentResponse
 }
 var file_asset_service_v1_consumable_proto_depIdxs = []int32{
 	16, // 0: asset.service.v1.Consumable.purchase_date:type_name -> google.protobuf.Timestamp
-	16, // 1: asset.service.v1.Consumable.created_at:type_name -> google.protobuf.Timestamp
-	16, // 2: asset.service.v1.Consumable.updated_at:type_name -> google.protobuf.Timestamp
-	16, // 3: asset.service.v1.CreateConsumableRequest.purchase_date:type_name -> google.protobuf.Timestamp
-	0,  // 4: asset.service.v1.CreateConsumableResponse.consumable:type_name -> asset.service.v1.Consumable
-	0,  // 5: asset.service.v1.GetConsumableResponse.consumable:type_name -> asset.service.v1.Consumable
-	0,  // 6: asset.service.v1.ListConsumablesResponse.items:type_name -> asset.service.v1.Consumable
-	0,  // 7: asset.service.v1.UpdateConsumableRequest.data:type_name -> asset.service.v1.Consumable
-	17, // 8: asset.service.v1.UpdateConsumableRequest.update_mask:type_name -> google.protobuf.FieldMask
-	0,  // 9: asset.service.v1.UpdateConsumableResponse.consumable:type_name -> asset.service.v1.Consumable
-	18, // 10: asset.service.v1.ListConsumableDocumentsResponse.items:type_name -> asset.service.v1.AssetDocument
-	18, // 11: asset.service.v1.UploadConsumableDocumentResponse.document:type_name -> asset.service.v1.AssetDocument
-	1,  // 12: asset.service.v1.ConsumableService.CreateConsumable:input_type -> asset.service.v1.CreateConsumableRequest
-	3,  // 13: asset.service.v1.ConsumableService.GetConsumable:input_type -> asset.service.v1.GetConsumableRequest
-	5,  // 14: asset.service.v1.ConsumableService.ListConsumables:input_type -> asset.service.v1.ListConsumablesRequest
-	7,  // 15: asset.service.v1.ConsumableService.UpdateConsumable:input_type -> asset.service.v1.UpdateConsumableRequest
-	9,  // 16: asset.service.v1.ConsumableService.DeleteConsumable:input_type -> asset.service.v1.DeleteConsumableRequest
-	10, // 17: asset.service.v1.ConsumableService.ListDocuments:input_type -> asset.service.v1.ListConsumableDocumentsRequest
-	12, // 18: asset.service.v1.ConsumableService.UploadDocument:input_type -> asset.service.v1.UploadConsumableDocumentRequest
-	14, // 19: asset.service.v1.ConsumableService.DeleteDocument:input_type -> asset.service.v1.DeleteConsumableDocumentRequest
-	15, // 20: asset.service.v1.ConsumableService.DownloadDocument:input_type -> asset.service.v1.DownloadConsumableDocumentRequest
-	2,  // 21: asset.service.v1.ConsumableService.CreateConsumable:output_type -> asset.service.v1.CreateConsumableResponse
-	4,  // 22: asset.service.v1.ConsumableService.GetConsumable:output_type -> asset.service.v1.GetConsumableResponse
-	6,  // 23: asset.service.v1.ConsumableService.ListConsumables:output_type -> asset.service.v1.ListConsumablesResponse
-	8,  // 24: asset.service.v1.ConsumableService.UpdateConsumable:output_type -> asset.service.v1.UpdateConsumableResponse
-	19, // 25: asset.service.v1.ConsumableService.DeleteConsumable:output_type -> google.protobuf.Empty
-	11, // 26: asset.service.v1.ConsumableService.ListDocuments:output_type -> asset.service.v1.ListConsumableDocumentsResponse
-	13, // 27: asset.service.v1.ConsumableService.UploadDocument:output_type -> asset.service.v1.UploadConsumableDocumentResponse
-	19, // 28: asset.service.v1.ConsumableService.DeleteDocument:output_type -> google.protobuf.Empty
-	20, // 29: asset.service.v1.ConsumableService.DownloadDocument:output_type -> asset.service.v1.DownloadDocumentResponse
-	21, // [21:30] is the sub-list for method output_type
-	12, // [12:21] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	17, // 1: asset.service.v1.Consumable.metadata:type_name -> google.protobuf.Struct
+	16, // 2: asset.service.v1.Consumable.created_at:type_name -> google.protobuf.Timestamp
+	16, // 3: asset.service.v1.Consumable.updated_at:type_name -> google.protobuf.Timestamp
+	16, // 4: asset.service.v1.CreateConsumableRequest.purchase_date:type_name -> google.protobuf.Timestamp
+	17, // 5: asset.service.v1.CreateConsumableRequest.metadata:type_name -> google.protobuf.Struct
+	0,  // 6: asset.service.v1.CreateConsumableResponse.consumable:type_name -> asset.service.v1.Consumable
+	0,  // 7: asset.service.v1.GetConsumableResponse.consumable:type_name -> asset.service.v1.Consumable
+	0,  // 8: asset.service.v1.ListConsumablesResponse.items:type_name -> asset.service.v1.Consumable
+	0,  // 9: asset.service.v1.UpdateConsumableRequest.data:type_name -> asset.service.v1.Consumable
+	18, // 10: asset.service.v1.UpdateConsumableRequest.update_mask:type_name -> google.protobuf.FieldMask
+	0,  // 11: asset.service.v1.UpdateConsumableResponse.consumable:type_name -> asset.service.v1.Consumable
+	19, // 12: asset.service.v1.ListConsumableDocumentsResponse.items:type_name -> asset.service.v1.AssetDocument
+	19, // 13: asset.service.v1.UploadConsumableDocumentResponse.document:type_name -> asset.service.v1.AssetDocument
+	1,  // 14: asset.service.v1.ConsumableService.CreateConsumable:input_type -> asset.service.v1.CreateConsumableRequest
+	3,  // 15: asset.service.v1.ConsumableService.GetConsumable:input_type -> asset.service.v1.GetConsumableRequest
+	5,  // 16: asset.service.v1.ConsumableService.ListConsumables:input_type -> asset.service.v1.ListConsumablesRequest
+	7,  // 17: asset.service.v1.ConsumableService.UpdateConsumable:input_type -> asset.service.v1.UpdateConsumableRequest
+	9,  // 18: asset.service.v1.ConsumableService.DeleteConsumable:input_type -> asset.service.v1.DeleteConsumableRequest
+	10, // 19: asset.service.v1.ConsumableService.ListDocuments:input_type -> asset.service.v1.ListConsumableDocumentsRequest
+	12, // 20: asset.service.v1.ConsumableService.UploadDocument:input_type -> asset.service.v1.UploadConsumableDocumentRequest
+	14, // 21: asset.service.v1.ConsumableService.DeleteDocument:input_type -> asset.service.v1.DeleteConsumableDocumentRequest
+	15, // 22: asset.service.v1.ConsumableService.DownloadDocument:input_type -> asset.service.v1.DownloadConsumableDocumentRequest
+	2,  // 23: asset.service.v1.ConsumableService.CreateConsumable:output_type -> asset.service.v1.CreateConsumableResponse
+	4,  // 24: asset.service.v1.ConsumableService.GetConsumable:output_type -> asset.service.v1.GetConsumableResponse
+	6,  // 25: asset.service.v1.ConsumableService.ListConsumables:output_type -> asset.service.v1.ListConsumablesResponse
+	8,  // 26: asset.service.v1.ConsumableService.UpdateConsumable:output_type -> asset.service.v1.UpdateConsumableResponse
+	20, // 27: asset.service.v1.ConsumableService.DeleteConsumable:output_type -> google.protobuf.Empty
+	11, // 28: asset.service.v1.ConsumableService.ListDocuments:output_type -> asset.service.v1.ListConsumableDocumentsResponse
+	13, // 29: asset.service.v1.ConsumableService.UploadDocument:output_type -> asset.service.v1.UploadConsumableDocumentResponse
+	20, // 30: asset.service.v1.ConsumableService.DeleteDocument:output_type -> google.protobuf.Empty
+	21, // 31: asset.service.v1.ConsumableService.DownloadDocument:output_type -> asset.service.v1.DownloadDocumentResponse
+	23, // [23:32] is the sub-list for method output_type
+	14, // [14:23] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_asset_service_v1_consumable_proto_init() }

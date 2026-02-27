@@ -70,7 +70,7 @@ func (s *LocationService) CreateLocation(ctx context.Context, req *assetV1.Creat
 		opts = append(opts, func(c *ent.LocationCreate) { c.SetTags(*req.Tags) })
 	}
 	if req.Metadata != nil {
-		opts = append(opts, func(c *ent.LocationCreate) { c.SetMetadata(*req.Metadata) })
+		opts = append(opts, func(c *ent.LocationCreate) { c.SetMetadata(req.Metadata.AsMap()) })
 	}
 
 	entity, err := s.locationRepo.Create(ctx, req.GetTenantId(), req.GetName(), opts...)
@@ -179,7 +179,7 @@ func (s *LocationService) UpdateLocation(ctx context.Context, req *assetV1.Updat
 			updates["tags"] = *req.Data.Tags
 		}
 		if req.Data.Metadata != nil {
-			updates["metadata"] = *req.Data.Metadata
+			updates["metadata"] = req.Data.Metadata.AsMap()
 		}
 	}
 
@@ -259,7 +259,7 @@ func locationToProto(e *ent.Location) *assetV1.Location {
 		Email:       ptrString(e.Email),
 		Status:      &status,
 		Tags:        ptrString(e.Tags),
-		Metadata:    ptrString(e.Metadata),
+		Metadata:    mapToStruct(e.Metadata),
 		CreatedBy:   e.CreateBy,
 		UpdatedBy:   e.UpdateBy,
 	}

@@ -140,7 +140,7 @@ func (r *LocationRepo) Update(ctx context.Context, id string, updates map[string
 	if tags, ok := updates["tags"].(string); ok {
 		update = update.SetTags(tags)
 	}
-	if metadata, ok := updates["metadata"].(string); ok {
+	if metadata, ok := updates["metadata"].(map[string]interface{}); ok {
 		update = update.SetMetadata(metadata)
 	}
 

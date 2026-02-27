@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -38,6 +39,8 @@ type Category struct {
 	ParentID string `json:"parent_id,omitempty"`
 	// Icon name
 	Icon string `json:"icon,omitempty"`
+	// Custom metadata (JSON)
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CategoryQuery when eager-loading is set.
 	Edges        CategoryEdges `json:"edges"`
@@ -102,6 +105,8 @@ func (*Category) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case category.FieldMetadata:
+			values[i] = new([]byte)
 		case category.FieldCreateBy, category.FieldUpdateBy, category.FieldTenantID:
 			values[i] = new(sql.NullInt64)
 		case category.FieldID, category.FieldName, category.FieldDescription, category.FieldParentID, category.FieldIcon:
@@ -194,6 +199,14 @@ func (_m *Category) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field icon", values[i])
 			} else if value.Valid {
 				_m.Icon = value.String
+			}
+		case category.FieldMetadata:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field metadata", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -292,6 +305,9 @@ func (_m *Category) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("icon=")
 	builder.WriteString(_m.Icon)
+	builder.WriteString(", ")
+	builder.WriteString("metadata=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteByte(')')
 	return builder.String()
 }

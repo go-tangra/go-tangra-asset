@@ -13,6 +13,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -167,6 +168,8 @@ type InsurancePolicy struct {
 	Status *InsurancePolicyStatus `protobuf:"varint,12,opt,name=status,proto3,enum=asset.service.v1.InsurancePolicyStatus,oneof" json:"status,omitempty"`
 	// Notes
 	Notes *string `protobuf:"bytes,13,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
+	// Custom metadata (JSON)
+	Metadata *structpb.Struct `protobuf:"bytes,15,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	// Number of assets covered by this policy
 	AssetCount *int32 `protobuf:"varint,14,opt,name=asset_count,json=assetCount,proto3,oneof" json:"asset_count,omitempty"`
 	// Creation timestamp
@@ -300,6 +303,13 @@ func (x *InsurancePolicy) GetNotes() string {
 		return *x.Notes
 	}
 	return ""
+}
+
+func (x *InsurancePolicy) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
 }
 
 func (x *InsurancePolicy) GetAssetCount() int32 {
@@ -452,6 +462,7 @@ type CreateInsurancePolicyRequest struct {
 	ValidTo       *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=valid_to,json=validTo,proto3,oneof" json:"valid_to,omitempty"`
 	Status        *InsurancePolicyStatus `protobuf:"varint,11,opt,name=status,proto3,enum=asset.service.v1.InsurancePolicyStatus,oneof" json:"status,omitempty"`
 	Notes         *string                `protobuf:"bytes,12,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
+	Metadata      *structpb.Struct       `protobuf:"bytes,13,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -568,6 +579,13 @@ func (x *CreateInsurancePolicyRequest) GetNotes() string {
 		return *x.Notes
 	}
 	return ""
+}
+
+func (x *CreateInsurancePolicyRequest) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
 }
 
 type CreateInsurancePolicyResponse struct {
@@ -1275,7 +1293,7 @@ var File_asset_service_v1_insurance_proto protoreflect.FileDescriptor
 
 const file_asset_service_v1_insurance_proto_rawDesc = "" +
 	"\n" +
-	" asset/service/v1/insurance.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\"\xbf\b\n" +
+	" asset/service/v1/insurance.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xf4\b\n" +
 	"\x0fInsurancePolicy\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\x17\n" +
@@ -1294,7 +1312,8 @@ const file_asset_service_v1_insurance_proto_rawDesc = "" +
 	"\bvalid_to\x18\v \x01(\v2\x1a.google.protobuf.TimestampH\n" +
 	"R\avalidTo\x88\x01\x01\x12D\n" +
 	"\x06status\x18\f \x01(\x0e2'.asset.service.v1.InsurancePolicyStatusH\vR\x06status\x88\x01\x01\x12\x19\n" +
-	"\x05notes\x18\r \x01(\tH\fR\x05notes\x88\x01\x01\x12$\n" +
+	"\x05notes\x18\r \x01(\tH\fR\x05notes\x88\x01\x01\x123\n" +
+	"\bmetadata\x18\x0f \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12$\n" +
 	"\vasset_count\x18\x0e \x01(\x05H\rR\n" +
 	"assetCount\x88\x01\x01\x12>\n" +
 	"\n" +
@@ -1342,7 +1361,7 @@ const file_asset_service_v1_insurance_proto_rawDesc = "" +
 	"\n" +
 	"_asset_tagB\r\n" +
 	"\v_asset_nameB\r\n" +
-	"\v_model_name\"\x8a\x06\n" +
+	"\v_model_name\"\xbf\x06\n" +
 	"\x1cCreateInsurancePolicyRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x01\x18\xff\x01H\x01R\x04name\x88\x01\x01\x12(\n" +
@@ -1360,7 +1379,8 @@ const file_asset_service_v1_insurance_proto_rawDesc = "" +
 	" \x01(\v2\x1a.google.protobuf.TimestampH\tR\avalidTo\x88\x01\x01\x12D\n" +
 	"\x06status\x18\v \x01(\x0e2'.asset.service.v1.InsurancePolicyStatusH\n" +
 	"R\x06status\x88\x01\x01\x12\x19\n" +
-	"\x05notes\x18\f \x01(\tH\vR\x05notes\x88\x01\x01B\f\n" +
+	"\x05notes\x18\f \x01(\tH\vR\x05notes\x88\x01\x01\x123\n" +
+	"\bmetadata\x18\r \x01(\v2\x17.google.protobuf.StructR\bmetadataB\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
 	"\x05_nameB\x10\n" +
@@ -1498,51 +1518,54 @@ var file_asset_service_v1_insurance_proto_goTypes = []any{
 	(*ListPolicyAssetsRequest)(nil),       // 16: asset.service.v1.ListPolicyAssetsRequest
 	(*ListPolicyAssetsResponse)(nil),      // 17: asset.service.v1.ListPolicyAssetsResponse
 	(*timestamppb.Timestamp)(nil),         // 18: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),         // 19: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),                 // 20: google.protobuf.Empty
+	(*structpb.Struct)(nil),               // 19: google.protobuf.Struct
+	(*fieldmaskpb.FieldMask)(nil),         // 20: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),                 // 21: google.protobuf.Empty
 }
 var file_asset_service_v1_insurance_proto_depIdxs = []int32{
 	1,  // 0: asset.service.v1.InsurancePolicy.coverage_type:type_name -> asset.service.v1.CoverageType
 	18, // 1: asset.service.v1.InsurancePolicy.valid_from:type_name -> google.protobuf.Timestamp
 	18, // 2: asset.service.v1.InsurancePolicy.valid_to:type_name -> google.protobuf.Timestamp
 	0,  // 3: asset.service.v1.InsurancePolicy.status:type_name -> asset.service.v1.InsurancePolicyStatus
-	18, // 4: asset.service.v1.InsurancePolicy.created_at:type_name -> google.protobuf.Timestamp
-	18, // 5: asset.service.v1.InsurancePolicy.updated_at:type_name -> google.protobuf.Timestamp
-	1,  // 6: asset.service.v1.CreateInsurancePolicyRequest.coverage_type:type_name -> asset.service.v1.CoverageType
-	18, // 7: asset.service.v1.CreateInsurancePolicyRequest.valid_from:type_name -> google.protobuf.Timestamp
-	18, // 8: asset.service.v1.CreateInsurancePolicyRequest.valid_to:type_name -> google.protobuf.Timestamp
-	0,  // 9: asset.service.v1.CreateInsurancePolicyRequest.status:type_name -> asset.service.v1.InsurancePolicyStatus
-	2,  // 10: asset.service.v1.CreateInsurancePolicyResponse.insurance_policy:type_name -> asset.service.v1.InsurancePolicy
-	2,  // 11: asset.service.v1.GetInsurancePolicyResponse.insurance_policy:type_name -> asset.service.v1.InsurancePolicy
-	0,  // 12: asset.service.v1.ListInsurancePoliciesRequest.status:type_name -> asset.service.v1.InsurancePolicyStatus
-	1,  // 13: asset.service.v1.ListInsurancePoliciesRequest.coverage_type:type_name -> asset.service.v1.CoverageType
-	2,  // 14: asset.service.v1.ListInsurancePoliciesResponse.items:type_name -> asset.service.v1.InsurancePolicy
-	2,  // 15: asset.service.v1.UpdateInsurancePolicyRequest.data:type_name -> asset.service.v1.InsurancePolicy
-	19, // 16: asset.service.v1.UpdateInsurancePolicyRequest.update_mask:type_name -> google.protobuf.FieldMask
-	2,  // 17: asset.service.v1.UpdateInsurancePolicyResponse.insurance_policy:type_name -> asset.service.v1.InsurancePolicy
-	3,  // 18: asset.service.v1.AddAssetToPolicyResponse.policy_asset:type_name -> asset.service.v1.PolicyAsset
-	3,  // 19: asset.service.v1.ListPolicyAssetsResponse.items:type_name -> asset.service.v1.PolicyAsset
-	4,  // 20: asset.service.v1.InsurancePolicyService.CreateInsurancePolicy:input_type -> asset.service.v1.CreateInsurancePolicyRequest
-	6,  // 21: asset.service.v1.InsurancePolicyService.GetInsurancePolicy:input_type -> asset.service.v1.GetInsurancePolicyRequest
-	8,  // 22: asset.service.v1.InsurancePolicyService.ListInsurancePolicies:input_type -> asset.service.v1.ListInsurancePoliciesRequest
-	10, // 23: asset.service.v1.InsurancePolicyService.UpdateInsurancePolicy:input_type -> asset.service.v1.UpdateInsurancePolicyRequest
-	12, // 24: asset.service.v1.InsurancePolicyService.DeleteInsurancePolicy:input_type -> asset.service.v1.DeleteInsurancePolicyRequest
-	16, // 25: asset.service.v1.InsurancePolicyService.ListPolicyAssets:input_type -> asset.service.v1.ListPolicyAssetsRequest
-	13, // 26: asset.service.v1.InsurancePolicyService.AddAssetToPolicy:input_type -> asset.service.v1.AddAssetToPolicyRequest
-	15, // 27: asset.service.v1.InsurancePolicyService.RemoveAssetFromPolicy:input_type -> asset.service.v1.RemoveAssetFromPolicyRequest
-	5,  // 28: asset.service.v1.InsurancePolicyService.CreateInsurancePolicy:output_type -> asset.service.v1.CreateInsurancePolicyResponse
-	7,  // 29: asset.service.v1.InsurancePolicyService.GetInsurancePolicy:output_type -> asset.service.v1.GetInsurancePolicyResponse
-	9,  // 30: asset.service.v1.InsurancePolicyService.ListInsurancePolicies:output_type -> asset.service.v1.ListInsurancePoliciesResponse
-	11, // 31: asset.service.v1.InsurancePolicyService.UpdateInsurancePolicy:output_type -> asset.service.v1.UpdateInsurancePolicyResponse
-	20, // 32: asset.service.v1.InsurancePolicyService.DeleteInsurancePolicy:output_type -> google.protobuf.Empty
-	17, // 33: asset.service.v1.InsurancePolicyService.ListPolicyAssets:output_type -> asset.service.v1.ListPolicyAssetsResponse
-	14, // 34: asset.service.v1.InsurancePolicyService.AddAssetToPolicy:output_type -> asset.service.v1.AddAssetToPolicyResponse
-	20, // 35: asset.service.v1.InsurancePolicyService.RemoveAssetFromPolicy:output_type -> google.protobuf.Empty
-	28, // [28:36] is the sub-list for method output_type
-	20, // [20:28] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	19, // 4: asset.service.v1.InsurancePolicy.metadata:type_name -> google.protobuf.Struct
+	18, // 5: asset.service.v1.InsurancePolicy.created_at:type_name -> google.protobuf.Timestamp
+	18, // 6: asset.service.v1.InsurancePolicy.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 7: asset.service.v1.CreateInsurancePolicyRequest.coverage_type:type_name -> asset.service.v1.CoverageType
+	18, // 8: asset.service.v1.CreateInsurancePolicyRequest.valid_from:type_name -> google.protobuf.Timestamp
+	18, // 9: asset.service.v1.CreateInsurancePolicyRequest.valid_to:type_name -> google.protobuf.Timestamp
+	0,  // 10: asset.service.v1.CreateInsurancePolicyRequest.status:type_name -> asset.service.v1.InsurancePolicyStatus
+	19, // 11: asset.service.v1.CreateInsurancePolicyRequest.metadata:type_name -> google.protobuf.Struct
+	2,  // 12: asset.service.v1.CreateInsurancePolicyResponse.insurance_policy:type_name -> asset.service.v1.InsurancePolicy
+	2,  // 13: asset.service.v1.GetInsurancePolicyResponse.insurance_policy:type_name -> asset.service.v1.InsurancePolicy
+	0,  // 14: asset.service.v1.ListInsurancePoliciesRequest.status:type_name -> asset.service.v1.InsurancePolicyStatus
+	1,  // 15: asset.service.v1.ListInsurancePoliciesRequest.coverage_type:type_name -> asset.service.v1.CoverageType
+	2,  // 16: asset.service.v1.ListInsurancePoliciesResponse.items:type_name -> asset.service.v1.InsurancePolicy
+	2,  // 17: asset.service.v1.UpdateInsurancePolicyRequest.data:type_name -> asset.service.v1.InsurancePolicy
+	20, // 18: asset.service.v1.UpdateInsurancePolicyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	2,  // 19: asset.service.v1.UpdateInsurancePolicyResponse.insurance_policy:type_name -> asset.service.v1.InsurancePolicy
+	3,  // 20: asset.service.v1.AddAssetToPolicyResponse.policy_asset:type_name -> asset.service.v1.PolicyAsset
+	3,  // 21: asset.service.v1.ListPolicyAssetsResponse.items:type_name -> asset.service.v1.PolicyAsset
+	4,  // 22: asset.service.v1.InsurancePolicyService.CreateInsurancePolicy:input_type -> asset.service.v1.CreateInsurancePolicyRequest
+	6,  // 23: asset.service.v1.InsurancePolicyService.GetInsurancePolicy:input_type -> asset.service.v1.GetInsurancePolicyRequest
+	8,  // 24: asset.service.v1.InsurancePolicyService.ListInsurancePolicies:input_type -> asset.service.v1.ListInsurancePoliciesRequest
+	10, // 25: asset.service.v1.InsurancePolicyService.UpdateInsurancePolicy:input_type -> asset.service.v1.UpdateInsurancePolicyRequest
+	12, // 26: asset.service.v1.InsurancePolicyService.DeleteInsurancePolicy:input_type -> asset.service.v1.DeleteInsurancePolicyRequest
+	16, // 27: asset.service.v1.InsurancePolicyService.ListPolicyAssets:input_type -> asset.service.v1.ListPolicyAssetsRequest
+	13, // 28: asset.service.v1.InsurancePolicyService.AddAssetToPolicy:input_type -> asset.service.v1.AddAssetToPolicyRequest
+	15, // 29: asset.service.v1.InsurancePolicyService.RemoveAssetFromPolicy:input_type -> asset.service.v1.RemoveAssetFromPolicyRequest
+	5,  // 30: asset.service.v1.InsurancePolicyService.CreateInsurancePolicy:output_type -> asset.service.v1.CreateInsurancePolicyResponse
+	7,  // 31: asset.service.v1.InsurancePolicyService.GetInsurancePolicy:output_type -> asset.service.v1.GetInsurancePolicyResponse
+	9,  // 32: asset.service.v1.InsurancePolicyService.ListInsurancePolicies:output_type -> asset.service.v1.ListInsurancePoliciesResponse
+	11, // 33: asset.service.v1.InsurancePolicyService.UpdateInsurancePolicy:output_type -> asset.service.v1.UpdateInsurancePolicyResponse
+	21, // 34: asset.service.v1.InsurancePolicyService.DeleteInsurancePolicy:output_type -> google.protobuf.Empty
+	17, // 35: asset.service.v1.InsurancePolicyService.ListPolicyAssets:output_type -> asset.service.v1.ListPolicyAssetsResponse
+	14, // 36: asset.service.v1.InsurancePolicyService.AddAssetToPolicy:output_type -> asset.service.v1.AddAssetToPolicyResponse
+	21, // 37: asset.service.v1.InsurancePolicyService.RemoveAssetFromPolicy:output_type -> google.protobuf.Empty
+	30, // [30:38] is the sub-list for method output_type
+	22, // [22:30] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_asset_service_v1_insurance_proto_init() }

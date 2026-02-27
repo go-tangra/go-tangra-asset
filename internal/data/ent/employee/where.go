@@ -140,11 +140,6 @@ func Tags(v string) predicate.Employee {
 	return predicate.Employee(sql.FieldEQ(FieldTags, v))
 }
 
-// Metadata applies equality check predicate on the "metadata" field. It's identical to MetadataEQ.
-func Metadata(v string) predicate.Employee {
-	return predicate.Employee(sql.FieldEQ(FieldMetadata, v))
-}
-
 // CreateByEQ applies the EQ predicate on the "create_by" field.
 func CreateByEQ(v uint32) predicate.Employee {
 	return predicate.Employee(sql.FieldEQ(FieldCreateBy, v))
@@ -1100,61 +1095,6 @@ func TagsContainsFold(v string) predicate.Employee {
 	return predicate.Employee(sql.FieldContainsFold(FieldTags, v))
 }
 
-// MetadataEQ applies the EQ predicate on the "metadata" field.
-func MetadataEQ(v string) predicate.Employee {
-	return predicate.Employee(sql.FieldEQ(FieldMetadata, v))
-}
-
-// MetadataNEQ applies the NEQ predicate on the "metadata" field.
-func MetadataNEQ(v string) predicate.Employee {
-	return predicate.Employee(sql.FieldNEQ(FieldMetadata, v))
-}
-
-// MetadataIn applies the In predicate on the "metadata" field.
-func MetadataIn(vs ...string) predicate.Employee {
-	return predicate.Employee(sql.FieldIn(FieldMetadata, vs...))
-}
-
-// MetadataNotIn applies the NotIn predicate on the "metadata" field.
-func MetadataNotIn(vs ...string) predicate.Employee {
-	return predicate.Employee(sql.FieldNotIn(FieldMetadata, vs...))
-}
-
-// MetadataGT applies the GT predicate on the "metadata" field.
-func MetadataGT(v string) predicate.Employee {
-	return predicate.Employee(sql.FieldGT(FieldMetadata, v))
-}
-
-// MetadataGTE applies the GTE predicate on the "metadata" field.
-func MetadataGTE(v string) predicate.Employee {
-	return predicate.Employee(sql.FieldGTE(FieldMetadata, v))
-}
-
-// MetadataLT applies the LT predicate on the "metadata" field.
-func MetadataLT(v string) predicate.Employee {
-	return predicate.Employee(sql.FieldLT(FieldMetadata, v))
-}
-
-// MetadataLTE applies the LTE predicate on the "metadata" field.
-func MetadataLTE(v string) predicate.Employee {
-	return predicate.Employee(sql.FieldLTE(FieldMetadata, v))
-}
-
-// MetadataContains applies the Contains predicate on the "metadata" field.
-func MetadataContains(v string) predicate.Employee {
-	return predicate.Employee(sql.FieldContains(FieldMetadata, v))
-}
-
-// MetadataHasPrefix applies the HasPrefix predicate on the "metadata" field.
-func MetadataHasPrefix(v string) predicate.Employee {
-	return predicate.Employee(sql.FieldHasPrefix(FieldMetadata, v))
-}
-
-// MetadataHasSuffix applies the HasSuffix predicate on the "metadata" field.
-func MetadataHasSuffix(v string) predicate.Employee {
-	return predicate.Employee(sql.FieldHasSuffix(FieldMetadata, v))
-}
-
 // MetadataIsNil applies the IsNil predicate on the "metadata" field.
 func MetadataIsNil() predicate.Employee {
 	return predicate.Employee(sql.FieldIsNull(FieldMetadata))
@@ -1163,16 +1103,6 @@ func MetadataIsNil() predicate.Employee {
 // MetadataNotNil applies the NotNil predicate on the "metadata" field.
 func MetadataNotNil() predicate.Employee {
 	return predicate.Employee(sql.FieldNotNull(FieldMetadata))
-}
-
-// MetadataEqualFold applies the EqualFold predicate on the "metadata" field.
-func MetadataEqualFold(v string) predicate.Employee {
-	return predicate.Employee(sql.FieldEqualFold(FieldMetadata, v))
-}
-
-// MetadataContainsFold applies the ContainsFold predicate on the "metadata" field.
-func MetadataContainsFold(v string) predicate.Employee {
-	return predicate.Employee(sql.FieldContainsFold(FieldMetadata, v))
 }
 
 // HasAssets applies the HasEdge predicate on the "assets" edge.

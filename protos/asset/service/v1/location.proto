@@ -8,6 +8,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
+import "google/protobuf/struct.proto";
 import "redact/v3/redact.proto";
 
 // Location represents a physical location where assets can be stored
@@ -70,7 +71,7 @@ message Location {
   optional string tags = 19 [json_name = "tags"];
 
   // Custom metadata (JSON)
-  optional string metadata = 20 [json_name = "metadata"];
+  google.protobuf.Struct metadata = 20 [json_name = "metadata"];
 
   // Creation timestamp
   optional google.protobuf.Timestamp created_at = 30 [json_name = "createdAt"];
@@ -119,7 +120,7 @@ message CreateLocationRequest {
   optional string email = 13 [(redact.v3.value).string = "", json_name = "email"];
   optional LocationStatus status = 14 [json_name = "status"];
   optional string tags = 15 [json_name = "tags"];
-  optional string metadata = 16 [json_name = "metadata"];
+  google.protobuf.Struct metadata = 16 [json_name = "metadata"];
 }
 
 message CreateLocationResponse {

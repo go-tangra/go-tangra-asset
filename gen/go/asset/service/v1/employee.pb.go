@@ -14,6 +14,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -102,7 +103,7 @@ type Employee struct {
 	// Custom tags (JSON)
 	Tags *string `protobuf:"bytes,11,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
 	// Custom metadata (JSON)
-	Metadata *string `protobuf:"bytes,12,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"`
+	Metadata *structpb.Struct `protobuf:"bytes,12,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	// Creation timestamp
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
 	// Last update timestamp
@@ -222,11 +223,11 @@ func (x *Employee) GetTags() string {
 	return ""
 }
 
-func (x *Employee) GetMetadata() string {
-	if x != nil && x.Metadata != nil {
-		return *x.Metadata
+func (x *Employee) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
 	}
-	return ""
+	return nil
 }
 
 func (x *Employee) GetCreatedAt() *timestamppb.Timestamp {
@@ -270,7 +271,7 @@ type CreateEmployeeRequest struct {
 	EmployeeNumber *string                `protobuf:"bytes,8,opt,name=employee_number,json=employeeNumber,proto3,oneof" json:"employee_number,omitempty"`
 	Notes          *string                `protobuf:"bytes,9,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
 	Tags           *string                `protobuf:"bytes,10,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
-	Metadata       *string                `protobuf:"bytes,11,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"`
+	Metadata       *structpb.Struct       `protobuf:"bytes,11,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -375,11 +376,11 @@ func (x *CreateEmployeeRequest) GetTags() string {
 	return ""
 }
 
-func (x *CreateEmployeeRequest) GetMetadata() string {
-	if x != nil && x.Metadata != nil {
-		return *x.Metadata
+func (x *CreateEmployeeRequest) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
 	}
-	return ""
+	return nil
 }
 
 type CreateEmployeeResponse struct {
@@ -1160,7 +1161,7 @@ var File_asset_service_v1_employee_proto protoreflect.FileDescriptor
 
 const file_asset_service_v1_employee_proto_rawDesc = "" +
 	"\n" +
-	"\x1fasset/service/v1/employee.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x16redact/v3/redact.proto\"\xb2\x06\n" +
+	"\x1fasset/service/v1/employee.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x16redact/v3/redact.proto\"\xb9\x06\n" +
 	"\bEmployee\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\"\n" +
@@ -1177,16 +1178,16 @@ const file_asset_service_v1_employee_proto_rawDesc = "" +
 	"\x05notes\x18\n" +
 	" \x01(\tH\tR\x05notes\x88\x01\x01\x12\x17\n" +
 	"\x04tags\x18\v \x01(\tH\n" +
-	"R\x04tags\x88\x01\x01\x12\x1f\n" +
-	"\bmetadata\x18\f \x01(\tH\vR\bmetadata\x88\x01\x01\x12>\n" +
+	"R\x04tags\x88\x01\x01\x123\n" +
+	"\bmetadata\x18\f \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12>\n" +
 	"\n" +
-	"created_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampH\fR\tcreatedAt\x88\x01\x01\x12>\n" +
+	"created_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampH\vR\tcreatedAt\x88\x01\x01\x12>\n" +
 	"\n" +
-	"updated_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampH\rR\tupdatedAt\x88\x01\x01\x12\"\n" +
+	"updated_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampH\fR\tupdatedAt\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"created_by\x18\x16 \x01(\rH\x0eR\tcreatedBy\x88\x01\x01\x12\"\n" +
+	"created_by\x18\x16 \x01(\rH\rR\tcreatedBy\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"updated_by\x18\x17 \x01(\rH\x0fR\tupdatedBy\x88\x01\x01B\x05\n" +
+	"updated_by\x18\x17 \x01(\rH\x0eR\tupdatedBy\x88\x01\x01B\x05\n" +
 	"\x03_idB\f\n" +
 	"\n" +
 	"_tenant_idB\r\n" +
@@ -1200,12 +1201,11 @@ const file_asset_service_v1_employee_proto_rawDesc = "" +
 	"_job_titleB\x12\n" +
 	"\x10_employee_numberB\b\n" +
 	"\x06_notesB\a\n" +
-	"\x05_tagsB\v\n" +
-	"\t_metadataB\r\n" +
+	"\x05_tagsB\r\n" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
-	"\v_updated_by\"\xc2\x04\n" +
+	"\v_updated_by\"\xc9\x04\n" +
 	"\x15CreateEmployeeRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x121\n" +
 	"\n" +
@@ -1220,9 +1220,8 @@ const file_asset_service_v1_employee_proto_rawDesc = "" +
 	"\x0femployee_number\x18\b \x01(\tH\aR\x0eemployeeNumber\x88\x01\x01\x12\x19\n" +
 	"\x05notes\x18\t \x01(\tH\bR\x05notes\x88\x01\x01\x12\x17\n" +
 	"\x04tags\x18\n" +
-	" \x01(\tH\tR\x04tags\x88\x01\x01\x12\x1f\n" +
-	"\bmetadata\x18\v \x01(\tH\n" +
-	"R\bmetadata\x88\x01\x01B\f\n" +
+	" \x01(\tH\tR\x04tags\x88\x01\x01\x123\n" +
+	"\bmetadata\x18\v \x01(\v2\x17.google.protobuf.StructR\bmetadataB\f\n" +
 	"\n" +
 	"_tenant_idB\r\n" +
 	"\v_first_nameB\f\n" +
@@ -1235,8 +1234,7 @@ const file_asset_service_v1_employee_proto_rawDesc = "" +
 	"_job_titleB\x12\n" +
 	"\x10_employee_numberB\b\n" +
 	"\x06_notesB\a\n" +
-	"\x05_tagsB\v\n" +
-	"\t_metadata\"P\n" +
+	"\x05_tags\"P\n" +
 	"\x16CreateEmployeeResponse\x126\n" +
 	"\bemployee\x18\x01 \x01(\v2\x1a.asset.service.v1.EmployeeR\bemployee\"0\n" +
 	"\x12GetEmployeeRequest\x12\x1a\n" +
@@ -1362,41 +1360,44 @@ var file_asset_service_v1_employee_proto_goTypes = []any{
 	(*LdapSyncPreviewResponse)(nil), // 13: asset.service.v1.LdapSyncPreviewResponse
 	(*LdapSyncExecuteRequest)(nil),  // 14: asset.service.v1.LdapSyncExecuteRequest
 	(*LdapSyncExecuteResponse)(nil), // 15: asset.service.v1.LdapSyncExecuteResponse
-	(*timestamppb.Timestamp)(nil),   // 16: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),   // 17: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),           // 18: google.protobuf.Empty
+	(*structpb.Struct)(nil),         // 16: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil),   // 17: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),   // 18: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),           // 19: google.protobuf.Empty
 }
 var file_asset_service_v1_employee_proto_depIdxs = []int32{
-	16, // 0: asset.service.v1.Employee.created_at:type_name -> google.protobuf.Timestamp
-	16, // 1: asset.service.v1.Employee.updated_at:type_name -> google.protobuf.Timestamp
-	1,  // 2: asset.service.v1.CreateEmployeeResponse.employee:type_name -> asset.service.v1.Employee
-	1,  // 3: asset.service.v1.GetEmployeeResponse.employee:type_name -> asset.service.v1.Employee
-	1,  // 4: asset.service.v1.ListEmployeesResponse.items:type_name -> asset.service.v1.Employee
-	1,  // 5: asset.service.v1.UpdateEmployeeRequest.data:type_name -> asset.service.v1.Employee
-	17, // 6: asset.service.v1.UpdateEmployeeRequest.update_mask:type_name -> google.protobuf.FieldMask
-	1,  // 7: asset.service.v1.UpdateEmployeeResponse.employee:type_name -> asset.service.v1.Employee
-	0,  // 8: asset.service.v1.LdapSyncChange.action:type_name -> asset.service.v1.LdapSyncChange.Action
-	1,  // 9: asset.service.v1.LdapSyncChange.employee:type_name -> asset.service.v1.Employee
-	12, // 10: asset.service.v1.LdapSyncPreviewResponse.changes:type_name -> asset.service.v1.LdapSyncChange
-	2,  // 11: asset.service.v1.EmployeeService.CreateEmployee:input_type -> asset.service.v1.CreateEmployeeRequest
-	4,  // 12: asset.service.v1.EmployeeService.GetEmployee:input_type -> asset.service.v1.GetEmployeeRequest
-	6,  // 13: asset.service.v1.EmployeeService.ListEmployees:input_type -> asset.service.v1.ListEmployeesRequest
-	8,  // 14: asset.service.v1.EmployeeService.UpdateEmployee:input_type -> asset.service.v1.UpdateEmployeeRequest
-	10, // 15: asset.service.v1.EmployeeService.DeleteEmployee:input_type -> asset.service.v1.DeleteEmployeeRequest
-	11, // 16: asset.service.v1.EmployeeService.LdapSyncPreview:input_type -> asset.service.v1.LdapSyncPreviewRequest
-	14, // 17: asset.service.v1.EmployeeService.LdapSyncExecute:input_type -> asset.service.v1.LdapSyncExecuteRequest
-	3,  // 18: asset.service.v1.EmployeeService.CreateEmployee:output_type -> asset.service.v1.CreateEmployeeResponse
-	5,  // 19: asset.service.v1.EmployeeService.GetEmployee:output_type -> asset.service.v1.GetEmployeeResponse
-	7,  // 20: asset.service.v1.EmployeeService.ListEmployees:output_type -> asset.service.v1.ListEmployeesResponse
-	9,  // 21: asset.service.v1.EmployeeService.UpdateEmployee:output_type -> asset.service.v1.UpdateEmployeeResponse
-	18, // 22: asset.service.v1.EmployeeService.DeleteEmployee:output_type -> google.protobuf.Empty
-	13, // 23: asset.service.v1.EmployeeService.LdapSyncPreview:output_type -> asset.service.v1.LdapSyncPreviewResponse
-	15, // 24: asset.service.v1.EmployeeService.LdapSyncExecute:output_type -> asset.service.v1.LdapSyncExecuteResponse
-	18, // [18:25] is the sub-list for method output_type
-	11, // [11:18] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	16, // 0: asset.service.v1.Employee.metadata:type_name -> google.protobuf.Struct
+	17, // 1: asset.service.v1.Employee.created_at:type_name -> google.protobuf.Timestamp
+	17, // 2: asset.service.v1.Employee.updated_at:type_name -> google.protobuf.Timestamp
+	16, // 3: asset.service.v1.CreateEmployeeRequest.metadata:type_name -> google.protobuf.Struct
+	1,  // 4: asset.service.v1.CreateEmployeeResponse.employee:type_name -> asset.service.v1.Employee
+	1,  // 5: asset.service.v1.GetEmployeeResponse.employee:type_name -> asset.service.v1.Employee
+	1,  // 6: asset.service.v1.ListEmployeesResponse.items:type_name -> asset.service.v1.Employee
+	1,  // 7: asset.service.v1.UpdateEmployeeRequest.data:type_name -> asset.service.v1.Employee
+	18, // 8: asset.service.v1.UpdateEmployeeRequest.update_mask:type_name -> google.protobuf.FieldMask
+	1,  // 9: asset.service.v1.UpdateEmployeeResponse.employee:type_name -> asset.service.v1.Employee
+	0,  // 10: asset.service.v1.LdapSyncChange.action:type_name -> asset.service.v1.LdapSyncChange.Action
+	1,  // 11: asset.service.v1.LdapSyncChange.employee:type_name -> asset.service.v1.Employee
+	12, // 12: asset.service.v1.LdapSyncPreviewResponse.changes:type_name -> asset.service.v1.LdapSyncChange
+	2,  // 13: asset.service.v1.EmployeeService.CreateEmployee:input_type -> asset.service.v1.CreateEmployeeRequest
+	4,  // 14: asset.service.v1.EmployeeService.GetEmployee:input_type -> asset.service.v1.GetEmployeeRequest
+	6,  // 15: asset.service.v1.EmployeeService.ListEmployees:input_type -> asset.service.v1.ListEmployeesRequest
+	8,  // 16: asset.service.v1.EmployeeService.UpdateEmployee:input_type -> asset.service.v1.UpdateEmployeeRequest
+	10, // 17: asset.service.v1.EmployeeService.DeleteEmployee:input_type -> asset.service.v1.DeleteEmployeeRequest
+	11, // 18: asset.service.v1.EmployeeService.LdapSyncPreview:input_type -> asset.service.v1.LdapSyncPreviewRequest
+	14, // 19: asset.service.v1.EmployeeService.LdapSyncExecute:input_type -> asset.service.v1.LdapSyncExecuteRequest
+	3,  // 20: asset.service.v1.EmployeeService.CreateEmployee:output_type -> asset.service.v1.CreateEmployeeResponse
+	5,  // 21: asset.service.v1.EmployeeService.GetEmployee:output_type -> asset.service.v1.GetEmployeeResponse
+	7,  // 22: asset.service.v1.EmployeeService.ListEmployees:output_type -> asset.service.v1.ListEmployeesResponse
+	9,  // 23: asset.service.v1.EmployeeService.UpdateEmployee:output_type -> asset.service.v1.UpdateEmployeeResponse
+	19, // 24: asset.service.v1.EmployeeService.DeleteEmployee:output_type -> google.protobuf.Empty
+	13, // 25: asset.service.v1.EmployeeService.LdapSyncPreview:output_type -> asset.service.v1.LdapSyncPreviewResponse
+	15, // 26: asset.service.v1.EmployeeService.LdapSyncExecute:output_type -> asset.service.v1.LdapSyncExecuteResponse
+	20, // [20:27] is the sub-list for method output_type
+	13, // [13:20] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_asset_service_v1_employee_proto_init() }

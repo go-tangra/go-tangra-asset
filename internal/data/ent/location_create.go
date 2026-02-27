@@ -312,16 +312,8 @@ func (_c *LocationCreate) SetNillableTags(v *string) *LocationCreate {
 }
 
 // SetMetadata sets the "metadata" field.
-func (_c *LocationCreate) SetMetadata(v string) *LocationCreate {
+func (_c *LocationCreate) SetMetadata(v map[string]interface{}) *LocationCreate {
 	_c.mutation.SetMetadata(v)
-	return _c
-}
-
-// SetNillableMetadata sets the "metadata" field if the given value is not nil.
-func (_c *LocationCreate) SetNillableMetadata(v *string) *LocationCreate {
-	if v != nil {
-		_c.SetMetadata(*v)
-	}
 	return _c
 }
 
@@ -569,7 +561,7 @@ func (_c *LocationCreate) createSpec() (*Location, *sqlgraph.CreateSpec) {
 		_node.Tags = value
 	}
 	if value, ok := _c.mutation.Metadata(); ok {
-		_spec.SetField(location.FieldMetadata, field.TypeString, value)
+		_spec.SetField(location.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
 	}
 	if nodes := _c.mutation.ParentIDs(); len(nodes) > 0 {
@@ -1038,7 +1030,7 @@ func (u *LocationUpsert) ClearTags() *LocationUpsert {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *LocationUpsert) SetMetadata(v string) *LocationUpsert {
+func (u *LocationUpsert) SetMetadata(v map[string]interface{}) *LocationUpsert {
 	u.Set(location.FieldMetadata, v)
 	return u
 }
@@ -1516,7 +1508,7 @@ func (u *LocationUpsertOne) ClearTags() *LocationUpsertOne {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *LocationUpsertOne) SetMetadata(v string) *LocationUpsertOne {
+func (u *LocationUpsertOne) SetMetadata(v map[string]interface{}) *LocationUpsertOne {
 	return u.Update(func(s *LocationUpsert) {
 		s.SetMetadata(v)
 	})
@@ -2164,7 +2156,7 @@ func (u *LocationUpsertBulk) ClearTags() *LocationUpsertBulk {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *LocationUpsertBulk) SetMetadata(v string) *LocationUpsertBulk {
+func (u *LocationUpsertBulk) SetMetadata(v map[string]interface{}) *LocationUpsertBulk {
 	return u.Update(func(s *LocationUpsert) {
 		s.SetMetadata(v)
 	})

@@ -212,6 +212,12 @@ func (_c *LicenseCreate) SetNillableNotes(v *string) *LicenseCreate {
 	return _c
 }
 
+// SetMetadata sets the "metadata" field.
+func (_c *LicenseCreate) SetMetadata(v map[string]interface{}) *LicenseCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
+}
+
 // SetStatus sets the "status" field.
 func (_c *LicenseCreate) SetStatus(v string) *LicenseCreate {
 	_c.mutation.SetStatus(v)
@@ -387,6 +393,10 @@ func (_c *LicenseCreate) createSpec() (*License, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Notes(); ok {
 		_spec.SetField(license.FieldNotes, field.TypeString, value)
 		_node.Notes = value
+	}
+	if value, ok := _c.mutation.Metadata(); ok {
+		_spec.SetField(license.FieldMetadata, field.TypeJSON, value)
+		_node.Metadata = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(license.FieldStatus, field.TypeString, value)
@@ -686,6 +696,24 @@ func (u *LicenseUpsert) UpdateNotes() *LicenseUpsert {
 // ClearNotes clears the value of the "notes" field.
 func (u *LicenseUpsert) ClearNotes() *LicenseUpsert {
 	u.SetNull(license.FieldNotes)
+	return u
+}
+
+// SetMetadata sets the "metadata" field.
+func (u *LicenseUpsert) SetMetadata(v map[string]interface{}) *LicenseUpsert {
+	u.Set(license.FieldMetadata, v)
+	return u
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *LicenseUpsert) UpdateMetadata() *LicenseUpsert {
+	u.SetExcluded(license.FieldMetadata)
+	return u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (u *LicenseUpsert) ClearMetadata() *LicenseUpsert {
+	u.SetNull(license.FieldMetadata)
 	return u
 }
 
@@ -1024,6 +1052,27 @@ func (u *LicenseUpsertOne) UpdateNotes() *LicenseUpsertOne {
 func (u *LicenseUpsertOne) ClearNotes() *LicenseUpsertOne {
 	return u.Update(func(s *LicenseUpsert) {
 		s.ClearNotes()
+	})
+}
+
+// SetMetadata sets the "metadata" field.
+func (u *LicenseUpsertOne) SetMetadata(v map[string]interface{}) *LicenseUpsertOne {
+	return u.Update(func(s *LicenseUpsert) {
+		s.SetMetadata(v)
+	})
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *LicenseUpsertOne) UpdateMetadata() *LicenseUpsertOne {
+	return u.Update(func(s *LicenseUpsert) {
+		s.UpdateMetadata()
+	})
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (u *LicenseUpsertOne) ClearMetadata() *LicenseUpsertOne {
+	return u.Update(func(s *LicenseUpsert) {
+		s.ClearMetadata()
 	})
 }
 
@@ -1532,6 +1581,27 @@ func (u *LicenseUpsertBulk) UpdateNotes() *LicenseUpsertBulk {
 func (u *LicenseUpsertBulk) ClearNotes() *LicenseUpsertBulk {
 	return u.Update(func(s *LicenseUpsert) {
 		s.ClearNotes()
+	})
+}
+
+// SetMetadata sets the "metadata" field.
+func (u *LicenseUpsertBulk) SetMetadata(v map[string]interface{}) *LicenseUpsertBulk {
+	return u.Update(func(s *LicenseUpsert) {
+		s.SetMetadata(v)
+	})
+}
+
+// UpdateMetadata sets the "metadata" field to the value that was provided on create.
+func (u *LicenseUpsertBulk) UpdateMetadata() *LicenseUpsertBulk {
+	return u.Update(func(s *LicenseUpsert) {
+		s.UpdateMetadata()
+	})
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (u *LicenseUpsertBulk) ClearMetadata() *LicenseUpsertBulk {
+	return u.Update(func(s *LicenseUpsert) {
+		s.ClearMetadata()
 	})
 }
 

@@ -559,16 +559,8 @@ func (_u *AssetUpdate) ClearTags() *AssetUpdate {
 }
 
 // SetMetadata sets the "metadata" field.
-func (_u *AssetUpdate) SetMetadata(v string) *AssetUpdate {
+func (_u *AssetUpdate) SetMetadata(v map[string]interface{}) *AssetUpdate {
 	_u.mutation.SetMetadata(v)
-	return _u
-}
-
-// SetNillableMetadata sets the "metadata" field if the given value is not nil.
-func (_u *AssetUpdate) SetNillableMetadata(v *string) *AssetUpdate {
-	if v != nil {
-		_u.SetMetadata(*v)
-	}
 	return _u
 }
 
@@ -868,10 +860,10 @@ func (_u *AssetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(asset.FieldTags, field.TypeString)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
-		_spec.SetField(asset.FieldMetadata, field.TypeString, value)
+		_spec.SetField(asset.FieldMetadata, field.TypeJSON, value)
 	}
 	if _u.mutation.MetadataCleared() {
-		_spec.ClearField(asset.FieldMetadata, field.TypeString)
+		_spec.ClearField(asset.FieldMetadata, field.TypeJSON)
 	}
 	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1581,16 +1573,8 @@ func (_u *AssetUpdateOne) ClearTags() *AssetUpdateOne {
 }
 
 // SetMetadata sets the "metadata" field.
-func (_u *AssetUpdateOne) SetMetadata(v string) *AssetUpdateOne {
+func (_u *AssetUpdateOne) SetMetadata(v map[string]interface{}) *AssetUpdateOne {
 	_u.mutation.SetMetadata(v)
-	return _u
-}
-
-// SetNillableMetadata sets the "metadata" field if the given value is not nil.
-func (_u *AssetUpdateOne) SetNillableMetadata(v *string) *AssetUpdateOne {
-	if v != nil {
-		_u.SetMetadata(*v)
-	}
 	return _u
 }
 
@@ -1920,10 +1904,10 @@ func (_u *AssetUpdateOne) sqlSave(ctx context.Context) (_node *Asset, err error)
 		_spec.ClearField(asset.FieldTags, field.TypeString)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
-		_spec.SetField(asset.FieldMetadata, field.TypeString, value)
+		_spec.SetField(asset.FieldMetadata, field.TypeJSON, value)
 	}
 	if _u.mutation.MetadataCleared() {
-		_spec.ClearField(asset.FieldMetadata, field.TypeString)
+		_spec.ClearField(asset.FieldMetadata, field.TypeJSON)
 	}
 	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{

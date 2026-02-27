@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -61,7 +62,7 @@ type Location struct {
 	// Custom tags (JSON)
 	Tags string `json:"tags,omitempty"`
 	// Custom metadata (JSON)
-	Metadata string `json:"metadata,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the LocationQuery when eager-loading is set.
 	Edges        LocationEdges `json:"edges"`
@@ -126,9 +127,11 @@ func (*Location) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case location.FieldMetadata:
+			values[i] = new([]byte)
 		case location.FieldCreateBy, location.FieldUpdateBy, location.FieldTenantID, location.FieldStatus:
 			values[i] = new(sql.NullInt64)
-		case location.FieldID, location.FieldName, location.FieldCode, location.FieldDescription, location.FieldParentID, location.FieldPath, location.FieldAddress, location.FieldCity, location.FieldState, location.FieldCountry, location.FieldPostalCode, location.FieldContact, location.FieldPhone, location.FieldEmail, location.FieldTags, location.FieldMetadata:
+		case location.FieldID, location.FieldName, location.FieldCode, location.FieldDescription, location.FieldParentID, location.FieldPath, location.FieldAddress, location.FieldCity, location.FieldState, location.FieldCountry, location.FieldPostalCode, location.FieldContact, location.FieldPhone, location.FieldEmail, location.FieldTags:
 			values[i] = new(sql.NullString)
 		case location.FieldCreateTime, location.FieldUpdateTime, location.FieldDeleteTime:
 			values[i] = new(sql.NullTime)
@@ -286,10 +289,12 @@ func (_m *Location) assignValues(columns []string, values []any) error {
 				_m.Tags = value.String
 			}
 		case location.FieldMetadata:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
-			} else if value.Valid {
-				_m.Metadata = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -423,7 +428,7 @@ func (_m *Location) String() string {
 	builder.WriteString(_m.Tags)
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
-	builder.WriteString(_m.Metadata)
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteByte(')')
 	return builder.String()
 }

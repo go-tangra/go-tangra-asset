@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -75,7 +76,7 @@ type Asset struct {
 	// Custom tags (JSON)
 	Tags string `json:"tags,omitempty"`
 	// Custom metadata (JSON)
-	Metadata string `json:"metadata,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AssetQuery when eager-loading is set.
 	Edges        AssetEdges `json:"edges"`
@@ -157,11 +158,13 @@ func (*Asset) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case asset.FieldMetadata:
+			values[i] = new([]byte)
 		case asset.FieldPurchaseCost, asset.FieldSalvageValue, asset.FieldDepreciationRate:
 			values[i] = new(sql.NullFloat64)
 		case asset.FieldCreateBy, asset.FieldUpdateBy, asset.FieldTenantID, asset.FieldStatus, asset.FieldWarrantyMonths, asset.FieldUsefulLifeYears:
 			values[i] = new(sql.NullInt64)
-		case asset.FieldID, asset.FieldAssetTag, asset.FieldName, asset.FieldSerial, asset.FieldModelName, asset.FieldModelNumber, asset.FieldCategoryID, asset.FieldSupplierID, asset.FieldLocationID, asset.FieldEmployeeID, asset.FieldPhotoKey, asset.FieldOrderNumber, asset.FieldNotes, asset.FieldTags, asset.FieldMetadata:
+		case asset.FieldID, asset.FieldAssetTag, asset.FieldName, asset.FieldSerial, asset.FieldModelName, asset.FieldModelNumber, asset.FieldCategoryID, asset.FieldSupplierID, asset.FieldLocationID, asset.FieldEmployeeID, asset.FieldPhotoKey, asset.FieldOrderNumber, asset.FieldNotes, asset.FieldTags:
 			values[i] = new(sql.NullString)
 		case asset.FieldCreateTime, asset.FieldUpdateTime, asset.FieldDeleteTime, asset.FieldPurchaseDate:
 			values[i] = new(sql.NullTime)
@@ -355,10 +358,12 @@ func (_m *Asset) assignValues(columns []string, values []any) error {
 				_m.Tags = value.String
 			}
 		case asset.FieldMetadata:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
-			} else if value.Valid {
-				_m.Metadata = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -524,7 +529,7 @@ func (_m *Asset) String() string {
 	builder.WriteString(_m.Tags)
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
-	builder.WriteString(_m.Metadata)
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteByte(')')
 	return builder.String()
 }

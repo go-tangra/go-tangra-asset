@@ -8,6 +8,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
+import "google/protobuf/struct.proto";
 
 // InsurancePolicyStatus represents the state of an insurance policy
 enum InsurancePolicyStatus {
@@ -67,6 +68,9 @@ message InsurancePolicy {
 
   // Notes
   optional string notes = 13 [json_name = "notes"];
+
+  // Custom metadata (JSON)
+  google.protobuf.Struct metadata = 15 [json_name = "metadata"];
 
   // Number of assets covered by this policy
   optional int32 asset_count = 14 [json_name = "assetCount"];
@@ -132,6 +136,7 @@ message CreateInsurancePolicyRequest {
   optional google.protobuf.Timestamp valid_to = 10 [json_name = "validTo"];
   optional InsurancePolicyStatus status = 11 [json_name = "status"];
   optional string notes = 12 [json_name = "notes"];
+  google.protobuf.Struct metadata = 13 [json_name = "metadata"];
 }
 
 message CreateInsurancePolicyResponse {

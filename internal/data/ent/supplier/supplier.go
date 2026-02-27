@@ -236,11 +236,6 @@ func ByTags(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTags, opts...).ToFunc()
 }
 
-// ByMetadata orders the results by the metadata field.
-func ByMetadata(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldMetadata, opts...).ToFunc()
-}
-
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()

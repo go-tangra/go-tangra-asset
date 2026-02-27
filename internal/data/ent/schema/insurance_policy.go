@@ -79,6 +79,10 @@ func (InsurancePolicy) Fields() []ent.Field {
 		field.Text("notes").
 			Optional().
 			Comment("Notes"),
+
+		field.JSON("metadata", map[string]interface{}{}).
+			Optional().
+			Comment("Custom metadata (JSON)"),
 	}
 }
 

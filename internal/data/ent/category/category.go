@@ -33,6 +33,8 @@ const (
 	FieldParentID = "parent_id"
 	// FieldIcon holds the string denoting the icon field in the database.
 	FieldIcon = "icon"
+	// FieldMetadata holds the string denoting the metadata field in the database.
+	FieldMetadata = "metadata"
 	// EdgeParent holds the string denoting the parent edge name in mutations.
 	EdgeParent = "parent"
 	// EdgeChildren holds the string denoting the children edge name in mutations.
@@ -80,6 +82,7 @@ var Columns = []string{
 	FieldDescription,
 	FieldParentID,
 	FieldIcon,
+	FieldMetadata,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

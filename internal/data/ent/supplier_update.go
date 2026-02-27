@@ -380,16 +380,8 @@ func (_u *SupplierUpdate) ClearTags() *SupplierUpdate {
 }
 
 // SetMetadata sets the "metadata" field.
-func (_u *SupplierUpdate) SetMetadata(v string) *SupplierUpdate {
+func (_u *SupplierUpdate) SetMetadata(v map[string]interface{}) *SupplierUpdate {
 	_u.mutation.SetMetadata(v)
-	return _u
-}
-
-// SetNillableMetadata sets the "metadata" field if the given value is not nil.
-func (_u *SupplierUpdate) SetNillableMetadata(v *string) *SupplierUpdate {
-	if v != nil {
-		_u.SetMetadata(*v)
-	}
 	return _u
 }
 
@@ -669,10 +661,10 @@ func (_u *SupplierUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(supplier.FieldTags, field.TypeString)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
-		_spec.SetField(supplier.FieldMetadata, field.TypeString, value)
+		_spec.SetField(supplier.FieldMetadata, field.TypeJSON, value)
 	}
 	if _u.mutation.MetadataCleared() {
-		_spec.ClearField(supplier.FieldMetadata, field.TypeString)
+		_spec.ClearField(supplier.FieldMetadata, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(supplier.FieldStatus, field.TypeInt32, value)
@@ -1141,16 +1133,8 @@ func (_u *SupplierUpdateOne) ClearTags() *SupplierUpdateOne {
 }
 
 // SetMetadata sets the "metadata" field.
-func (_u *SupplierUpdateOne) SetMetadata(v string) *SupplierUpdateOne {
+func (_u *SupplierUpdateOne) SetMetadata(v map[string]interface{}) *SupplierUpdateOne {
 	_u.mutation.SetMetadata(v)
-	return _u
-}
-
-// SetNillableMetadata sets the "metadata" field if the given value is not nil.
-func (_u *SupplierUpdateOne) SetNillableMetadata(v *string) *SupplierUpdateOne {
-	if v != nil {
-		_u.SetMetadata(*v)
-	}
 	return _u
 }
 
@@ -1460,10 +1444,10 @@ func (_u *SupplierUpdateOne) sqlSave(ctx context.Context) (_node *Supplier, err 
 		_spec.ClearField(supplier.FieldTags, field.TypeString)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
-		_spec.SetField(supplier.FieldMetadata, field.TypeString, value)
+		_spec.SetField(supplier.FieldMetadata, field.TypeJSON, value)
 	}
 	if _u.mutation.MetadataCleared() {
-		_spec.ClearField(supplier.FieldMetadata, field.TypeString)
+		_spec.ClearField(supplier.FieldMetadata, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(supplier.FieldStatus, field.TypeInt32, value)

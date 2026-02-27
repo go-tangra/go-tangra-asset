@@ -474,6 +474,7 @@ func (s *BackupService) importCategories(ctx context.Context, client *ent.Client
 				SetDescription(e.Description).
 				SetParentID(e.ParentID).
 				SetIcon(e.Icon).
+				SetMetadata(e.Metadata).
 				SetNillableCreateBy(e.CreateBy).
 				SetNillableUpdateBy(e.UpdateBy).
 				Save(ctx)
@@ -491,6 +492,7 @@ func (s *BackupService) importCategories(ctx context.Context, client *ent.Client
 				SetDescription(e.Description).
 				SetParentID(e.ParentID).
 				SetIcon(e.Icon).
+				SetMetadata(e.Metadata).
 				SetNillableCreateBy(e.CreateBy).
 				SetNillableUpdateBy(e.UpdateBy).
 				SetNillableCreateTime(e.CreateTime).
@@ -956,6 +958,7 @@ func (s *BackupService) importLicenses(ctx context.Context, client *ent.Client, 
 				SetNillableValidFrom(e.ValidFrom).
 				SetNillableValidTo(e.ValidTo).
 				SetNotes(e.Notes).
+				SetMetadata(e.Metadata).
 				SetStatus(e.Status).
 				SetNillableCreateBy(e.CreateBy).
 				SetNillableUpdateBy(e.UpdateBy).
@@ -978,6 +981,7 @@ func (s *BackupService) importLicenses(ctx context.Context, client *ent.Client, 
 				SetNillableValidFrom(e.ValidFrom).
 				SetNillableValidTo(e.ValidTo).
 				SetNotes(e.Notes).
+				SetMetadata(e.Metadata).
 				SetStatus(e.Status).
 				SetNillableCreateBy(e.CreateBy).
 				SetNillableUpdateBy(e.UpdateBy).
@@ -1151,6 +1155,7 @@ func (s *BackupService) importInsurancePolicies(ctx context.Context, client *ent
 				SetNillableValidTo(e.ValidTo).
 				SetStatus(e.Status).
 				SetNotes(e.Notes).
+				SetMetadata(e.Metadata).
 				SetNillableCreateBy(e.CreateBy).
 				SetNillableUpdateBy(e.UpdateBy).
 				Save(ctx)
@@ -1175,6 +1180,7 @@ func (s *BackupService) importInsurancePolicies(ctx context.Context, client *ent
 				SetNillableValidTo(e.ValidTo).
 				SetStatus(e.Status).
 				SetNotes(e.Notes).
+				SetMetadata(e.Metadata).
 				SetNillableCreateBy(e.CreateBy).
 				SetNillableUpdateBy(e.UpdateBy).
 				SetNillableCreateTime(e.CreateTime).

@@ -8,6 +8,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
+import "google/protobuf/struct.proto";
 
 // Category represents a classification for assets and consumables
 message Category {
@@ -34,6 +35,9 @@ message Category {
 
   // Number of child categories
   optional int32 child_count = 8 [json_name = "childCount"];
+
+  // Custom metadata (JSON)
+  google.protobuf.Struct metadata = 9 [json_name = "metadata"];
 
   // Creation timestamp
   optional google.protobuf.Timestamp created_at = 20 [json_name = "createdAt"];
@@ -65,6 +69,7 @@ message CreateCategoryRequest {
   optional string description = 3 [json_name = "description"];
   optional string parent_id = 4 [json_name = "parentId"];
   optional string icon = 5 [json_name = "icon"];
+  google.protobuf.Struct metadata = 6 [json_name = "metadata"];
 }
 
 message CreateCategoryResponse {

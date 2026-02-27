@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -49,7 +50,7 @@ type Employee struct {
 	// Custom tags (JSON)
 	Tags string `json:"tags,omitempty"`
 	// Custom metadata (JSON)
-	Metadata string `json:"metadata,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the EmployeeQuery when eager-loading is set.
 	Edges        EmployeeEdges `json:"edges"`
@@ -90,9 +91,11 @@ func (*Employee) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case employee.FieldMetadata:
+			values[i] = new([]byte)
 		case employee.FieldCreateBy, employee.FieldUpdateBy, employee.FieldTenantID:
 			values[i] = new(sql.NullInt64)
-		case employee.FieldID, employee.FieldFirstName, employee.FieldLastName, employee.FieldEmail, employee.FieldPhone, employee.FieldDepartment, employee.FieldJobTitle, employee.FieldEmployeeNumber, employee.FieldNotes, employee.FieldTags, employee.FieldMetadata:
+		case employee.FieldID, employee.FieldFirstName, employee.FieldLastName, employee.FieldEmail, employee.FieldPhone, employee.FieldDepartment, employee.FieldJobTitle, employee.FieldEmployeeNumber, employee.FieldNotes, employee.FieldTags:
 			values[i] = new(sql.NullString)
 		case employee.FieldCreateTime, employee.FieldUpdateTime, employee.FieldDeleteTime:
 			values[i] = new(sql.NullTime)
@@ -214,10 +217,12 @@ func (_m *Employee) assignValues(columns []string, values []any) error {
 				_m.Tags = value.String
 			}
 		case employee.FieldMetadata:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
-			} else if value.Valid {
-				_m.Metadata = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -323,7 +328,7 @@ func (_m *Employee) String() string {
 	builder.WriteString(_m.Tags)
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
-	builder.WriteString(_m.Metadata)
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteByte(')')
 	return builder.String()
 }

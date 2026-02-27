@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -47,6 +48,8 @@ type License struct {
 	ValidTo *time.Time `json:"valid_to,omitempty"`
 	// Notes
 	Notes string `json:"notes,omitempty"`
+	// Custom metadata (JSON)
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// License status
 	Status string `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -80,6 +83,8 @@ func (*License) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case license.FieldMetadata:
+			values[i] = new([]byte)
 		case license.FieldPurchaseCost:
 			values[i] = new(sql.NullFloat64)
 		case license.FieldCreateBy, license.FieldUpdateBy, license.FieldTenantID:
@@ -203,6 +208,14 @@ func (_m *License) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Notes = value.String
 			}
+		case license.FieldMetadata:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field metadata", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
+			}
 		case license.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
@@ -311,6 +324,9 @@ func (_m *License) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("notes=")
 	builder.WriteString(_m.Notes)
+	builder.WriteString(", ")
+	builder.WriteString("metadata=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(_m.Status)

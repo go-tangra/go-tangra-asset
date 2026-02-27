@@ -358,6 +358,18 @@ func (_u *InsurancePolicyUpdate) ClearNotes() *InsurancePolicyUpdate {
 	return _u
 }
 
+// SetMetadata sets the "metadata" field.
+func (_u *InsurancePolicyUpdate) SetMetadata(v map[string]interface{}) *InsurancePolicyUpdate {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *InsurancePolicyUpdate) ClearMetadata() *InsurancePolicyUpdate {
+	_u.mutation.ClearMetadata()
+	return _u
+}
+
 // Mutation returns the InsurancePolicyMutation object of the builder.
 func (_u *InsurancePolicyUpdate) Mutation() *InsurancePolicyMutation {
 	return _u.mutation
@@ -525,6 +537,12 @@ func (_u *InsurancePolicyUpdate) sqlSave(ctx context.Context) (_node int, err er
 	}
 	if _u.mutation.NotesCleared() {
 		_spec.ClearField(insurancepolicy.FieldNotes, field.TypeString)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(insurancepolicy.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(insurancepolicy.FieldMetadata, field.TypeJSON)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -877,6 +895,18 @@ func (_u *InsurancePolicyUpdateOne) ClearNotes() *InsurancePolicyUpdateOne {
 	return _u
 }
 
+// SetMetadata sets the "metadata" field.
+func (_u *InsurancePolicyUpdateOne) SetMetadata(v map[string]interface{}) *InsurancePolicyUpdateOne {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *InsurancePolicyUpdateOne) ClearMetadata() *InsurancePolicyUpdateOne {
+	_u.mutation.ClearMetadata()
+	return _u
+}
+
 // Mutation returns the InsurancePolicyMutation object of the builder.
 func (_u *InsurancePolicyUpdateOne) Mutation() *InsurancePolicyMutation {
 	return _u.mutation
@@ -1074,6 +1104,12 @@ func (_u *InsurancePolicyUpdateOne) sqlSave(ctx context.Context) (_node *Insuran
 	}
 	if _u.mutation.NotesCleared() {
 		_spec.ClearField(insurancepolicy.FieldNotes, field.TypeString)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(insurancepolicy.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(insurancepolicy.FieldMetadata, field.TypeJSON)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &InsurancePolicy{config: _u.config}

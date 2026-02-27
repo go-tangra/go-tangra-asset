@@ -67,7 +67,7 @@ func (s *SupplierService) CreateSupplier(ctx context.Context, req *assetV1.Creat
 		opts = append(opts, func(c *ent.SupplierCreate) { c.SetTags(*req.Tags) })
 	}
 	if req.Metadata != nil {
-		opts = append(opts, func(c *ent.SupplierCreate) { c.SetMetadata(*req.Metadata) })
+		opts = append(opts, func(c *ent.SupplierCreate) { c.SetMetadata(req.Metadata.AsMap()) })
 	}
 	if req.Status != nil {
 		opts = append(opts, func(c *ent.SupplierCreate) { c.SetStatus(*req.Status) })
@@ -173,7 +173,7 @@ func (s *SupplierService) UpdateSupplier(ctx context.Context, req *assetV1.Updat
 			updates["tags"] = *req.Data.Tags
 		}
 		if req.Data.Metadata != nil {
-			updates["metadata"] = *req.Data.Metadata
+			updates["metadata"] = req.Data.Metadata.AsMap()
 		}
 		if req.Data.Status != nil {
 			updates["status"] = *req.Data.Status
@@ -219,7 +219,7 @@ func supplierToProto(e *ent.Supplier) *assetV1.Supplier {
 		Website:       ptrString(e.Website),
 		Notes:         ptrString(e.Notes),
 		Tags:          ptrString(e.Tags),
-		Metadata:      ptrString(e.Metadata),
+		Metadata:      mapToStruct(e.Metadata),
 		Status:        ptrInt32(e.Status),
 		CreatedBy:     e.CreateBy,
 		UpdatedBy:     e.UpdateBy,

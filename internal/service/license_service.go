@@ -61,6 +61,9 @@ func (s *LicenseService) CreateLicense(ctx context.Context, req *assetV1.CreateL
 	if req.Notes != nil {
 		opts = append(opts, func(c *ent.LicenseCreate) { c.SetNotes(*req.Notes) })
 	}
+	if req.Metadata != nil {
+		opts = append(opts, func(c *ent.LicenseCreate) { c.SetMetadata(req.Metadata.AsMap()) })
+	}
 	if req.Status != nil {
 		opts = append(opts, func(c *ent.LicenseCreate) { c.SetStatus(licenseStatusToString(*req.Status)) })
 	}
@@ -151,6 +154,9 @@ func (s *LicenseService) UpdateLicense(ctx context.Context, req *assetV1.UpdateL
 		}
 		if req.Data.Notes != nil {
 			updates["notes"] = *req.Data.Notes
+		}
+		if req.Data.Metadata != nil {
+			updates["metadata"] = req.Data.Metadata.AsMap()
 		}
 		if req.Data.Status != nil {
 			updates["status"] = licenseStatusToString(*req.Data.Status)
@@ -276,6 +282,7 @@ func licenseToProto(e *ent.License) *assetV1.License {
 		SupplierId:  ptrString(e.SupplierID),
 		OrderNumber: ptrString(e.OrderNumber),
 		Notes:       ptrString(e.Notes),
+		Metadata:    mapToStruct(e.Metadata),
 		Status:      licenseStatusFromString(e.Status).Enum(),
 		CreatedBy:   e.CreateBy,
 		UpdatedBy:   e.UpdateBy,

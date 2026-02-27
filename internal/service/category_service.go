@@ -39,6 +39,9 @@ func (s *CategoryService) CreateCategory(ctx context.Context, req *assetV1.Creat
 	if req.Icon != nil {
 		opts = append(opts, func(c *ent.CategoryCreate) { c.SetIcon(*req.Icon) })
 	}
+	if req.Metadata != nil {
+		opts = append(opts, func(c *ent.CategoryCreate) { c.SetMetadata(req.Metadata.AsMap()) })
+	}
 
 	entity, err := s.categoryRepo.Create(ctx, req.GetTenantId(), req.GetName(), opts...)
 	if err != nil {
@@ -112,6 +115,9 @@ func (s *CategoryService) UpdateCategory(ctx context.Context, req *assetV1.Updat
 		if req.Data.Icon != nil {
 			updates["icon"] = *req.Data.Icon
 		}
+		if req.Data.Metadata != nil {
+			updates["metadata"] = req.Data.Metadata.AsMap()
+		}
 	}
 
 	entity, err := s.categoryRepo.Update(ctx, req.GetId(), updates)
@@ -177,6 +183,7 @@ func categoryToProto(e *ent.Category) *assetV1.Category {
 		Description: ptrString(e.Description),
 		ParentId:    ptrString(e.ParentID),
 		Icon:        ptrString(e.Icon),
+		Metadata:    mapToStruct(e.Metadata),
 		CreatedBy:   e.CreateBy,
 		UpdatedBy:   e.UpdateBy,
 	}

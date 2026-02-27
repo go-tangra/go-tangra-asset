@@ -414,7 +414,7 @@ func init() {
 		}
 	}()
 	// licenseDescStatus is the schema descriptor for status field.
-	licenseDescStatus := licenseFields[9].Descriptor()
+	licenseDescStatus := licenseFields[10].Descriptor()
 	// license.DefaultStatus holds the default value on creation for the status field.
 	license.DefaultStatus = licenseDescStatus.Default.(string)
 	// licenseDescID is the schema descriptor for id field.

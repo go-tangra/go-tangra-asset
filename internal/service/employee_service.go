@@ -54,7 +54,7 @@ func (s *EmployeeService) CreateEmployee(ctx context.Context, req *assetV1.Creat
 		opts = append(opts, func(c *ent.EmployeeCreate) { c.SetTags(*req.Tags) })
 	}
 	if req.Metadata != nil {
-		opts = append(opts, func(c *ent.EmployeeCreate) { c.SetMetadata(*req.Metadata) })
+		opts = append(opts, func(c *ent.EmployeeCreate) { c.SetMetadata(req.Metadata.AsMap()) })
 	}
 
 	entity, err := s.employeeRepo.Create(ctx, req.GetTenantId(), req.GetFirstName(), req.GetLastName(), opts...)
@@ -145,7 +145,7 @@ func (s *EmployeeService) UpdateEmployee(ctx context.Context, req *assetV1.Updat
 			updates["tags"] = *req.Data.Tags
 		}
 		if req.Data.Metadata != nil {
-			updates["metadata"] = *req.Data.Metadata
+			updates["metadata"] = req.Data.Metadata.AsMap()
 		}
 	}
 
@@ -285,7 +285,7 @@ func employeeToProto(e *ent.Employee) *assetV1.Employee {
 		EmployeeNumber: ptrString(e.EmployeeNumber),
 		Notes:          ptrString(e.Notes),
 		Tags:           ptrString(e.Tags),
-		Metadata:       ptrString(e.Metadata),
+		Metadata:       mapToStruct(e.Metadata),
 		CreatedBy:      e.CreateBy,
 		UpdatedBy:      e.UpdateBy,
 	}

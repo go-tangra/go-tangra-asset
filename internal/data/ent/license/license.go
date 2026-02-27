@@ -41,6 +41,8 @@ const (
 	FieldValidTo = "valid_to"
 	// FieldNotes holds the string denoting the notes field in the database.
 	FieldNotes = "notes"
+	// FieldMetadata holds the string denoting the metadata field in the database.
+	FieldMetadata = "metadata"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// EdgeSupplier holds the string denoting the supplier edge name in mutations.
@@ -73,6 +75,7 @@ var Columns = []string{
 	FieldValidFrom,
 	FieldValidTo,
 	FieldNotes,
+	FieldMetadata,
 	FieldStatus,
 }
 

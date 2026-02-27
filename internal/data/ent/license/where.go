@@ -930,6 +930,16 @@ func NotesContainsFold(v string) predicate.License {
 	return predicate.License(sql.FieldContainsFold(FieldNotes, v))
 }
 
+// MetadataIsNil applies the IsNil predicate on the "metadata" field.
+func MetadataIsNil() predicate.License {
+	return predicate.License(sql.FieldIsNull(FieldMetadata))
+}
+
+// MetadataNotNil applies the NotNil predicate on the "metadata" field.
+func MetadataNotNil() predicate.License {
+	return predicate.License(sql.FieldNotNull(FieldMetadata))
+}
+
 // StatusEQ applies the EQ predicate on the "status" field.
 func StatusEQ(v string) predicate.License {
 	return predicate.License(sql.FieldEQ(FieldStatus, v))

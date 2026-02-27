@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -57,7 +58,7 @@ type Supplier struct {
 	// Custom tags (JSON)
 	Tags string `json:"tags,omitempty"`
 	// Custom metadata (JSON)
-	Metadata string `json:"metadata,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Supplier status: 1=Active, 2=Inactive
 	Status int32 `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -100,9 +101,11 @@ func (*Supplier) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case supplier.FieldMetadata:
+			values[i] = new([]byte)
 		case supplier.FieldCreateBy, supplier.FieldUpdateBy, supplier.FieldTenantID, supplier.FieldStatus:
 			values[i] = new(sql.NullInt64)
-		case supplier.FieldID, supplier.FieldName, supplier.FieldCode, supplier.FieldAddress, supplier.FieldCity, supplier.FieldState, supplier.FieldCountry, supplier.FieldPostalCode, supplier.FieldContactPerson, supplier.FieldTelephone, supplier.FieldEmail, supplier.FieldWebsite, supplier.FieldNotes, supplier.FieldTags, supplier.FieldMetadata:
+		case supplier.FieldID, supplier.FieldName, supplier.FieldCode, supplier.FieldAddress, supplier.FieldCity, supplier.FieldState, supplier.FieldCountry, supplier.FieldPostalCode, supplier.FieldContactPerson, supplier.FieldTelephone, supplier.FieldEmail, supplier.FieldWebsite, supplier.FieldNotes, supplier.FieldTags:
 			values[i] = new(sql.NullString)
 		case supplier.FieldCreateTime, supplier.FieldUpdateTime, supplier.FieldDeleteTime:
 			values[i] = new(sql.NullTime)
@@ -248,10 +251,12 @@ func (_m *Supplier) assignValues(columns []string, values []any) error {
 				_m.Tags = value.String
 			}
 		case supplier.FieldMetadata:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
-			} else if value.Valid {
-				_m.Metadata = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
 			}
 		case supplier.FieldStatus:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -375,7 +380,7 @@ func (_m *Supplier) String() string {
 	builder.WriteString(_m.Tags)
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
-	builder.WriteString(_m.Metadata)
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))

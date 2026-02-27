@@ -86,7 +86,7 @@ type AssetMutation struct {
 	depreciation_rate    *float64
 	adddepreciation_rate *float64
 	tags                 *string
-	metadata             *string
+	metadata             *map[string]interface{}
 	clearedFields        map[string]struct{}
 	category             *string
 	clearedcategory      bool
@@ -1645,12 +1645,12 @@ func (m *AssetMutation) ResetTags() {
 }
 
 // SetMetadata sets the "metadata" field.
-func (m *AssetMutation) SetMetadata(s string) {
-	m.metadata = &s
+func (m *AssetMutation) SetMetadata(value map[string]interface{}) {
+	m.metadata = &value
 }
 
 // Metadata returns the value of the "metadata" field in the mutation.
-func (m *AssetMutation) Metadata() (r string, exists bool) {
+func (m *AssetMutation) Metadata() (r map[string]interface{}, exists bool) {
 	v := m.metadata
 	if v == nil {
 		return
@@ -1661,7 +1661,7 @@ func (m *AssetMutation) Metadata() (r string, exists bool) {
 // OldMetadata returns the old "metadata" field's value of the Asset entity.
 // If the Asset object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AssetMutation) OldMetadata(ctx context.Context) (v string, err error) {
+func (m *AssetMutation) OldMetadata(ctx context.Context) (v map[string]interface{}, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
 	}
@@ -2288,7 +2288,7 @@ func (m *AssetMutation) SetField(name string, value ent.Value) error {
 		m.SetTags(v)
 		return nil
 	case asset.FieldMetadata:
-		v, ok := value.(string)
+		v, ok := value.(map[string]interface{})
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -6907,6 +6907,7 @@ type CategoryMutation struct {
 	name               *string
 	description        *string
 	icon               *string
+	metadata           *map[string]interface{}
 	clearedFields      map[string]struct{}
 	parent             *string
 	clearedparent      bool
@@ -7568,6 +7569,55 @@ func (m *CategoryMutation) ResetIcon() {
 	delete(m.clearedFields, category.FieldIcon)
 }
 
+// SetMetadata sets the "metadata" field.
+func (m *CategoryMutation) SetMetadata(value map[string]interface{}) {
+	m.metadata = &value
+}
+
+// Metadata returns the value of the "metadata" field in the mutation.
+func (m *CategoryMutation) Metadata() (r map[string]interface{}, exists bool) {
+	v := m.metadata
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMetadata returns the old "metadata" field's value of the Category entity.
+// If the Category object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CategoryMutation) OldMetadata(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMetadata requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMetadata: %w", err)
+	}
+	return oldValue.Metadata, nil
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (m *CategoryMutation) ClearMetadata() {
+	m.metadata = nil
+	m.clearedFields[category.FieldMetadata] = struct{}{}
+}
+
+// MetadataCleared returns if the "metadata" field was cleared in this mutation.
+func (m *CategoryMutation) MetadataCleared() bool {
+	_, ok := m.clearedFields[category.FieldMetadata]
+	return ok
+}
+
+// ResetMetadata resets all changes to the "metadata" field.
+func (m *CategoryMutation) ResetMetadata() {
+	m.metadata = nil
+	delete(m.clearedFields, category.FieldMetadata)
+}
+
 // ClearParent clears the "parent" edge to the Category entity.
 func (m *CategoryMutation) ClearParent() {
 	m.clearedparent = true
@@ -7791,7 +7841,7 @@ func (m *CategoryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CategoryMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.create_by != nil {
 		fields = append(fields, category.FieldCreateBy)
 	}
@@ -7822,6 +7872,9 @@ func (m *CategoryMutation) Fields() []string {
 	if m.icon != nil {
 		fields = append(fields, category.FieldIcon)
 	}
+	if m.metadata != nil {
+		fields = append(fields, category.FieldMetadata)
+	}
 	return fields
 }
 
@@ -7850,6 +7903,8 @@ func (m *CategoryMutation) Field(name string) (ent.Value, bool) {
 		return m.ParentID()
 	case category.FieldIcon:
 		return m.Icon()
+	case category.FieldMetadata:
+		return m.Metadata()
 	}
 	return nil, false
 }
@@ -7879,6 +7934,8 @@ func (m *CategoryMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldParentID(ctx)
 	case category.FieldIcon:
 		return m.OldIcon(ctx)
+	case category.FieldMetadata:
+		return m.OldMetadata(ctx)
 	}
 	return nil, fmt.Errorf("unknown Category field %s", name)
 }
@@ -7957,6 +8014,13 @@ func (m *CategoryMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIcon(v)
+		return nil
+	case category.FieldMetadata:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMetadata(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Category field %s", name)
@@ -8054,6 +8118,9 @@ func (m *CategoryMutation) ClearedFields() []string {
 	if m.FieldCleared(category.FieldIcon) {
 		fields = append(fields, category.FieldIcon)
 	}
+	if m.FieldCleared(category.FieldMetadata) {
+		fields = append(fields, category.FieldMetadata)
+	}
 	return fields
 }
 
@@ -8095,6 +8162,9 @@ func (m *CategoryMutation) ClearField(name string) error {
 	case category.FieldIcon:
 		m.ClearIcon()
 		return nil
+	case category.FieldMetadata:
+		m.ClearMetadata()
+		return nil
 	}
 	return fmt.Errorf("unknown Category nullable field %s", name)
 }
@@ -8132,6 +8202,9 @@ func (m *CategoryMutation) ResetField(name string) error {
 		return nil
 	case category.FieldIcon:
 		m.ResetIcon()
+		return nil
+	case category.FieldMetadata:
+		m.ResetMetadata()
 		return nil
 	}
 	return fmt.Errorf("unknown Category field %s", name)
@@ -8320,7 +8393,7 @@ type ConsumableMutation struct {
 	order_number     *string
 	notes            *string
 	tags             *string
-	metadata         *string
+	metadata         *map[string]interface{}
 	clearedFields    map[string]struct{}
 	category         *string
 	clearedcategory  bool
@@ -9503,12 +9576,12 @@ func (m *ConsumableMutation) ResetTags() {
 }
 
 // SetMetadata sets the "metadata" field.
-func (m *ConsumableMutation) SetMetadata(s string) {
-	m.metadata = &s
+func (m *ConsumableMutation) SetMetadata(value map[string]interface{}) {
+	m.metadata = &value
 }
 
 // Metadata returns the value of the "metadata" field in the mutation.
-func (m *ConsumableMutation) Metadata() (r string, exists bool) {
+func (m *ConsumableMutation) Metadata() (r map[string]interface{}, exists bool) {
 	v := m.metadata
 	if v == nil {
 		return
@@ -9519,7 +9592,7 @@ func (m *ConsumableMutation) Metadata() (r string, exists bool) {
 // OldMetadata returns the old "metadata" field's value of the Consumable entity.
 // If the Consumable object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ConsumableMutation) OldMetadata(ctx context.Context) (v string, err error) {
+func (m *ConsumableMutation) OldMetadata(ctx context.Context) (v map[string]interface{}, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
 	}
@@ -9981,7 +10054,7 @@ func (m *ConsumableMutation) SetField(name string, value ent.Value) error {
 		m.SetTags(v)
 		return nil
 	case consumable.FieldMetadata:
-		v, ok := value.(string)
+		v, ok := value.(map[string]interface{})
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -10423,7 +10496,7 @@ type EmployeeMutation struct {
 	employee_number    *string
 	notes              *string
 	tags               *string
-	metadata           *string
+	metadata           *map[string]interface{}
 	clearedFields      map[string]struct{}
 	assets             map[string]struct{}
 	removedassets      map[string]struct{}
@@ -11313,12 +11386,12 @@ func (m *EmployeeMutation) ResetTags() {
 }
 
 // SetMetadata sets the "metadata" field.
-func (m *EmployeeMutation) SetMetadata(s string) {
-	m.metadata = &s
+func (m *EmployeeMutation) SetMetadata(value map[string]interface{}) {
+	m.metadata = &value
 }
 
 // Metadata returns the value of the "metadata" field in the mutation.
-func (m *EmployeeMutation) Metadata() (r string, exists bool) {
+func (m *EmployeeMutation) Metadata() (r map[string]interface{}, exists bool) {
 	v := m.metadata
 	if v == nil {
 		return
@@ -11329,7 +11402,7 @@ func (m *EmployeeMutation) Metadata() (r string, exists bool) {
 // OldMetadata returns the old "metadata" field's value of the Employee entity.
 // If the Employee object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *EmployeeMutation) OldMetadata(ctx context.Context) (v string, err error) {
+func (m *EmployeeMutation) OldMetadata(ctx context.Context) (v map[string]interface{}, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
 	}
@@ -11748,7 +11821,7 @@ func (m *EmployeeMutation) SetField(name string, value ent.Value) error {
 		m.SetTags(v)
 		return nil
 	case employee.FieldMetadata:
-		v, ok := value.(string)
+		v, ok := value.(map[string]interface{})
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -12120,6 +12193,7 @@ type InsurancePolicyMutation struct {
 	valid_to          *time.Time
 	status            *string
 	notes             *string
+	metadata          *map[string]interface{}
 	clearedFields     map[string]struct{}
 	done              bool
 	oldValue          func(context.Context) (*InsurancePolicy, error)
@@ -13176,6 +13250,55 @@ func (m *InsurancePolicyMutation) ResetNotes() {
 	delete(m.clearedFields, insurancepolicy.FieldNotes)
 }
 
+// SetMetadata sets the "metadata" field.
+func (m *InsurancePolicyMutation) SetMetadata(value map[string]interface{}) {
+	m.metadata = &value
+}
+
+// Metadata returns the value of the "metadata" field in the mutation.
+func (m *InsurancePolicyMutation) Metadata() (r map[string]interface{}, exists bool) {
+	v := m.metadata
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMetadata returns the old "metadata" field's value of the InsurancePolicy entity.
+// If the InsurancePolicy object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InsurancePolicyMutation) OldMetadata(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMetadata requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMetadata: %w", err)
+	}
+	return oldValue.Metadata, nil
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (m *InsurancePolicyMutation) ClearMetadata() {
+	m.metadata = nil
+	m.clearedFields[insurancepolicy.FieldMetadata] = struct{}{}
+}
+
+// MetadataCleared returns if the "metadata" field was cleared in this mutation.
+func (m *InsurancePolicyMutation) MetadataCleared() bool {
+	_, ok := m.clearedFields[insurancepolicy.FieldMetadata]
+	return ok
+}
+
+// ResetMetadata resets all changes to the "metadata" field.
+func (m *InsurancePolicyMutation) ResetMetadata() {
+	m.metadata = nil
+	delete(m.clearedFields, insurancepolicy.FieldMetadata)
+}
+
 // Where appends a list predicates to the InsurancePolicyMutation builder.
 func (m *InsurancePolicyMutation) Where(ps ...predicate.InsurancePolicy) {
 	m.predicates = append(m.predicates, ps...)
@@ -13210,7 +13333,7 @@ func (m *InsurancePolicyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *InsurancePolicyMutation) Fields() []string {
-	fields := make([]string, 0, 17)
+	fields := make([]string, 0, 18)
 	if m.create_by != nil {
 		fields = append(fields, insurancepolicy.FieldCreateBy)
 	}
@@ -13262,6 +13385,9 @@ func (m *InsurancePolicyMutation) Fields() []string {
 	if m.notes != nil {
 		fields = append(fields, insurancepolicy.FieldNotes)
 	}
+	if m.metadata != nil {
+		fields = append(fields, insurancepolicy.FieldMetadata)
+	}
 	return fields
 }
 
@@ -13304,6 +13430,8 @@ func (m *InsurancePolicyMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case insurancepolicy.FieldNotes:
 		return m.Notes()
+	case insurancepolicy.FieldMetadata:
+		return m.Metadata()
 	}
 	return nil, false
 }
@@ -13347,6 +13475,8 @@ func (m *InsurancePolicyMutation) OldField(ctx context.Context, name string) (en
 		return m.OldStatus(ctx)
 	case insurancepolicy.FieldNotes:
 		return m.OldNotes(ctx)
+	case insurancepolicy.FieldMetadata:
+		return m.OldMetadata(ctx)
 	}
 	return nil, fmt.Errorf("unknown InsurancePolicy field %s", name)
 }
@@ -13474,6 +13604,13 @@ func (m *InsurancePolicyMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetNotes(v)
+		return nil
+	case insurancepolicy.FieldMetadata:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMetadata(v)
 		return nil
 	}
 	return fmt.Errorf("unknown InsurancePolicy field %s", name)
@@ -13628,6 +13765,9 @@ func (m *InsurancePolicyMutation) ClearedFields() []string {
 	if m.FieldCleared(insurancepolicy.FieldNotes) {
 		fields = append(fields, insurancepolicy.FieldNotes)
 	}
+	if m.FieldCleared(insurancepolicy.FieldMetadata) {
+		fields = append(fields, insurancepolicy.FieldMetadata)
+	}
 	return fields
 }
 
@@ -13690,6 +13830,9 @@ func (m *InsurancePolicyMutation) ClearField(name string) error {
 	case insurancepolicy.FieldNotes:
 		m.ClearNotes()
 		return nil
+	case insurancepolicy.FieldMetadata:
+		m.ClearMetadata()
+		return nil
 	}
 	return fmt.Errorf("unknown InsurancePolicy nullable field %s", name)
 }
@@ -13748,6 +13891,9 @@ func (m *InsurancePolicyMutation) ResetField(name string) error {
 		return nil
 	case insurancepolicy.FieldNotes:
 		m.ResetNotes()
+		return nil
+	case insurancepolicy.FieldMetadata:
+		m.ResetMetadata()
 		return nil
 	}
 	return fmt.Errorf("unknown InsurancePolicy field %s", name)
@@ -15028,6 +15174,7 @@ type LicenseMutation struct {
 	valid_from       *time.Time
 	valid_to         *time.Time
 	notes            *string
+	metadata         *map[string]interface{}
 	status           *string
 	clearedFields    map[string]struct{}
 	supplier         *string
@@ -15898,6 +16045,55 @@ func (m *LicenseMutation) ResetNotes() {
 	delete(m.clearedFields, license.FieldNotes)
 }
 
+// SetMetadata sets the "metadata" field.
+func (m *LicenseMutation) SetMetadata(value map[string]interface{}) {
+	m.metadata = &value
+}
+
+// Metadata returns the value of the "metadata" field in the mutation.
+func (m *LicenseMutation) Metadata() (r map[string]interface{}, exists bool) {
+	v := m.metadata
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMetadata returns the old "metadata" field's value of the License entity.
+// If the License object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LicenseMutation) OldMetadata(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMetadata requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMetadata: %w", err)
+	}
+	return oldValue.Metadata, nil
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (m *LicenseMutation) ClearMetadata() {
+	m.metadata = nil
+	m.clearedFields[license.FieldMetadata] = struct{}{}
+}
+
+// MetadataCleared returns if the "metadata" field was cleared in this mutation.
+func (m *LicenseMutation) MetadataCleared() bool {
+	_, ok := m.clearedFields[license.FieldMetadata]
+	return ok
+}
+
+// ResetMetadata resets all changes to the "metadata" field.
+func (m *LicenseMutation) ResetMetadata() {
+	m.metadata = nil
+	delete(m.clearedFields, license.FieldMetadata)
+}
+
 // SetStatus sets the "status" field.
 func (m *LicenseMutation) SetStatus(s string) {
 	m.status = &s
@@ -16008,7 +16204,7 @@ func (m *LicenseMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LicenseMutation) Fields() []string {
-	fields := make([]string, 0, 15)
+	fields := make([]string, 0, 16)
 	if m.create_by != nil {
 		fields = append(fields, license.FieldCreateBy)
 	}
@@ -16051,6 +16247,9 @@ func (m *LicenseMutation) Fields() []string {
 	if m.notes != nil {
 		fields = append(fields, license.FieldNotes)
 	}
+	if m.metadata != nil {
+		fields = append(fields, license.FieldMetadata)
+	}
 	if m.status != nil {
 		fields = append(fields, license.FieldStatus)
 	}
@@ -16090,6 +16289,8 @@ func (m *LicenseMutation) Field(name string) (ent.Value, bool) {
 		return m.ValidTo()
 	case license.FieldNotes:
 		return m.Notes()
+	case license.FieldMetadata:
+		return m.Metadata()
 	case license.FieldStatus:
 		return m.Status()
 	}
@@ -16129,6 +16330,8 @@ func (m *LicenseMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldValidTo(ctx)
 	case license.FieldNotes:
 		return m.OldNotes(ctx)
+	case license.FieldMetadata:
+		return m.OldMetadata(ctx)
 	case license.FieldStatus:
 		return m.OldStatus(ctx)
 	}
@@ -16237,6 +16440,13 @@ func (m *LicenseMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetNotes(v)
+		return nil
+	case license.FieldMetadata:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMetadata(v)
 		return nil
 	case license.FieldStatus:
 		v, ok := value.(string)
@@ -16365,6 +16575,9 @@ func (m *LicenseMutation) ClearedFields() []string {
 	if m.FieldCleared(license.FieldNotes) {
 		fields = append(fields, license.FieldNotes)
 	}
+	if m.FieldCleared(license.FieldMetadata) {
+		fields = append(fields, license.FieldMetadata)
+	}
 	if m.FieldCleared(license.FieldStatus) {
 		fields = append(fields, license.FieldStatus)
 	}
@@ -16421,6 +16634,9 @@ func (m *LicenseMutation) ClearField(name string) error {
 	case license.FieldNotes:
 		m.ClearNotes()
 		return nil
+	case license.FieldMetadata:
+		m.ClearMetadata()
+		return nil
 	case license.FieldStatus:
 		m.ClearStatus()
 		return nil
@@ -16473,6 +16689,9 @@ func (m *LicenseMutation) ResetField(name string) error {
 		return nil
 	case license.FieldNotes:
 		m.ResetNotes()
+		return nil
+	case license.FieldMetadata:
+		m.ResetMetadata()
 		return nil
 	case license.FieldStatus:
 		m.ResetStatus()
@@ -16585,7 +16804,7 @@ type LocationMutation struct {
 	status             *int32
 	addstatus          *int32
 	tags               *string
-	metadata           *string
+	metadata           *map[string]interface{}
 	clearedFields      map[string]struct{}
 	parent             *string
 	clearedparent      bool
@@ -17794,12 +18013,12 @@ func (m *LocationMutation) ResetTags() {
 }
 
 // SetMetadata sets the "metadata" field.
-func (m *LocationMutation) SetMetadata(s string) {
-	m.metadata = &s
+func (m *LocationMutation) SetMetadata(value map[string]interface{}) {
+	m.metadata = &value
 }
 
 // Metadata returns the value of the "metadata" field in the mutation.
-func (m *LocationMutation) Metadata() (r string, exists bool) {
+func (m *LocationMutation) Metadata() (r map[string]interface{}, exists bool) {
 	v := m.metadata
 	if v == nil {
 		return
@@ -17810,7 +18029,7 @@ func (m *LocationMutation) Metadata() (r string, exists bool) {
 // OldMetadata returns the old "metadata" field's value of the Location entity.
 // If the Location object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LocationMutation) OldMetadata(ctx context.Context) (v string, err error) {
+func (m *LocationMutation) OldMetadata(ctx context.Context) (v map[string]interface{}, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
 	}
@@ -18394,7 +18613,7 @@ func (m *LocationMutation) SetField(name string, value ent.Value) error {
 		m.SetTags(v)
 		return nil
 	case location.FieldMetadata:
-		v, ok := value.(string)
+		v, ok := value.(map[string]interface{})
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -18875,7 +19094,7 @@ type SupplierMutation struct {
 	website            *string
 	notes              *string
 	tags               *string
-	metadata           *string
+	metadata           *map[string]interface{}
 	status             *int32
 	addstatus          *int32
 	clearedFields      map[string]struct{}
@@ -19976,12 +20195,12 @@ func (m *SupplierMutation) ResetTags() {
 }
 
 // SetMetadata sets the "metadata" field.
-func (m *SupplierMutation) SetMetadata(s string) {
-	m.metadata = &s
+func (m *SupplierMutation) SetMetadata(value map[string]interface{}) {
+	m.metadata = &value
 }
 
 // Metadata returns the value of the "metadata" field in the mutation.
-func (m *SupplierMutation) Metadata() (r string, exists bool) {
+func (m *SupplierMutation) Metadata() (r map[string]interface{}, exists bool) {
 	v := m.metadata
 	if v == nil {
 		return
@@ -19992,7 +20211,7 @@ func (m *SupplierMutation) Metadata() (r string, exists bool) {
 // OldMetadata returns the old "metadata" field's value of the Supplier entity.
 // If the Supplier object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SupplierMutation) OldMetadata(ctx context.Context) (v string, err error) {
+func (m *SupplierMutation) OldMetadata(ctx context.Context) (v map[string]interface{}, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
 	}
@@ -20530,7 +20749,7 @@ func (m *SupplierMutation) SetField(name string, value ent.Value) error {
 		m.SetTags(v)
 		return nil
 	case supplier.FieldMetadata:
-		v, ok := value.(string)
+		v, ok := value.(map[string]interface{})
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

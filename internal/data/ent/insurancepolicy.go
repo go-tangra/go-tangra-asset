@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -51,7 +52,9 @@ type InsurancePolicy struct {
 	// Policy status
 	Status string `json:"status,omitempty"`
 	// Notes
-	Notes        string `json:"notes,omitempty"`
+	Notes string `json:"notes,omitempty"`
+	// Custom metadata (JSON)
+	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -60,6 +63,8 @@ func (*InsurancePolicy) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case insurancepolicy.FieldMetadata:
+			values[i] = new([]byte)
 		case insurancepolicy.FieldPremiumAmount, insurancepolicy.FieldDeductible, insurancepolicy.FieldCoverageLimit:
 			values[i] = new(sql.NullFloat64)
 		case insurancepolicy.FieldCreateBy, insurancepolicy.FieldUpdateBy, insurancepolicy.FieldTenantID:
@@ -202,6 +207,14 @@ func (_m *InsurancePolicy) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Notes = value.String
 			}
+		case insurancepolicy.FieldMetadata:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field metadata", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -310,6 +323,9 @@ func (_m *InsurancePolicy) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("notes=")
 	builder.WriteString(_m.Notes)
+	builder.WriteString(", ")
+	builder.WriteString("metadata=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteByte(')')
 	return builder.String()
 }

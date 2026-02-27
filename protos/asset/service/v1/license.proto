@@ -9,6 +9,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
+import "google/protobuf/struct.proto";
 
 // LicenseStatus represents the state of a license
 enum LicenseStatus {
@@ -50,6 +51,9 @@ message License {
   // Notes
   optional string notes = 10 [json_name = "notes"];
 
+  // Custom metadata (JSON)
+  google.protobuf.Struct metadata = 12 [json_name = "metadata"];
+
   // License status
   optional LicenseStatus status = 11 [json_name = "status"];
 
@@ -87,6 +91,7 @@ message CreateLicenseRequest {
   optional google.protobuf.Timestamp valid_from = 7 [json_name = "validFrom"];
   optional google.protobuf.Timestamp valid_to = 8 [json_name = "validTo"];
   optional string notes = 9 [json_name = "notes"];
+  google.protobuf.Struct metadata = 11 [json_name = "metadata"];
   optional LicenseStatus status = 10 [json_name = "status"];
 }
 

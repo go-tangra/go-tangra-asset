@@ -220,16 +220,8 @@ func (_c *EmployeeCreate) SetNillableTags(v *string) *EmployeeCreate {
 }
 
 // SetMetadata sets the "metadata" field.
-func (_c *EmployeeCreate) SetMetadata(v string) *EmployeeCreate {
+func (_c *EmployeeCreate) SetMetadata(v map[string]interface{}) *EmployeeCreate {
 	_c.mutation.SetMetadata(v)
-	return _c
-}
-
-// SetNillableMetadata sets the "metadata" field if the given value is not nil.
-func (_c *EmployeeCreate) SetNillableMetadata(v *string) *EmployeeCreate {
-	if v != nil {
-		_c.SetMetadata(*v)
-	}
 	return _c
 }
 
@@ -433,7 +425,7 @@ func (_c *EmployeeCreate) createSpec() (*Employee, *sqlgraph.CreateSpec) {
 		_node.Tags = value
 	}
 	if value, ok := _c.mutation.Metadata(); ok {
-		_spec.SetField(employee.FieldMetadata, field.TypeString, value)
+		_spec.SetField(employee.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
 	}
 	if nodes := _c.mutation.AssetsIDs(); len(nodes) > 0 {
@@ -755,7 +747,7 @@ func (u *EmployeeUpsert) ClearTags() *EmployeeUpsert {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *EmployeeUpsert) SetMetadata(v string) *EmployeeUpsert {
+func (u *EmployeeUpsert) SetMetadata(v map[string]interface{}) *EmployeeUpsert {
 	u.Set(employee.FieldMetadata, v)
 	return u
 }
@@ -1100,7 +1092,7 @@ func (u *EmployeeUpsertOne) ClearTags() *EmployeeUpsertOne {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *EmployeeUpsertOne) SetMetadata(v string) *EmployeeUpsertOne {
+func (u *EmployeeUpsertOne) SetMetadata(v map[string]interface{}) *EmployeeUpsertOne {
 	return u.Update(func(s *EmployeeUpsert) {
 		s.SetMetadata(v)
 	})
@@ -1615,7 +1607,7 @@ func (u *EmployeeUpsertBulk) ClearTags() *EmployeeUpsertBulk {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *EmployeeUpsertBulk) SetMetadata(v string) *EmployeeUpsertBulk {
+func (u *EmployeeUpsertBulk) SetMetadata(v map[string]interface{}) *EmployeeUpsertBulk {
 	return u.Update(func(s *EmployeeUpsert) {
 		s.SetMetadata(v)
 	})

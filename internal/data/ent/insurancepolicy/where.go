@@ -1139,6 +1139,16 @@ func NotesContainsFold(v string) predicate.InsurancePolicy {
 	return predicate.InsurancePolicy(sql.FieldContainsFold(FieldNotes, v))
 }
 
+// MetadataIsNil applies the IsNil predicate on the "metadata" field.
+func MetadataIsNil() predicate.InsurancePolicy {
+	return predicate.InsurancePolicy(sql.FieldIsNull(FieldMetadata))
+}
+
+// MetadataNotNil applies the NotNil predicate on the "metadata" field.
+func MetadataNotNil() predicate.InsurancePolicy {
+	return predicate.InsurancePolicy(sql.FieldNotNull(FieldMetadata))
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.InsurancePolicy) predicate.InsurancePolicy {
 	return predicate.InsurancePolicy(sql.AndPredicates(predicates...))

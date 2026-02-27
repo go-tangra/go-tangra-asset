@@ -124,6 +124,9 @@ func (r *LicenseRepo) Update(ctx context.Context, id string, updates map[string]
 	if validTo, ok := updates["valid_to"].(time.Time); ok {
 		update = update.SetValidTo(validTo)
 	}
+	if metadata, ok := updates["metadata"].(map[string]interface{}); ok {
+		update = update.SetMetadata(metadata)
+	}
 
 	update = update.SetUpdateTime(time.Now())
 

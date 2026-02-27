@@ -385,16 +385,8 @@ func (_c *AssetCreate) SetNillableTags(v *string) *AssetCreate {
 }
 
 // SetMetadata sets the "metadata" field.
-func (_c *AssetCreate) SetMetadata(v string) *AssetCreate {
+func (_c *AssetCreate) SetMetadata(v map[string]interface{}) *AssetCreate {
 	_c.mutation.SetMetadata(v)
-	return _c
-}
-
-// SetNillableMetadata sets the "metadata" field if the given value is not nil.
-func (_c *AssetCreate) SetNillableMetadata(v *string) *AssetCreate {
-	if v != nil {
-		_c.SetMetadata(*v)
-	}
 	return _c
 }
 
@@ -643,7 +635,7 @@ func (_c *AssetCreate) createSpec() (*Asset, *sqlgraph.CreateSpec) {
 		_node.Tags = value
 	}
 	if value, ok := _c.mutation.Metadata(); ok {
-		_spec.SetField(asset.FieldMetadata, field.TypeString, value)
+		_spec.SetField(asset.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
 	}
 	if nodes := _c.mutation.CategoryIDs(); len(nodes) > 0 {
@@ -1251,7 +1243,7 @@ func (u *AssetUpsert) ClearTags() *AssetUpsert {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *AssetUpsert) SetMetadata(v string) *AssetUpsert {
+func (u *AssetUpsert) SetMetadata(v map[string]interface{}) *AssetUpsert {
 	u.Set(asset.FieldMetadata, v)
 	return u
 }
@@ -1869,7 +1861,7 @@ func (u *AssetUpsertOne) ClearTags() *AssetUpsertOne {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *AssetUpsertOne) SetMetadata(v string) *AssetUpsertOne {
+func (u *AssetUpsertOne) SetMetadata(v map[string]interface{}) *AssetUpsertOne {
 	return u.Update(func(s *AssetUpsert) {
 		s.SetMetadata(v)
 	})
@@ -2657,7 +2649,7 @@ func (u *AssetUpsertBulk) ClearTags() *AssetUpsertBulk {
 }
 
 // SetMetadata sets the "metadata" field.
-func (u *AssetUpsertBulk) SetMetadata(v string) *AssetUpsertBulk {
+func (u *AssetUpsertBulk) SetMetadata(v map[string]interface{}) *AssetUpsertBulk {
 	return u.Update(func(s *AssetUpsert) {
 		s.SetMetadata(v)
 	})

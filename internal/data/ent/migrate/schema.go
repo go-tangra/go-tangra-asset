@@ -34,7 +34,7 @@ var (
 		{Name: "useful_life_years", Type: field.TypeInt32, Nullable: true, Comment: "Useful life in years"},
 		{Name: "depreciation_rate", Type: field.TypeFloat64, Nullable: true, Comment: "Depreciation rate for DDB calculation", Default: 0.4},
 		{Name: "tags", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Custom tags (JSON)"},
-		{Name: "metadata", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Custom metadata (JSON)"},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true, Comment: "Custom metadata (JSON)"},
 		{Name: "category_id", Type: field.TypeString, Nullable: true, Comment: "Category ID"},
 		{Name: "supplier_id", Type: field.TypeString, Nullable: true, Comment: "Supplier ID"},
 		{Name: "location_id", Type: field.TypeString, Nullable: true, Comment: "Location ID (when unassigned)"},
@@ -284,6 +284,7 @@ var (
 		{Name: "name", Type: field.TypeString, Size: 255, Comment: "Category name"},
 		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "Description"},
 		{Name: "icon", Type: field.TypeString, Nullable: true, Comment: "Icon name"},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true, Comment: "Custom metadata (JSON)"},
 		{Name: "parent_id", Type: field.TypeString, Nullable: true, Comment: "Parent category ID (for hierarchy)"},
 	}
 	// AssetCategoriesTable holds the schema information for the "asset_categories" table.
@@ -294,7 +295,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "asset_categories_asset_categories_children",
-				Columns:    []*schema.Column{AssetCategoriesColumns[10]},
+				Columns:    []*schema.Column{AssetCategoriesColumns[11]},
 				RefColumns: []*schema.Column{AssetCategoriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -303,7 +304,7 @@ var (
 			{
 				Name:    "asset_category_tenant_name_parent",
 				Unique:  true,
-				Columns: []*schema.Column{AssetCategoriesColumns[6], AssetCategoriesColumns[7], AssetCategoriesColumns[10]},
+				Columns: []*schema.Column{AssetCategoriesColumns[6], AssetCategoriesColumns[7], AssetCategoriesColumns[11]},
 			},
 			{
 				Name:    "asset_category_tenant_id",
@@ -313,7 +314,7 @@ var (
 			{
 				Name:    "asset_category_parent_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssetCategoriesColumns[10]},
+				Columns: []*schema.Column{AssetCategoriesColumns[11]},
 			},
 		},
 	}
@@ -337,7 +338,7 @@ var (
 		{Name: "order_number", Type: field.TypeString, Nullable: true, Comment: "Order number"},
 		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Notes"},
 		{Name: "tags", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Custom tags (JSON)"},
-		{Name: "metadata", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Custom metadata (JSON)"},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true, Comment: "Custom metadata (JSON)"},
 		{Name: "category_id", Type: field.TypeString, Nullable: true, Comment: "Category ID"},
 		{Name: "supplier_id", Type: field.TypeString, Nullable: true, Comment: "Supplier ID"},
 		{Name: "location_id", Type: field.TypeString, Nullable: true, Comment: "Location ID"},
@@ -413,7 +414,7 @@ var (
 		{Name: "employee_number", Type: field.TypeString, Nullable: true, Comment: "Employee number"},
 		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Notes"},
 		{Name: "tags", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Custom tags (JSON)"},
-		{Name: "metadata", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Custom metadata (JSON)"},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true, Comment: "Custom metadata (JSON)"},
 	}
 	// AssetEmployeesTable holds the schema information for the "asset_employees" table.
 	AssetEmployeesTable = &schema.Table{
@@ -463,6 +464,7 @@ var (
 		{Name: "valid_to", Type: field.TypeTime, Nullable: true, Comment: "Valid to date"},
 		{Name: "status", Type: field.TypeString, Nullable: true, Comment: "Policy status", Default: "ACTIVE"},
 		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Notes"},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true, Comment: "Custom metadata (JSON)"},
 	}
 	// AssetInsurancePoliciesTable holds the schema information for the "asset_insurance_policies" table.
 	AssetInsurancePoliciesTable = &schema.Table{
@@ -552,6 +554,7 @@ var (
 		{Name: "valid_from", Type: field.TypeTime, Nullable: true, Comment: "Valid from date"},
 		{Name: "valid_to", Type: field.TypeTime, Nullable: true, Comment: "Valid to date"},
 		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Notes"},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true, Comment: "Custom metadata (JSON)"},
 		{Name: "status", Type: field.TypeString, Nullable: true, Comment: "License status", Default: "ACTIVE"},
 		{Name: "supplier_id", Type: field.TypeString, Nullable: true, Comment: "Supplier ID"},
 	}
@@ -563,7 +566,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "asset_licenses_asset_suppliers_supplier",
-				Columns:    []*schema.Column{AssetLicensesColumns[15]},
+				Columns:    []*schema.Column{AssetLicensesColumns[16]},
 				RefColumns: []*schema.Column{AssetSuppliersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -582,12 +585,12 @@ var (
 			{
 				Name:    "license_supplier_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssetLicensesColumns[15]},
+				Columns: []*schema.Column{AssetLicensesColumns[16]},
 			},
 			{
 				Name:    "license_status",
 				Unique:  false,
-				Columns: []*schema.Column{AssetLicensesColumns[14]},
+				Columns: []*schema.Column{AssetLicensesColumns[15]},
 			},
 		},
 	}
@@ -614,7 +617,7 @@ var (
 		{Name: "email", Type: field.TypeString, Nullable: true, Comment: "Contact email"},
 		{Name: "status", Type: field.TypeInt32, Comment: "Location status: 1=Active, 2=Planned, 3=Decommissioned", Default: 1},
 		{Name: "tags", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Custom tags (JSON)"},
-		{Name: "metadata", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Custom metadata (JSON)"},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true, Comment: "Custom metadata (JSON)"},
 		{Name: "parent_id", Type: field.TypeString, Nullable: true, Comment: "Parent location ID (for hierarchy)"},
 	}
 	// AssetLocationsTable holds the schema information for the "asset_locations" table.
@@ -675,7 +678,7 @@ var (
 		{Name: "website", Type: field.TypeString, Nullable: true, Comment: "Website"},
 		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Notes"},
 		{Name: "tags", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Custom tags (JSON)"},
-		{Name: "metadata", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Custom metadata (JSON)"},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true, Comment: "Custom metadata (JSON)"},
 		{Name: "status", Type: field.TypeInt32, Comment: "Supplier status: 1=Active, 2=Inactive", Default: 1},
 	}
 	// AssetSuppliersTable holds the schema information for the "asset_suppliers" table.

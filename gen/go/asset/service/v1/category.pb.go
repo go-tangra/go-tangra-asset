@@ -13,6 +13,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -45,6 +46,8 @@ type Category struct {
 	AssetCount *int32 `protobuf:"varint,7,opt,name=asset_count,json=assetCount,proto3,oneof" json:"asset_count,omitempty"`
 	// Number of child categories
 	ChildCount *int32 `protobuf:"varint,8,opt,name=child_count,json=childCount,proto3,oneof" json:"child_count,omitempty"`
+	// Custom metadata (JSON)
+	Metadata *structpb.Struct `protobuf:"bytes,9,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	// Creation timestamp
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
 	// Last update timestamp
@@ -143,6 +146,13 @@ func (x *Category) GetChildCount() int32 {
 	return 0
 }
 
+func (x *Category) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
 func (x *Category) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
@@ -179,6 +189,7 @@ type CreateCategoryRequest struct {
 	Description   *string                `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	ParentId      *string                `protobuf:"bytes,4,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	Icon          *string                `protobuf:"bytes,5,opt,name=icon,proto3,oneof" json:"icon,omitempty"`
+	Metadata      *structpb.Struct       `protobuf:"bytes,6,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -246,6 +257,13 @@ func (x *CreateCategoryRequest) GetIcon() string {
 		return *x.Icon
 	}
 	return ""
+}
+
+func (x *CreateCategoryRequest) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
 }
 
 type CreateCategoryResponse struct {
@@ -838,7 +856,7 @@ var File_asset_service_v1_category_proto protoreflect.FileDescriptor
 
 const file_asset_service_v1_category_proto_rawDesc = "" +
 	"\n" +
-	"\x1fasset/service/v1/category.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\"\xf1\x04\n" +
+	"\x1fasset/service/v1/category.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xa6\x05\n" +
 	"\bCategory\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\x17\n" +
@@ -849,7 +867,8 @@ const file_asset_service_v1_category_proto_rawDesc = "" +
 	"\vasset_count\x18\a \x01(\x05H\x06R\n" +
 	"assetCount\x88\x01\x01\x12$\n" +
 	"\vchild_count\x18\b \x01(\x05H\aR\n" +
-	"childCount\x88\x01\x01\x12>\n" +
+	"childCount\x88\x01\x01\x123\n" +
+	"\bmetadata\x18\t \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12>\n" +
 	"\n" +
 	"created_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampH\bR\tcreatedAt\x88\x01\x01\x12>\n" +
 	"\n" +
@@ -872,13 +891,14 @@ const file_asset_service_v1_category_proto_rawDesc = "" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
-	"\v_updated_by\"\x86\x02\n" +
+	"\v_updated_by\"\xbb\x02\n" +
 	"\x15CreateCategoryRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x01\x18\xff\x01H\x01R\x04name\x88\x01\x01\x12%\n" +
 	"\vdescription\x18\x03 \x01(\tH\x02R\vdescription\x88\x01\x01\x12 \n" +
 	"\tparent_id\x18\x04 \x01(\tH\x03R\bparentId\x88\x01\x01\x12\x17\n" +
-	"\x04icon\x18\x05 \x01(\tH\x04R\x04icon\x88\x01\x01B\f\n" +
+	"\x04icon\x18\x05 \x01(\tH\x04R\x04icon\x88\x01\x01\x123\n" +
+	"\bmetadata\x18\x06 \x01(\v2\x17.google.protobuf.StructR\bmetadataB\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
 	"\x05_nameB\x0e\n" +
@@ -979,39 +999,42 @@ var file_asset_service_v1_category_proto_goTypes = []any{
 	(*GetCategoryTreeRequest)(nil),  // 10: asset.service.v1.GetCategoryTreeRequest
 	(*CategoryTreeNode)(nil),        // 11: asset.service.v1.CategoryTreeNode
 	(*GetCategoryTreeResponse)(nil), // 12: asset.service.v1.GetCategoryTreeResponse
-	(*timestamppb.Timestamp)(nil),   // 13: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),   // 14: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),           // 15: google.protobuf.Empty
+	(*structpb.Struct)(nil),         // 13: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil),   // 14: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),   // 15: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),           // 16: google.protobuf.Empty
 }
 var file_asset_service_v1_category_proto_depIdxs = []int32{
-	13, // 0: asset.service.v1.Category.created_at:type_name -> google.protobuf.Timestamp
-	13, // 1: asset.service.v1.Category.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 2: asset.service.v1.CreateCategoryResponse.category:type_name -> asset.service.v1.Category
-	0,  // 3: asset.service.v1.GetCategoryResponse.category:type_name -> asset.service.v1.Category
-	0,  // 4: asset.service.v1.ListCategoriesResponse.items:type_name -> asset.service.v1.Category
-	0,  // 5: asset.service.v1.UpdateCategoryRequest.data:type_name -> asset.service.v1.Category
-	14, // 6: asset.service.v1.UpdateCategoryRequest.update_mask:type_name -> google.protobuf.FieldMask
-	0,  // 7: asset.service.v1.UpdateCategoryResponse.category:type_name -> asset.service.v1.Category
-	0,  // 8: asset.service.v1.CategoryTreeNode.category:type_name -> asset.service.v1.Category
-	11, // 9: asset.service.v1.CategoryTreeNode.children:type_name -> asset.service.v1.CategoryTreeNode
-	11, // 10: asset.service.v1.GetCategoryTreeResponse.nodes:type_name -> asset.service.v1.CategoryTreeNode
-	1,  // 11: asset.service.v1.CategoryService.CreateCategory:input_type -> asset.service.v1.CreateCategoryRequest
-	3,  // 12: asset.service.v1.CategoryService.GetCategory:input_type -> asset.service.v1.GetCategoryRequest
-	5,  // 13: asset.service.v1.CategoryService.ListCategories:input_type -> asset.service.v1.ListCategoriesRequest
-	7,  // 14: asset.service.v1.CategoryService.UpdateCategory:input_type -> asset.service.v1.UpdateCategoryRequest
-	9,  // 15: asset.service.v1.CategoryService.DeleteCategory:input_type -> asset.service.v1.DeleteCategoryRequest
-	10, // 16: asset.service.v1.CategoryService.GetCategoryTree:input_type -> asset.service.v1.GetCategoryTreeRequest
-	2,  // 17: asset.service.v1.CategoryService.CreateCategory:output_type -> asset.service.v1.CreateCategoryResponse
-	4,  // 18: asset.service.v1.CategoryService.GetCategory:output_type -> asset.service.v1.GetCategoryResponse
-	6,  // 19: asset.service.v1.CategoryService.ListCategories:output_type -> asset.service.v1.ListCategoriesResponse
-	8,  // 20: asset.service.v1.CategoryService.UpdateCategory:output_type -> asset.service.v1.UpdateCategoryResponse
-	15, // 21: asset.service.v1.CategoryService.DeleteCategory:output_type -> google.protobuf.Empty
-	12, // 22: asset.service.v1.CategoryService.GetCategoryTree:output_type -> asset.service.v1.GetCategoryTreeResponse
-	17, // [17:23] is the sub-list for method output_type
-	11, // [11:17] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	13, // 0: asset.service.v1.Category.metadata:type_name -> google.protobuf.Struct
+	14, // 1: asset.service.v1.Category.created_at:type_name -> google.protobuf.Timestamp
+	14, // 2: asset.service.v1.Category.updated_at:type_name -> google.protobuf.Timestamp
+	13, // 3: asset.service.v1.CreateCategoryRequest.metadata:type_name -> google.protobuf.Struct
+	0,  // 4: asset.service.v1.CreateCategoryResponse.category:type_name -> asset.service.v1.Category
+	0,  // 5: asset.service.v1.GetCategoryResponse.category:type_name -> asset.service.v1.Category
+	0,  // 6: asset.service.v1.ListCategoriesResponse.items:type_name -> asset.service.v1.Category
+	0,  // 7: asset.service.v1.UpdateCategoryRequest.data:type_name -> asset.service.v1.Category
+	15, // 8: asset.service.v1.UpdateCategoryRequest.update_mask:type_name -> google.protobuf.FieldMask
+	0,  // 9: asset.service.v1.UpdateCategoryResponse.category:type_name -> asset.service.v1.Category
+	0,  // 10: asset.service.v1.CategoryTreeNode.category:type_name -> asset.service.v1.Category
+	11, // 11: asset.service.v1.CategoryTreeNode.children:type_name -> asset.service.v1.CategoryTreeNode
+	11, // 12: asset.service.v1.GetCategoryTreeResponse.nodes:type_name -> asset.service.v1.CategoryTreeNode
+	1,  // 13: asset.service.v1.CategoryService.CreateCategory:input_type -> asset.service.v1.CreateCategoryRequest
+	3,  // 14: asset.service.v1.CategoryService.GetCategory:input_type -> asset.service.v1.GetCategoryRequest
+	5,  // 15: asset.service.v1.CategoryService.ListCategories:input_type -> asset.service.v1.ListCategoriesRequest
+	7,  // 16: asset.service.v1.CategoryService.UpdateCategory:input_type -> asset.service.v1.UpdateCategoryRequest
+	9,  // 17: asset.service.v1.CategoryService.DeleteCategory:input_type -> asset.service.v1.DeleteCategoryRequest
+	10, // 18: asset.service.v1.CategoryService.GetCategoryTree:input_type -> asset.service.v1.GetCategoryTreeRequest
+	2,  // 19: asset.service.v1.CategoryService.CreateCategory:output_type -> asset.service.v1.CreateCategoryResponse
+	4,  // 20: asset.service.v1.CategoryService.GetCategory:output_type -> asset.service.v1.GetCategoryResponse
+	6,  // 21: asset.service.v1.CategoryService.ListCategories:output_type -> asset.service.v1.ListCategoriesResponse
+	8,  // 22: asset.service.v1.CategoryService.UpdateCategory:output_type -> asset.service.v1.UpdateCategoryResponse
+	16, // 23: asset.service.v1.CategoryService.DeleteCategory:output_type -> google.protobuf.Empty
+	12, // 24: asset.service.v1.CategoryService.GetCategoryTree:output_type -> asset.service.v1.GetCategoryTreeResponse
+	19, // [19:25] is the sub-list for method output_type
+	13, // [13:19] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_asset_service_v1_category_proto_init() }

@@ -13,6 +13,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -102,6 +103,8 @@ type License struct {
 	ValidTo *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=valid_to,json=validTo,proto3,oneof" json:"valid_to,omitempty"`
 	// Notes
 	Notes *string `protobuf:"bytes,10,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
+	// Custom metadata (JSON)
+	Metadata *structpb.Struct `protobuf:"bytes,12,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	// License status
 	Status *LicenseStatus `protobuf:"varint,11,opt,name=status,proto3,enum=asset.service.v1.LicenseStatus,oneof" json:"status,omitempty"`
 	// Creation timestamp
@@ -216,6 +219,13 @@ func (x *License) GetNotes() string {
 	return ""
 }
 
+func (x *License) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
 func (x *License) GetStatus() LicenseStatus {
 	if x != nil && x.Status != nil {
 		return *x.Status
@@ -263,6 +273,7 @@ type CreateLicenseRequest struct {
 	ValidFrom     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=valid_from,json=validFrom,proto3,oneof" json:"valid_from,omitempty"`
 	ValidTo       *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=valid_to,json=validTo,proto3,oneof" json:"valid_to,omitempty"`
 	Notes         *string                `protobuf:"bytes,9,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
+	Metadata      *structpb.Struct       `protobuf:"bytes,11,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	Status        *LicenseStatus         `protobuf:"varint,10,opt,name=status,proto3,enum=asset.service.v1.LicenseStatus,oneof" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -359,6 +370,13 @@ func (x *CreateLicenseRequest) GetNotes() string {
 		return *x.Notes
 	}
 	return ""
+}
+
+func (x *CreateLicenseRequest) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
 }
 
 func (x *CreateLicenseRequest) GetStatus() LicenseStatus {
@@ -1134,7 +1152,7 @@ var File_asset_service_v1_license_proto protoreflect.FileDescriptor
 
 const file_asset_service_v1_license_proto_rawDesc = "" +
 	"\n" +
-	"\x1easset/service/v1/license.proto\x12\x10asset.service.v1\x1a\x1casset/service/v1/asset.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\"\x84\a\n" +
+	"\x1easset/service/v1/license.proto\x12\x10asset.service.v1\x1a\x1casset/service/v1/asset.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xb9\a\n" +
 	"\aLicense\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\x17\n" +
@@ -1148,7 +1166,8 @@ const file_asset_service_v1_license_proto_rawDesc = "" +
 	"valid_from\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\aR\tvalidFrom\x88\x01\x01\x12:\n" +
 	"\bvalid_to\x18\t \x01(\v2\x1a.google.protobuf.TimestampH\bR\avalidTo\x88\x01\x01\x12\x19\n" +
 	"\x05notes\x18\n" +
-	" \x01(\tH\tR\x05notes\x88\x01\x01\x12<\n" +
+	" \x01(\tH\tR\x05notes\x88\x01\x01\x123\n" +
+	"\bmetadata\x18\f \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12<\n" +
 	"\x06status\x18\v \x01(\x0e2\x1f.asset.service.v1.LicenseStatusH\n" +
 	"R\x06status\x88\x01\x01\x12>\n" +
 	"\n" +
@@ -1174,7 +1193,7 @@ const file_asset_service_v1_license_proto_rawDesc = "" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
-	"\v_updated_by\"\x85\x05\n" +
+	"\v_updated_by\"\xba\x05\n" +
 	"\x14CreateLicenseRequest\x12%\n" +
 	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x01\x18\xff\x01H\x01R\x04name\x88\x01\x01\x12$\n" +
@@ -1186,7 +1205,8 @@ const file_asset_service_v1_license_proto_rawDesc = "" +
 	"\n" +
 	"valid_from\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x06R\tvalidFrom\x88\x01\x01\x12:\n" +
 	"\bvalid_to\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\aR\avalidTo\x88\x01\x01\x12\x19\n" +
-	"\x05notes\x18\t \x01(\tH\bR\x05notes\x88\x01\x01\x12<\n" +
+	"\x05notes\x18\t \x01(\tH\bR\x05notes\x88\x01\x01\x123\n" +
+	"\bmetadata\x18\v \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12<\n" +
 	"\x06status\x18\n" +
 	" \x01(\x0e2\x1f.asset.service.v1.LicenseStatusH\tR\x06status\x88\x01\x01B\f\n" +
 	"\n" +
@@ -1325,54 +1345,57 @@ var file_asset_service_v1_license_proto_goTypes = []any{
 	(*DeleteLicenseDocumentRequest)(nil),   // 15: asset.service.v1.DeleteLicenseDocumentRequest
 	(*DownloadLicenseDocumentRequest)(nil), // 16: asset.service.v1.DownloadLicenseDocumentRequest
 	(*timestamppb.Timestamp)(nil),          // 17: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),          // 18: google.protobuf.FieldMask
-	(*AssetDocument)(nil),                  // 19: asset.service.v1.AssetDocument
-	(*emptypb.Empty)(nil),                  // 20: google.protobuf.Empty
-	(*DownloadDocumentResponse)(nil),       // 21: asset.service.v1.DownloadDocumentResponse
+	(*structpb.Struct)(nil),                // 18: google.protobuf.Struct
+	(*fieldmaskpb.FieldMask)(nil),          // 19: google.protobuf.FieldMask
+	(*AssetDocument)(nil),                  // 20: asset.service.v1.AssetDocument
+	(*emptypb.Empty)(nil),                  // 21: google.protobuf.Empty
+	(*DownloadDocumentResponse)(nil),       // 22: asset.service.v1.DownloadDocumentResponse
 }
 var file_asset_service_v1_license_proto_depIdxs = []int32{
 	17, // 0: asset.service.v1.License.purchase_date:type_name -> google.protobuf.Timestamp
 	17, // 1: asset.service.v1.License.valid_from:type_name -> google.protobuf.Timestamp
 	17, // 2: asset.service.v1.License.valid_to:type_name -> google.protobuf.Timestamp
-	0,  // 3: asset.service.v1.License.status:type_name -> asset.service.v1.LicenseStatus
-	17, // 4: asset.service.v1.License.created_at:type_name -> google.protobuf.Timestamp
-	17, // 5: asset.service.v1.License.updated_at:type_name -> google.protobuf.Timestamp
-	17, // 6: asset.service.v1.CreateLicenseRequest.purchase_date:type_name -> google.protobuf.Timestamp
-	17, // 7: asset.service.v1.CreateLicenseRequest.valid_from:type_name -> google.protobuf.Timestamp
-	17, // 8: asset.service.v1.CreateLicenseRequest.valid_to:type_name -> google.protobuf.Timestamp
-	0,  // 9: asset.service.v1.CreateLicenseRequest.status:type_name -> asset.service.v1.LicenseStatus
-	1,  // 10: asset.service.v1.CreateLicenseResponse.license:type_name -> asset.service.v1.License
-	1,  // 11: asset.service.v1.GetLicenseResponse.license:type_name -> asset.service.v1.License
-	0,  // 12: asset.service.v1.ListLicensesRequest.status:type_name -> asset.service.v1.LicenseStatus
-	1,  // 13: asset.service.v1.ListLicensesResponse.items:type_name -> asset.service.v1.License
-	1,  // 14: asset.service.v1.UpdateLicenseRequest.data:type_name -> asset.service.v1.License
-	18, // 15: asset.service.v1.UpdateLicenseRequest.update_mask:type_name -> google.protobuf.FieldMask
-	1,  // 16: asset.service.v1.UpdateLicenseResponse.license:type_name -> asset.service.v1.License
-	19, // 17: asset.service.v1.ListLicenseDocumentsResponse.items:type_name -> asset.service.v1.AssetDocument
-	19, // 18: asset.service.v1.UploadLicenseDocumentResponse.document:type_name -> asset.service.v1.AssetDocument
-	2,  // 19: asset.service.v1.LicenseService.CreateLicense:input_type -> asset.service.v1.CreateLicenseRequest
-	4,  // 20: asset.service.v1.LicenseService.GetLicense:input_type -> asset.service.v1.GetLicenseRequest
-	6,  // 21: asset.service.v1.LicenseService.ListLicenses:input_type -> asset.service.v1.ListLicensesRequest
-	8,  // 22: asset.service.v1.LicenseService.UpdateLicense:input_type -> asset.service.v1.UpdateLicenseRequest
-	10, // 23: asset.service.v1.LicenseService.DeleteLicense:input_type -> asset.service.v1.DeleteLicenseRequest
-	11, // 24: asset.service.v1.LicenseService.ListDocuments:input_type -> asset.service.v1.ListLicenseDocumentsRequest
-	13, // 25: asset.service.v1.LicenseService.UploadDocument:input_type -> asset.service.v1.UploadLicenseDocumentRequest
-	15, // 26: asset.service.v1.LicenseService.DeleteDocument:input_type -> asset.service.v1.DeleteLicenseDocumentRequest
-	16, // 27: asset.service.v1.LicenseService.DownloadDocument:input_type -> asset.service.v1.DownloadLicenseDocumentRequest
-	3,  // 28: asset.service.v1.LicenseService.CreateLicense:output_type -> asset.service.v1.CreateLicenseResponse
-	5,  // 29: asset.service.v1.LicenseService.GetLicense:output_type -> asset.service.v1.GetLicenseResponse
-	7,  // 30: asset.service.v1.LicenseService.ListLicenses:output_type -> asset.service.v1.ListLicensesResponse
-	9,  // 31: asset.service.v1.LicenseService.UpdateLicense:output_type -> asset.service.v1.UpdateLicenseResponse
-	20, // 32: asset.service.v1.LicenseService.DeleteLicense:output_type -> google.protobuf.Empty
-	12, // 33: asset.service.v1.LicenseService.ListDocuments:output_type -> asset.service.v1.ListLicenseDocumentsResponse
-	14, // 34: asset.service.v1.LicenseService.UploadDocument:output_type -> asset.service.v1.UploadLicenseDocumentResponse
-	20, // 35: asset.service.v1.LicenseService.DeleteDocument:output_type -> google.protobuf.Empty
-	21, // 36: asset.service.v1.LicenseService.DownloadDocument:output_type -> asset.service.v1.DownloadDocumentResponse
-	28, // [28:37] is the sub-list for method output_type
-	19, // [19:28] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	18, // 3: asset.service.v1.License.metadata:type_name -> google.protobuf.Struct
+	0,  // 4: asset.service.v1.License.status:type_name -> asset.service.v1.LicenseStatus
+	17, // 5: asset.service.v1.License.created_at:type_name -> google.protobuf.Timestamp
+	17, // 6: asset.service.v1.License.updated_at:type_name -> google.protobuf.Timestamp
+	17, // 7: asset.service.v1.CreateLicenseRequest.purchase_date:type_name -> google.protobuf.Timestamp
+	17, // 8: asset.service.v1.CreateLicenseRequest.valid_from:type_name -> google.protobuf.Timestamp
+	17, // 9: asset.service.v1.CreateLicenseRequest.valid_to:type_name -> google.protobuf.Timestamp
+	18, // 10: asset.service.v1.CreateLicenseRequest.metadata:type_name -> google.protobuf.Struct
+	0,  // 11: asset.service.v1.CreateLicenseRequest.status:type_name -> asset.service.v1.LicenseStatus
+	1,  // 12: asset.service.v1.CreateLicenseResponse.license:type_name -> asset.service.v1.License
+	1,  // 13: asset.service.v1.GetLicenseResponse.license:type_name -> asset.service.v1.License
+	0,  // 14: asset.service.v1.ListLicensesRequest.status:type_name -> asset.service.v1.LicenseStatus
+	1,  // 15: asset.service.v1.ListLicensesResponse.items:type_name -> asset.service.v1.License
+	1,  // 16: asset.service.v1.UpdateLicenseRequest.data:type_name -> asset.service.v1.License
+	19, // 17: asset.service.v1.UpdateLicenseRequest.update_mask:type_name -> google.protobuf.FieldMask
+	1,  // 18: asset.service.v1.UpdateLicenseResponse.license:type_name -> asset.service.v1.License
+	20, // 19: asset.service.v1.ListLicenseDocumentsResponse.items:type_name -> asset.service.v1.AssetDocument
+	20, // 20: asset.service.v1.UploadLicenseDocumentResponse.document:type_name -> asset.service.v1.AssetDocument
+	2,  // 21: asset.service.v1.LicenseService.CreateLicense:input_type -> asset.service.v1.CreateLicenseRequest
+	4,  // 22: asset.service.v1.LicenseService.GetLicense:input_type -> asset.service.v1.GetLicenseRequest
+	6,  // 23: asset.service.v1.LicenseService.ListLicenses:input_type -> asset.service.v1.ListLicensesRequest
+	8,  // 24: asset.service.v1.LicenseService.UpdateLicense:input_type -> asset.service.v1.UpdateLicenseRequest
+	10, // 25: asset.service.v1.LicenseService.DeleteLicense:input_type -> asset.service.v1.DeleteLicenseRequest
+	11, // 26: asset.service.v1.LicenseService.ListDocuments:input_type -> asset.service.v1.ListLicenseDocumentsRequest
+	13, // 27: asset.service.v1.LicenseService.UploadDocument:input_type -> asset.service.v1.UploadLicenseDocumentRequest
+	15, // 28: asset.service.v1.LicenseService.DeleteDocument:input_type -> asset.service.v1.DeleteLicenseDocumentRequest
+	16, // 29: asset.service.v1.LicenseService.DownloadDocument:input_type -> asset.service.v1.DownloadLicenseDocumentRequest
+	3,  // 30: asset.service.v1.LicenseService.CreateLicense:output_type -> asset.service.v1.CreateLicenseResponse
+	5,  // 31: asset.service.v1.LicenseService.GetLicense:output_type -> asset.service.v1.GetLicenseResponse
+	7,  // 32: asset.service.v1.LicenseService.ListLicenses:output_type -> asset.service.v1.ListLicensesResponse
+	9,  // 33: asset.service.v1.LicenseService.UpdateLicense:output_type -> asset.service.v1.UpdateLicenseResponse
+	21, // 34: asset.service.v1.LicenseService.DeleteLicense:output_type -> google.protobuf.Empty
+	12, // 35: asset.service.v1.LicenseService.ListDocuments:output_type -> asset.service.v1.ListLicenseDocumentsResponse
+	14, // 36: asset.service.v1.LicenseService.UploadDocument:output_type -> asset.service.v1.UploadLicenseDocumentResponse
+	21, // 37: asset.service.v1.LicenseService.DeleteDocument:output_type -> google.protobuf.Empty
+	22, // 38: asset.service.v1.LicenseService.DownloadDocument:output_type -> asset.service.v1.DownloadDocumentResponse
+	30, // [30:39] is the sub-list for method output_type
+	21, // [21:30] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_asset_service_v1_license_proto_init() }

@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -62,7 +63,7 @@ type Consumable struct {
 	// Custom tags (JSON)
 	Tags string `json:"tags,omitempty"`
 	// Custom metadata (JSON)
-	Metadata string `json:"metadata,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ConsumableQuery when eager-loading is set.
 	Edges        ConsumableEdges `json:"edges"`
@@ -120,11 +121,13 @@ func (*Consumable) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case consumable.FieldMetadata:
+			values[i] = new([]byte)
 		case consumable.FieldPurchaseCost:
 			values[i] = new(sql.NullFloat64)
 		case consumable.FieldCreateBy, consumable.FieldUpdateBy, consumable.FieldTenantID, consumable.FieldAmount, consumable.FieldMinAmount:
 			values[i] = new(sql.NullInt64)
-		case consumable.FieldID, consumable.FieldName, consumable.FieldDescription, consumable.FieldCategoryID, consumable.FieldSupplierID, consumable.FieldLocationID, consumable.FieldModelName, consumable.FieldModelNumber, consumable.FieldOrderNumber, consumable.FieldNotes, consumable.FieldTags, consumable.FieldMetadata:
+		case consumable.FieldID, consumable.FieldName, consumable.FieldDescription, consumable.FieldCategoryID, consumable.FieldSupplierID, consumable.FieldLocationID, consumable.FieldModelName, consumable.FieldModelNumber, consumable.FieldOrderNumber, consumable.FieldNotes, consumable.FieldTags:
 			values[i] = new(sql.NullString)
 		case consumable.FieldCreateTime, consumable.FieldUpdateTime, consumable.FieldDeleteTime, consumable.FieldPurchaseDate:
 			values[i] = new(sql.NullTime)
@@ -278,10 +281,12 @@ func (_m *Consumable) assignValues(columns []string, values []any) error {
 				_m.Tags = value.String
 			}
 		case consumable.FieldMetadata:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
-			} else if value.Valid {
-				_m.Metadata = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -411,7 +416,7 @@ func (_m *Consumable) String() string {
 	builder.WriteString(_m.Tags)
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
-	builder.WriteString(_m.Metadata)
+	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))
 	builder.WriteByte(')')
 	return builder.String()
 }

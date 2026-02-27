@@ -285,6 +285,18 @@ func (_u *LicenseUpdate) ClearNotes() *LicenseUpdate {
 	return _u
 }
 
+// SetMetadata sets the "metadata" field.
+func (_u *LicenseUpdate) SetMetadata(v map[string]interface{}) *LicenseUpdate {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *LicenseUpdate) ClearMetadata() *LicenseUpdate {
+	_u.mutation.ClearMetadata()
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *LicenseUpdate) SetStatus(v string) *LicenseUpdate {
 	_u.mutation.SetStatus(v)
@@ -453,6 +465,12 @@ func (_u *LicenseUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.NotesCleared() {
 		_spec.ClearField(license.FieldNotes, field.TypeString)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(license.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(license.FieldMetadata, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(license.FieldStatus, field.TypeString, value)
@@ -766,6 +784,18 @@ func (_u *LicenseUpdateOne) ClearNotes() *LicenseUpdateOne {
 	return _u
 }
 
+// SetMetadata sets the "metadata" field.
+func (_u *LicenseUpdateOne) SetMetadata(v map[string]interface{}) *LicenseUpdateOne {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *LicenseUpdateOne) ClearMetadata() *LicenseUpdateOne {
+	_u.mutation.ClearMetadata()
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *LicenseUpdateOne) SetStatus(v string) *LicenseUpdateOne {
 	_u.mutation.SetStatus(v)
@@ -964,6 +994,12 @@ func (_u *LicenseUpdateOne) sqlSave(ctx context.Context) (_node *License, err er
 	}
 	if _u.mutation.NotesCleared() {
 		_spec.ClearField(license.FieldNotes, field.TypeString)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(license.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(license.FieldMetadata, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(license.FieldStatus, field.TypeString, value)

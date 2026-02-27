@@ -46,6 +46,8 @@ const (
 	FieldStatus = "status"
 	// FieldNotes holds the string denoting the notes field in the database.
 	FieldNotes = "notes"
+	// FieldMetadata holds the string denoting the metadata field in the database.
+	FieldMetadata = "metadata"
 	// Table holds the table name of the insurancepolicy in the database.
 	Table = "asset_insurance_policies"
 )
@@ -70,6 +72,7 @@ var Columns = []string{
 	FieldValidTo,
 	FieldStatus,
 	FieldNotes,
+	FieldMetadata,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

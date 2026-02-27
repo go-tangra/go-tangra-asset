@@ -199,6 +199,18 @@ func (_u *CategoryUpdate) ClearIcon() *CategoryUpdate {
 	return _u
 }
 
+// SetMetadata sets the "metadata" field.
+func (_u *CategoryUpdate) SetMetadata(v map[string]interface{}) *CategoryUpdate {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *CategoryUpdate) ClearMetadata() *CategoryUpdate {
+	_u.mutation.ClearMetadata()
+	return _u
+}
+
 // SetParent sets the "parent" edge to the Category entity.
 func (_u *CategoryUpdate) SetParent(v *Category) *CategoryUpdate {
 	return _u.SetParentID(v.ID)
@@ -428,6 +440,12 @@ func (_u *CategoryUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.IconCleared() {
 		_spec.ClearField(category.FieldIcon, field.TypeString)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(category.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(category.FieldMetadata, field.TypeJSON)
 	}
 	if _u.mutation.ParentCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -783,6 +801,18 @@ func (_u *CategoryUpdateOne) ClearIcon() *CategoryUpdateOne {
 	return _u
 }
 
+// SetMetadata sets the "metadata" field.
+func (_u *CategoryUpdateOne) SetMetadata(v map[string]interface{}) *CategoryUpdateOne {
+	_u.mutation.SetMetadata(v)
+	return _u
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (_u *CategoryUpdateOne) ClearMetadata() *CategoryUpdateOne {
+	_u.mutation.ClearMetadata()
+	return _u
+}
+
 // SetParent sets the "parent" edge to the Category entity.
 func (_u *CategoryUpdateOne) SetParent(v *Category) *CategoryUpdateOne {
 	return _u.SetParentID(v.ID)
@@ -1042,6 +1072,12 @@ func (_u *CategoryUpdateOne) sqlSave(ctx context.Context) (_node *Category, err 
 	}
 	if _u.mutation.IconCleared() {
 		_spec.ClearField(category.FieldIcon, field.TypeString)
+	}
+	if value, ok := _u.mutation.Metadata(); ok {
+		_spec.SetField(category.FieldMetadata, field.TypeJSON, value)
+	}
+	if _u.mutation.MetadataCleared() {
+		_spec.ClearField(category.FieldMetadata, field.TypeJSON)
 	}
 	if _u.mutation.ParentCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -9,6 +9,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
+import "google/protobuf/struct.proto";
 
 // Consumable represents a consumable item (keyboards, mice, cables, etc.)
 message Consumable {
@@ -61,7 +62,7 @@ message Consumable {
   optional string tags = 16 [json_name = "tags"];
 
   // Custom metadata (JSON)
-  optional string metadata = 17 [json_name = "metadata"];
+  google.protobuf.Struct metadata = 17 [json_name = "metadata"];
 
   // Creation timestamp
   optional google.protobuf.Timestamp created_at = 30 [json_name = "createdAt"];
@@ -103,7 +104,7 @@ message CreateConsumableRequest {
   optional string order_number = 13 [json_name = "orderNumber"];
   optional string notes = 14 [json_name = "notes"];
   optional string tags = 15 [json_name = "tags"];
-  optional string metadata = 16 [json_name = "metadata"];
+  google.protobuf.Struct metadata = 16 [json_name = "metadata"];
 }
 
 message CreateConsumableResponse {

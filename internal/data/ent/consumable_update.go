@@ -410,16 +410,8 @@ func (_u *ConsumableUpdate) ClearTags() *ConsumableUpdate {
 }
 
 // SetMetadata sets the "metadata" field.
-func (_u *ConsumableUpdate) SetMetadata(v string) *ConsumableUpdate {
+func (_u *ConsumableUpdate) SetMetadata(v map[string]interface{}) *ConsumableUpdate {
 	_u.mutation.SetMetadata(v)
-	return _u
-}
-
-// SetNillableMetadata sets the "metadata" field if the given value is not nil.
-func (_u *ConsumableUpdate) SetNillableMetadata(v *string) *ConsumableUpdate {
-	if v != nil {
-		_u.SetMetadata(*v)
-	}
 	return _u
 }
 
@@ -625,10 +617,10 @@ func (_u *ConsumableUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 		_spec.ClearField(consumable.FieldTags, field.TypeString)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
-		_spec.SetField(consumable.FieldMetadata, field.TypeString, value)
+		_spec.SetField(consumable.FieldMetadata, field.TypeJSON, value)
 	}
 	if _u.mutation.MetadataCleared() {
-		_spec.ClearField(consumable.FieldMetadata, field.TypeString)
+		_spec.ClearField(consumable.FieldMetadata, field.TypeJSON)
 	}
 	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1117,16 +1109,8 @@ func (_u *ConsumableUpdateOne) ClearTags() *ConsumableUpdateOne {
 }
 
 // SetMetadata sets the "metadata" field.
-func (_u *ConsumableUpdateOne) SetMetadata(v string) *ConsumableUpdateOne {
+func (_u *ConsumableUpdateOne) SetMetadata(v map[string]interface{}) *ConsumableUpdateOne {
 	_u.mutation.SetMetadata(v)
-	return _u
-}
-
-// SetNillableMetadata sets the "metadata" field if the given value is not nil.
-func (_u *ConsumableUpdateOne) SetNillableMetadata(v *string) *ConsumableUpdateOne {
-	if v != nil {
-		_u.SetMetadata(*v)
-	}
 	return _u
 }
 
@@ -1362,10 +1346,10 @@ func (_u *ConsumableUpdateOne) sqlSave(ctx context.Context) (_node *Consumable, 
 		_spec.ClearField(consumable.FieldTags, field.TypeString)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
-		_spec.SetField(consumable.FieldMetadata, field.TypeString, value)
+		_spec.SetField(consumable.FieldMetadata, field.TypeJSON, value)
 	}
 	if _u.mutation.MetadataCleared() {
-		_spec.ClearField(consumable.FieldMetadata, field.TypeString)
+		_spec.ClearField(consumable.FieldMetadata, field.TypeJSON)
 	}
 	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{

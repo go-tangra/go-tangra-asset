@@ -57,6 +57,35 @@ func (m *Location) validate(all bool) error {
 
 	var errors []error
 
+	if all {
+		switch v := interface{}(m.GetMetadata()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, LocationValidationError{
+					field:  "Metadata",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, LocationValidationError{
+					field:  "Metadata",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return LocationValidationError{
+				field:  "Metadata",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if m.Id != nil {
 		// no validation rules for Id
 	}
@@ -131,10 +160,6 @@ func (m *Location) validate(all bool) error {
 
 	if m.Tags != nil {
 		// no validation rules for Tags
-	}
-
-	if m.Metadata != nil {
-		// no validation rules for Metadata
 	}
 
 	if m.CreatedAt != nil {
@@ -310,6 +335,35 @@ func (m *CreateLocationRequest) validate(all bool) error {
 
 	var errors []error
 
+	if all {
+		switch v := interface{}(m.GetMetadata()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, CreateLocationRequestValidationError{
+					field:  "Metadata",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, CreateLocationRequestValidationError{
+					field:  "Metadata",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CreateLocationRequestValidationError{
+				field:  "Metadata",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if m.TenantId != nil {
 		// no validation rules for TenantId
 	}
@@ -368,10 +422,6 @@ func (m *CreateLocationRequest) validate(all bool) error {
 
 	if m.Tags != nil {
 		// no validation rules for Tags
-	}
-
-	if m.Metadata != nil {
-		// no validation rules for Metadata
 	}
 
 	if len(errors) > 0 {
