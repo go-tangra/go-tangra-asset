@@ -166,7 +166,7 @@ func (c *InventoryClient) FetchInventories(ctx context.Context) ([]InventorySumm
 	}
 
 	var result struct {
-		Items []InventorySummary `json:"items"`
+		Items []InventorySummary `json:"inventories"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, fmt.Errorf("failed to decode inventories response: %w", err)
