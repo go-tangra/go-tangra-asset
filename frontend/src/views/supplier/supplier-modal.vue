@@ -68,6 +68,7 @@ const formState = ref({
   email: '',
   website: '',
   notes: '',
+  metadata: '',
 });
 
 const title = computed(() => {
@@ -103,6 +104,7 @@ async function handleSubmit() {
         email: formState.value.email || undefined,
         website: formState.value.website || undefined,
         notes: formState.value.notes || undefined,
+        metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
       });
       notification.success({
         message: $t('asset.page.supplier.createSuccess'),
@@ -124,6 +126,7 @@ async function handleSubmit() {
           email: formState.value.email || undefined,
           website: formState.value.website || undefined,
           notes: formState.value.notes || undefined,
+          metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
         },
         [
           'name',
@@ -139,6 +142,7 @@ async function handleSubmit() {
           'email',
           'website',
           'notes',
+          'metadata',
         ],
       );
       notification.success({
@@ -172,6 +176,7 @@ function resetForm() {
     email: '',
     website: '',
     notes: '',
+    metadata: '',
   };
 }
 
@@ -206,6 +211,7 @@ const [Modal, modalApi] = useVbenModal({
           email: data.value.row.email ?? '',
           website: data.value.row.website ?? '',
           notes: data.value.row.notes ?? '',
+          metadata: data.value.row.metadata ? JSON.stringify(data.value.row.metadata, null, 2) : '',
         };
       }
     }
@@ -238,6 +244,12 @@ const supplier = computed(() => data.value?.row);
               :label="$t('asset.page.supplier.notes')"
             >
               {{ supplier.notes }}
+            </DescriptionsItem>
+            <DescriptionsItem
+              v-if="supplier.metadata && Object.keys(supplier.metadata).length > 0"
+              :label="$t('asset.page.supplier.metadata')"
+            >
+              <pre class="m-0 whitespace-pre-wrap text-xs">{{ JSON.stringify(supplier.metadata, null, 2) }}</pre>
             </DescriptionsItem>
           </Descriptions>
         </TabPane>
@@ -326,6 +338,15 @@ const supplier = computed(() => data.value?.row);
                 :rows="3"
                 :maxlength="1024"
                 :placeholder="$t('ui.placeholder.input')"
+              />
+            </FormItem>
+
+            <FormItem :label="$t('asset.page.supplier.metadata')" name="metadata">
+              <Textarea
+                v-model:value="formState.metadata"
+                :rows="4"
+                placeholder='{"key": "value"}'
+                style="font-family: monospace; font-size: 12px"
               />
             </FormItem>
           </TabPane>

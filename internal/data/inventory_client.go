@@ -149,7 +149,7 @@ func (c *InventoryClient) FetchInventories(ctx context.Context) ([]InventorySumm
 	}
 
 	if c.apiSecret != "" {
-		req.Header.Set("api_secret", c.apiSecret)
+		req.Header.Set("X-API-Key", c.apiSecret)
 	}
 
 	resp, err := c.client.Do(req)
@@ -190,7 +190,7 @@ func (c *InventoryClient) FetchLatestByHostname(ctx context.Context, hostname st
 	}
 
 	if c.apiSecret != "" {
-		req.Header.Set("api_secret", c.apiSecret)
+		req.Header.Set("X-API-Key", c.apiSecret)
 	}
 
 	resp, err := c.client.Do(req)

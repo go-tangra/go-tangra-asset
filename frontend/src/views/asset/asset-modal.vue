@@ -369,6 +369,7 @@ const formState = ref({
   orderNumber: '',
   purchaseCost: undefined as number | undefined,
   notes: '',
+  metadata: '',
   salvageValue: undefined as number | undefined,
   usefulLifeYears: undefined as number | undefined,
   depreciationRate: 0.40,
@@ -406,6 +407,7 @@ async function handleSubmit() {
         orderNumber: formState.value.orderNumber || undefined,
         purchaseCost: formState.value.purchaseCost,
         notes: formState.value.notes || undefined,
+        metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
         salvageValue: formState.value.salvageValue,
         usefulLifeYears: formState.value.usefulLifeYears,
         depreciationRate: formState.value.depreciationRate,
@@ -429,6 +431,7 @@ async function handleSubmit() {
           orderNumber: formState.value.orderNumber || undefined,
           purchaseCost: formState.value.purchaseCost,
           notes: formState.value.notes || undefined,
+          metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
           salvageValue: formState.value.salvageValue,
           usefulLifeYears: formState.value.usefulLifeYears,
           depreciationRate: formState.value.depreciationRate,
@@ -446,6 +449,7 @@ async function handleSubmit() {
           'orderNumber',
           'purchaseCost',
           'notes',
+          'metadata',
           'salvageValue',
           'usefulLifeYears',
           'depreciationRate',
@@ -481,6 +485,7 @@ function resetForm() {
     orderNumber: '',
     purchaseCost: undefined,
     notes: '',
+    metadata: '',
     salvageValue: undefined,
     usefulLifeYears: undefined,
     depreciationRate: 0.40,
@@ -521,6 +526,7 @@ const [Modal, modalApi] = useVbenModal({
           orderNumber: data.value.row.orderNumber ?? '',
           purchaseCost: data.value.row.purchaseCost,
           notes: data.value.row.notes ?? '',
+          metadata: data.value.row.metadata ? JSON.stringify(data.value.row.metadata, null, 2) : '',
           salvageValue: data.value.row.salvageValue,
           usefulLifeYears: data.value.row.usefulLifeYears,
           depreciationRate: data.value.row.depreciationRate ?? 0.40,
@@ -641,6 +647,12 @@ const documentColumns = [
               :label="$t('asset.page.asset.notes')"
             >
               {{ asset.notes }}
+            </DescriptionsItem>
+            <DescriptionsItem
+              v-if="asset.metadata && Object.keys(asset.metadata).length > 0"
+              :label="$t('asset.page.asset.metadata')"
+            >
+              <pre class="m-0 whitespace-pre-wrap text-xs">{{ JSON.stringify(asset.metadata, null, 2) }}</pre>
             </DescriptionsItem>
           </Descriptions>
         </TabPane>
@@ -849,6 +861,15 @@ const documentColumns = [
                 :rows="3"
                 :maxlength="1024"
                 :placeholder="$t('ui.placeholder.input')"
+              />
+            </FormItem>
+
+            <FormItem :label="$t('asset.page.asset.metadata')" name="metadata">
+              <Textarea
+                v-model:value="formState.metadata"
+                :rows="4"
+                placeholder='{"key": "value"}'
+                style="font-family: monospace; font-size: 12px"
               />
             </FormItem>
           </TabPane>

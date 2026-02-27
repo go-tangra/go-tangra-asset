@@ -61,6 +61,7 @@ const formState = ref({
   description: '',
   parentId: undefined as string | undefined,
   icon: '',
+  metadata: '',
 });
 
 const title = computed(() => {
@@ -87,6 +88,7 @@ async function handleSubmit() {
         description: formState.value.description || undefined,
         parentId: formState.value.parentId,
         icon: formState.value.icon || undefined,
+        metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
       });
       notification.success({
         message: $t('asset.page.category.createSuccess'),
@@ -99,8 +101,9 @@ async function handleSubmit() {
           description: formState.value.description || undefined,
           parentId: formState.value.parentId,
           icon: formState.value.icon || undefined,
+          metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
         },
-        ['name', 'description', 'parentId', 'icon'],
+        ['name', 'description', 'parentId', 'icon', 'metadata'],
       );
       notification.success({
         message: $t('asset.page.category.updateSuccess'),
@@ -124,6 +127,7 @@ function resetForm(parentId?: string) {
     description: '',
     parentId,
     icon: '',
+    metadata: '',
   };
 }
 
@@ -150,6 +154,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
           description: data.value.row.description ?? '',
           parentId: data.value.row.parentId || undefined,
           icon: data.value.row.icon ?? '',
+          metadata: data.value.row.metadata ? JSON.stringify(data.value.row.metadata, null, 2) : '',
         };
       }
     }
@@ -178,6 +183,12 @@ const category = computed(() => data.value?.row);
         </DescriptionsItem>
         <DescriptionsItem :label="$t('asset.page.category.childCount')">
           {{ category.childCount ?? 0 }}
+        </DescriptionsItem>
+        <DescriptionsItem
+          v-if="category.metadata && Object.keys(category.metadata).length > 0"
+          :label="$t('asset.page.category.metadata')"
+        >
+          <pre class="m-0 whitespace-pre-wrap text-xs">{{ JSON.stringify(category.metadata, null, 2) }}</pre>
         </DescriptionsItem>
       </Descriptions>
     </template>
@@ -227,6 +238,18 @@ const category = computed(() => data.value?.row);
             v-model:value="formState.icon"
             :placeholder="$t('ui.placeholder.input')"
             :maxlength="100"
+          />
+        </FormItem>
+
+        <FormItem
+          :label="$t('asset.page.category.metadata')"
+          name="metadata"
+        >
+          <Textarea
+            v-model:value="formState.metadata"
+            :rows="4"
+            placeholder='{"key": "value"}'
+            style="font-family: monospace"
           />
         </FormItem>
 

@@ -86,6 +86,7 @@ const formState = ref({
   purchaseCost: undefined as number | undefined,
   orderNumber: '',
   notes: '',
+  metadata: '',
 });
 
 const title = computed(() => {
@@ -121,6 +122,7 @@ async function handleSubmit() {
         purchaseCost: formState.value.purchaseCost,
         orderNumber: formState.value.orderNumber || undefined,
         notes: formState.value.notes || undefined,
+        metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
       });
       notification.success({
         message: $t('asset.page.consumable.createSuccess'),
@@ -142,6 +144,7 @@ async function handleSubmit() {
           purchaseCost: formState.value.purchaseCost,
           orderNumber: formState.value.orderNumber || undefined,
           notes: formState.value.notes || undefined,
+          metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
         },
         [
           'name',
@@ -157,6 +160,7 @@ async function handleSubmit() {
           'purchaseCost',
           'orderNumber',
           'notes',
+          'metadata',
         ],
       );
       notification.success({
@@ -190,6 +194,7 @@ function resetForm() {
     purchaseCost: undefined,
     orderNumber: '',
     notes: '',
+    metadata: '',
   };
 }
 
@@ -224,6 +229,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
           purchaseCost: data.value.row.purchaseCost,
           orderNumber: data.value.row.orderNumber ?? '',
           notes: data.value.row.notes ?? '',
+          metadata: data.value.row.metadata ? JSON.stringify(data.value.row.metadata, null, 2) : '',
         };
       }
     }
@@ -294,6 +300,12 @@ const consumable = computed(() => data.value?.row);
           :label="$t('asset.page.consumable.notes')"
         >
           {{ consumable.notes }}
+        </DescriptionsItem>
+        <DescriptionsItem
+          v-if="consumable.metadata && Object.keys(consumable.metadata).length > 0"
+          :label="$t('asset.page.consumable.metadata')"
+        >
+          <pre class="m-0 whitespace-pre-wrap text-xs">{{ JSON.stringify(consumable.metadata, null, 2) }}</pre>
         </DescriptionsItem>
       </Descriptions>
     </template>
@@ -457,6 +469,18 @@ const consumable = computed(() => data.value?.row);
             :rows="3"
             :maxlength="1024"
             :placeholder="$t('ui.placeholder.input')"
+          />
+        </FormItem>
+
+        <FormItem
+          :label="$t('asset.page.consumable.metadata')"
+          name="metadata"
+        >
+          <Textarea
+            v-model:value="formState.metadata"
+            :rows="4"
+            style="font-family: monospace"
+            placeholder='{"key": "value"}'
           />
         </FormItem>
 

@@ -88,6 +88,7 @@ const formState = ref({
   validFrom: '',
   validTo: '',
   notes: '',
+  metadata: '',
   status: 'LICENSE_STATUS_ACTIVE' as string,
 });
 
@@ -119,6 +120,7 @@ async function handleSubmit() {
         validFrom: formState.value.validFrom ? `${formState.value.validFrom}T00:00:00Z` : undefined,
         validTo: formState.value.validTo ? `${formState.value.validTo}T00:00:00Z` : undefined,
         notes: formState.value.notes || undefined,
+        metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
         status: (formState.value.status as LicenseStatus) || undefined,
       });
       notification.success({
@@ -136,6 +138,7 @@ async function handleSubmit() {
           validFrom: formState.value.validFrom ? `${formState.value.validFrom}T00:00:00Z` : undefined,
           validTo: formState.value.validTo ? `${formState.value.validTo}T00:00:00Z` : undefined,
           notes: formState.value.notes || undefined,
+          metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
           status: (formState.value.status as LicenseStatus) || undefined,
         },
         [
@@ -147,6 +150,7 @@ async function handleSubmit() {
           'validFrom',
           'validTo',
           'notes',
+          'metadata',
           'status',
         ],
       );
@@ -176,6 +180,7 @@ function resetForm() {
     validFrom: '',
     validTo: '',
     notes: '',
+    metadata: '',
     status: 'LICENSE_STATUS_ACTIVE',
   };
 }
@@ -206,6 +211,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
           validFrom: data.value.row.validFrom ?? '',
           validTo: data.value.row.validTo ?? '',
           notes: data.value.row.notes ?? '',
+          metadata: data.value.row.metadata ? JSON.stringify(data.value.row.metadata, null, 2) : '',
           status: data.value.row.status ?? 'LICENSE_STATUS_ACTIVE',
         };
       }
@@ -252,6 +258,12 @@ const license = computed(() => data.value?.row);
           :label="$t('asset.page.license.notes')"
         >
           {{ license.notes }}
+        </DescriptionsItem>
+        <DescriptionsItem
+          v-if="license.metadata && Object.keys(license.metadata).length > 0"
+          :label="$t('asset.page.license.metadata')"
+        >
+          <pre class="m-0 whitespace-pre-wrap text-xs">{{ JSON.stringify(license.metadata, null, 2) }}</pre>
         </DescriptionsItem>
       </Descriptions>
     </template>
@@ -361,6 +373,15 @@ const license = computed(() => data.value?.row);
             :rows="3"
             :maxlength="1024"
             :placeholder="$t('ui.placeholder.input')"
+          />
+        </FormItem>
+
+        <FormItem :label="$t('asset.page.license.metadata')" name="metadata">
+          <Textarea
+            v-model:value="formState.metadata"
+            :rows="4"
+            :placeholder='`{"key": "value"}`'
+            style="font-family: monospace"
           />
         </FormItem>
 

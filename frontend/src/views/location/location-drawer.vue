@@ -106,6 +106,7 @@ const formState = ref({
   contact: '',
   phone: '',
   email: '',
+  metadata: '',
 });
 
 const title = computed(() => {
@@ -141,6 +142,7 @@ async function handleSubmit() {
         contact: formState.value.contact || undefined,
         phone: formState.value.phone || undefined,
         email: formState.value.email || undefined,
+        metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
       });
       notification.success({
         message: $t('asset.page.location.createSuccess'),
@@ -162,6 +164,7 @@ async function handleSubmit() {
           contact: formState.value.contact || undefined,
           phone: formState.value.phone || undefined,
           email: formState.value.email || undefined,
+          metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
         },
         [
           'name',
@@ -177,6 +180,7 @@ async function handleSubmit() {
           'contact',
           'phone',
           'email',
+          'metadata',
         ],
       );
       notification.success({
@@ -210,6 +214,7 @@ function resetForm(parentId?: string) {
     contact: '',
     phone: '',
     email: '',
+    metadata: '',
   };
 }
 
@@ -245,6 +250,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
           contact: data.value.row.contact ?? '',
           phone: data.value.row.phone ?? '',
           email: data.value.row.email ?? '',
+          metadata: data.value.row.metadata ? JSON.stringify(data.value.row.metadata, null, 2) : '',
         };
       }
     }
@@ -278,6 +284,12 @@ const location = computed(() => data.value?.row);
         </DescriptionsItem>
         <DescriptionsItem :label="$t('asset.page.location.assetCount')">
           {{ location.assetCount ?? 0 }}
+        </DescriptionsItem>
+        <DescriptionsItem
+          v-if="location.metadata && Object.keys(location.metadata).length > 0"
+          :label="$t('asset.page.location.metadata')"
+        >
+          <pre class="m-0 whitespace-pre-wrap text-xs">{{ JSON.stringify(location.metadata, null, 2) }}</pre>
         </DescriptionsItem>
       </Descriptions>
 
@@ -482,6 +494,18 @@ const location = computed(() => data.value?.row);
             v-model:value="formState.email"
             :placeholder="$t('ui.placeholder.input')"
             :maxlength="255"
+          />
+        </FormItem>
+
+        <FormItem
+          :label="$t('asset.page.location.metadata')"
+          name="metadata"
+        >
+          <Textarea
+            v-model:value="formState.metadata"
+            :rows="4"
+            placeholder='{"key": "value"}'
+            style="font-family: monospace"
           />
         </FormItem>
 

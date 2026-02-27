@@ -38,6 +38,7 @@ const formState = ref({
   jobTitle: '',
   employeeNumber: '',
   notes: '',
+  metadata: '',
 });
 
 const title = computed(() => {
@@ -68,6 +69,7 @@ async function handleSubmit() {
         jobTitle: formState.value.jobTitle || undefined,
         employeeNumber: formState.value.employeeNumber || undefined,
         notes: formState.value.notes || undefined,
+        metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
       });
       notification.success({
         message: $t('asset.page.employee.createSuccess'),
@@ -84,6 +86,7 @@ async function handleSubmit() {
           jobTitle: formState.value.jobTitle || undefined,
           employeeNumber: formState.value.employeeNumber || undefined,
           notes: formState.value.notes || undefined,
+          metadata: formState.value.metadata ? JSON.parse(formState.value.metadata) : undefined,
         },
         [
           'firstName',
@@ -94,6 +97,7 @@ async function handleSubmit() {
           'jobTitle',
           'employeeNumber',
           'notes',
+          'metadata',
         ],
       );
       notification.success({
@@ -122,6 +126,7 @@ function resetForm() {
     jobTitle: '',
     employeeNumber: '',
     notes: '',
+    metadata: '',
   };
 }
 
@@ -151,6 +156,7 @@ const [Modal, modalApi] = useVbenModal({
           jobTitle: data.value.row.jobTitle ?? '',
           employeeNumber: data.value.row.employeeNumber ?? '',
           notes: data.value.row.notes ?? '',
+          metadata: data.value.row.metadata ? JSON.stringify(data.value.row.metadata, null, 2) : '',
         };
       }
     }
@@ -184,6 +190,12 @@ const employee = computed(() => data.value?.row);
               :label="$t('asset.page.employee.notes')"
             >
               {{ employee.notes }}
+            </DescriptionsItem>
+            <DescriptionsItem
+              v-if="employee.metadata && Object.keys(employee.metadata).length > 0"
+              :label="$t('asset.page.employee.metadata')"
+            >
+              <pre class="m-0 whitespace-pre-wrap text-xs">{{ JSON.stringify(employee.metadata, null, 2) }}</pre>
             </DescriptionsItem>
           </Descriptions>
         </TabPane>
@@ -264,6 +276,15 @@ const employee = computed(() => data.value?.row);
                 :rows="3"
                 :maxlength="1024"
                 :placeholder="$t('ui.placeholder.input')"
+              />
+            </FormItem>
+
+            <FormItem :label="$t('asset.page.employee.metadata')" name="metadata">
+              <Textarea
+                v-model:value="formState.metadata"
+                :rows="4"
+                placeholder='{"key": "value"}'
+                style="font-family: monospace; font-size: 12px"
               />
             </FormItem>
           </TabPane>
