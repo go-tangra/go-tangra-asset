@@ -15,7 +15,6 @@ import (
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/asset"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/assetassignment"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/category"
-	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/location"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/supplier"
 )
@@ -216,16 +215,16 @@ func (_c *AssetCreate) SetNillableLocationID(v *string) *AssetCreate {
 	return _c
 }
 
-// SetEmployeeID sets the "employee_id" field.
-func (_c *AssetCreate) SetEmployeeID(v string) *AssetCreate {
-	_c.mutation.SetEmployeeID(v)
+// SetUserID sets the "user_id" field.
+func (_c *AssetCreate) SetUserID(v uint32) *AssetCreate {
+	_c.mutation.SetUserID(v)
 	return _c
 }
 
-// SetNillableEmployeeID sets the "employee_id" field if the given value is not nil.
-func (_c *AssetCreate) SetNillableEmployeeID(v *string) *AssetCreate {
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (_c *AssetCreate) SetNillableUserID(v *uint32) *AssetCreate {
 	if v != nil {
-		_c.SetEmployeeID(*v)
+		_c.SetUserID(*v)
 	}
 	return _c
 }
@@ -411,11 +410,6 @@ func (_c *AssetCreate) SetLocation(v *Location) *AssetCreate {
 	return _c.SetLocationID(v.ID)
 }
 
-// SetEmployee sets the "employee" edge to the Employee entity.
-func (_c *AssetCreate) SetEmployee(v *Employee) *AssetCreate {
-	return _c.SetEmployeeID(v.ID)
-}
-
 // AddAssignmentIDs adds the "assignments" edge to the AssetAssignment entity by IDs.
 func (_c *AssetCreate) AddAssignmentIDs(ids ...string) *AssetCreate {
 	_c.mutation.AddAssignmentIDs(ids...)
@@ -590,6 +584,10 @@ func (_c *AssetCreate) createSpec() (*Asset, *sqlgraph.CreateSpec) {
 		_spec.SetField(asset.FieldModelNumber, field.TypeString, value)
 		_node.ModelNumber = value
 	}
+	if value, ok := _c.mutation.UserID(); ok {
+		_spec.SetField(asset.FieldUserID, field.TypeUint32, value)
+		_node.UserID = &value
+	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(asset.FieldStatus, field.TypeInt32, value)
 		_node.Status = value
@@ -687,23 +685,6 @@ func (_c *AssetCreate) createSpec() (*Asset, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.LocationID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := _c.mutation.EmployeeIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   asset.EmployeeTable,
-			Columns: []string{asset.EmployeeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(employee.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.EmployeeID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.AssignmentsIDs(); len(nodes) > 0 {
@@ -996,21 +977,27 @@ func (u *AssetUpsert) ClearLocationID() *AssetUpsert {
 	return u
 }
 
-// SetEmployeeID sets the "employee_id" field.
-func (u *AssetUpsert) SetEmployeeID(v string) *AssetUpsert {
-	u.Set(asset.FieldEmployeeID, v)
+// SetUserID sets the "user_id" field.
+func (u *AssetUpsert) SetUserID(v uint32) *AssetUpsert {
+	u.Set(asset.FieldUserID, v)
 	return u
 }
 
-// UpdateEmployeeID sets the "employee_id" field to the value that was provided on create.
-func (u *AssetUpsert) UpdateEmployeeID() *AssetUpsert {
-	u.SetExcluded(asset.FieldEmployeeID)
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *AssetUpsert) UpdateUserID() *AssetUpsert {
+	u.SetExcluded(asset.FieldUserID)
 	return u
 }
 
-// ClearEmployeeID clears the value of the "employee_id" field.
-func (u *AssetUpsert) ClearEmployeeID() *AssetUpsert {
-	u.SetNull(asset.FieldEmployeeID)
+// AddUserID adds v to the "user_id" field.
+func (u *AssetUpsert) AddUserID(v uint32) *AssetUpsert {
+	u.Add(asset.FieldUserID, v)
+	return u
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (u *AssetUpsert) ClearUserID() *AssetUpsert {
+	u.SetNull(asset.FieldUserID)
 	return u
 }
 
@@ -1573,24 +1560,31 @@ func (u *AssetUpsertOne) ClearLocationID() *AssetUpsertOne {
 	})
 }
 
-// SetEmployeeID sets the "employee_id" field.
-func (u *AssetUpsertOne) SetEmployeeID(v string) *AssetUpsertOne {
+// SetUserID sets the "user_id" field.
+func (u *AssetUpsertOne) SetUserID(v uint32) *AssetUpsertOne {
 	return u.Update(func(s *AssetUpsert) {
-		s.SetEmployeeID(v)
+		s.SetUserID(v)
 	})
 }
 
-// UpdateEmployeeID sets the "employee_id" field to the value that was provided on create.
-func (u *AssetUpsertOne) UpdateEmployeeID() *AssetUpsertOne {
+// AddUserID adds v to the "user_id" field.
+func (u *AssetUpsertOne) AddUserID(v uint32) *AssetUpsertOne {
 	return u.Update(func(s *AssetUpsert) {
-		s.UpdateEmployeeID()
+		s.AddUserID(v)
 	})
 }
 
-// ClearEmployeeID clears the value of the "employee_id" field.
-func (u *AssetUpsertOne) ClearEmployeeID() *AssetUpsertOne {
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *AssetUpsertOne) UpdateUserID() *AssetUpsertOne {
 	return u.Update(func(s *AssetUpsert) {
-		s.ClearEmployeeID()
+		s.UpdateUserID()
+	})
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (u *AssetUpsertOne) ClearUserID() *AssetUpsertOne {
+	return u.Update(func(s *AssetUpsert) {
+		s.ClearUserID()
 	})
 }
 
@@ -2361,24 +2355,31 @@ func (u *AssetUpsertBulk) ClearLocationID() *AssetUpsertBulk {
 	})
 }
 
-// SetEmployeeID sets the "employee_id" field.
-func (u *AssetUpsertBulk) SetEmployeeID(v string) *AssetUpsertBulk {
+// SetUserID sets the "user_id" field.
+func (u *AssetUpsertBulk) SetUserID(v uint32) *AssetUpsertBulk {
 	return u.Update(func(s *AssetUpsert) {
-		s.SetEmployeeID(v)
+		s.SetUserID(v)
 	})
 }
 
-// UpdateEmployeeID sets the "employee_id" field to the value that was provided on create.
-func (u *AssetUpsertBulk) UpdateEmployeeID() *AssetUpsertBulk {
+// AddUserID adds v to the "user_id" field.
+func (u *AssetUpsertBulk) AddUserID(v uint32) *AssetUpsertBulk {
 	return u.Update(func(s *AssetUpsert) {
-		s.UpdateEmployeeID()
+		s.AddUserID(v)
 	})
 }
 
-// ClearEmployeeID clears the value of the "employee_id" field.
-func (u *AssetUpsertBulk) ClearEmployeeID() *AssetUpsertBulk {
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *AssetUpsertBulk) UpdateUserID() *AssetUpsertBulk {
 	return u.Update(func(s *AssetUpsert) {
-		s.ClearEmployeeID()
+		s.UpdateUserID()
+	})
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (u *AssetUpsertBulk) ClearUserID() *AssetUpsertBulk {
+	return u.Update(func(s *AssetUpsert) {
+		s.ClearUserID()
 	})
 }
 

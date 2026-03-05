@@ -81,18 +81,6 @@ func (f ConsumableFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, 
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ConsumableMutation", m)
 }
 
-// The EmployeeFunc type is an adapter to allow the use of ordinary
-// function as Employee mutator.
-type EmployeeFunc func(context.Context, *ent.EmployeeMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f EmployeeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.EmployeeMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EmployeeMutation", m)
-}
-
 // The InsurancePolicyFunc type is an adapter to allow the use of ordinary
 // function as InsurancePolicy mutator.
 type InsurancePolicyFunc func(context.Context, *ent.InsurancePolicyMutation) (ent.Value, error)

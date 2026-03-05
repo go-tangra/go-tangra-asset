@@ -125,8 +125,8 @@ func (m *Asset) validate(all bool) error {
 		// no validation rules for LocationId
 	}
 
-	if m.EmployeeId != nil {
-		// no validation rules for EmployeeId
+	if m.UserId != nil {
+		// no validation rules for UserId
 	}
 
 	if m.Status != nil {
@@ -387,12 +387,12 @@ func (m *AssetAssignment) validate(all bool) error {
 		// no validation rules for AssetName
 	}
 
-	if m.EmployeeId != nil {
-		// no validation rules for EmployeeId
+	if m.UserId != nil {
+		// no validation rules for UserId
 	}
 
-	if m.EmployeeName != nil {
-		// no validation rules for EmployeeName
+	if m.UserName != nil {
+		// no validation rules for UserName
 	}
 
 	if m.Action != nil {
@@ -1384,8 +1384,8 @@ func (m *ListAssetsRequest) validate(all bool) error {
 		// no validation rules for LocationId
 	}
 
-	if m.EmployeeId != nil {
-		// no validation rules for EmployeeId
+	if m.UserId != nil {
+		// no validation rules for UserId
 	}
 
 	if len(errors) > 0 {
@@ -2033,7 +2033,7 @@ func (m *AssignAssetRequest) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for EmployeeId
+	// no validation rules for UserId
 
 	if m.Notes != nil {
 		// no validation rules for Notes

@@ -10,7 +10,6 @@ import (
 	context "context"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,313 +19,58 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationEmployeeServiceCreateEmployee = "/asset.service.v1.EmployeeService/CreateEmployee"
-const OperationEmployeeServiceDeleteEmployee = "/asset.service.v1.EmployeeService/DeleteEmployee"
-const OperationEmployeeServiceGetEmployee = "/asset.service.v1.EmployeeService/GetEmployee"
-const OperationEmployeeServiceLdapSyncExecute = "/asset.service.v1.EmployeeService/LdapSyncExecute"
-const OperationEmployeeServiceLdapSyncPreview = "/asset.service.v1.EmployeeService/LdapSyncPreview"
-const OperationEmployeeServiceListEmployees = "/asset.service.v1.EmployeeService/ListEmployees"
-const OperationEmployeeServiceUpdateEmployee = "/asset.service.v1.EmployeeService/UpdateEmployee"
+const OperationUserServiceListUsers = "/asset.service.v1.UserService/ListUsers"
 
-type EmployeeServiceHTTPServer interface {
-	// CreateEmployee Create a new employee
-	CreateEmployee(context.Context, *CreateEmployeeRequest) (*CreateEmployeeResponse, error)
-	// DeleteEmployee Delete an employee
-	DeleteEmployee(context.Context, *DeleteEmployeeRequest) (*emptypb.Empty, error)
-	// GetEmployee Get an employee by ID
-	GetEmployee(context.Context, *GetEmployeeRequest) (*GetEmployeeResponse, error)
-	// LdapSyncExecute Execute LDAP sync
-	LdapSyncExecute(context.Context, *LdapSyncExecuteRequest) (*LdapSyncExecuteResponse, error)
-	// LdapSyncPreview Preview LDAP sync changes
-	LdapSyncPreview(context.Context, *LdapSyncPreviewRequest) (*LdapSyncPreviewResponse, error)
-	// ListEmployees List employees with filtering
-	ListEmployees(context.Context, *ListEmployeesRequest) (*ListEmployeesResponse, error)
-	// UpdateEmployee Update an employee
-	UpdateEmployee(context.Context, *UpdateEmployeeRequest) (*UpdateEmployeeResponse, error)
+type UserServiceHTTPServer interface {
+	// ListUsers List portal users available for asset assignment
+	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
 }
 
-func RegisterEmployeeServiceHTTPServer(s *http.Server, srv EmployeeServiceHTTPServer) {
+func RegisterUserServiceHTTPServer(s *http.Server, srv UserServiceHTTPServer) {
 	r := s.Route("/")
-	r.POST("/v1/employees", _EmployeeService_CreateEmployee0_HTTP_Handler(srv))
-	r.GET("/v1/employees/{id}", _EmployeeService_GetEmployee0_HTTP_Handler(srv))
-	r.GET("/v1/employees", _EmployeeService_ListEmployees0_HTTP_Handler(srv))
-	r.PUT("/v1/employees/{id}", _EmployeeService_UpdateEmployee0_HTTP_Handler(srv))
-	r.DELETE("/v1/employees/{id}", _EmployeeService_DeleteEmployee0_HTTP_Handler(srv))
-	r.POST("/v1/employees/ldap-sync/preview", _EmployeeService_LdapSyncPreview0_HTTP_Handler(srv))
-	r.POST("/v1/employees/ldap-sync/execute", _EmployeeService_LdapSyncExecute0_HTTP_Handler(srv))
+	r.GET("/v1/users", _UserService_ListUsers0_HTTP_Handler(srv))
 }
 
-func _EmployeeService_CreateEmployee0_HTTP_Handler(srv EmployeeServiceHTTPServer) func(ctx http.Context) error {
+func _UserService_ListUsers0_HTTP_Handler(srv UserServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in CreateEmployeeRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
+		var in ListUsersRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationEmployeeServiceCreateEmployee)
+		http.SetOperation(ctx, OperationUserServiceListUsers)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CreateEmployee(ctx, req.(*CreateEmployeeRequest))
+			return srv.ListUsers(ctx, req.(*ListUsersRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*CreateEmployeeResponse)
+		reply := out.(*ListUsersResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _EmployeeService_GetEmployee0_HTTP_Handler(srv EmployeeServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GetEmployeeRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationEmployeeServiceGetEmployee)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetEmployee(ctx, req.(*GetEmployeeRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*GetEmployeeResponse)
-		return ctx.Result(200, reply)
-	}
+type UserServiceHTTPClient interface {
+	// ListUsers List portal users available for asset assignment
+	ListUsers(ctx context.Context, req *ListUsersRequest, opts ...http.CallOption) (rsp *ListUsersResponse, err error)
 }
 
-func _EmployeeService_ListEmployees0_HTTP_Handler(srv EmployeeServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ListEmployeesRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationEmployeeServiceListEmployees)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListEmployees(ctx, req.(*ListEmployeesRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ListEmployeesResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _EmployeeService_UpdateEmployee0_HTTP_Handler(srv EmployeeServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in UpdateEmployeeRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationEmployeeServiceUpdateEmployee)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateEmployee(ctx, req.(*UpdateEmployeeRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*UpdateEmployeeResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _EmployeeService_DeleteEmployee0_HTTP_Handler(srv EmployeeServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in DeleteEmployeeRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationEmployeeServiceDeleteEmployee)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.DeleteEmployee(ctx, req.(*DeleteEmployeeRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _EmployeeService_LdapSyncPreview0_HTTP_Handler(srv EmployeeServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in LdapSyncPreviewRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationEmployeeServiceLdapSyncPreview)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.LdapSyncPreview(ctx, req.(*LdapSyncPreviewRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*LdapSyncPreviewResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _EmployeeService_LdapSyncExecute0_HTTP_Handler(srv EmployeeServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in LdapSyncExecuteRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationEmployeeServiceLdapSyncExecute)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.LdapSyncExecute(ctx, req.(*LdapSyncExecuteRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*LdapSyncExecuteResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-type EmployeeServiceHTTPClient interface {
-	// CreateEmployee Create a new employee
-	CreateEmployee(ctx context.Context, req *CreateEmployeeRequest, opts ...http.CallOption) (rsp *CreateEmployeeResponse, err error)
-	// DeleteEmployee Delete an employee
-	DeleteEmployee(ctx context.Context, req *DeleteEmployeeRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// GetEmployee Get an employee by ID
-	GetEmployee(ctx context.Context, req *GetEmployeeRequest, opts ...http.CallOption) (rsp *GetEmployeeResponse, err error)
-	// LdapSyncExecute Execute LDAP sync
-	LdapSyncExecute(ctx context.Context, req *LdapSyncExecuteRequest, opts ...http.CallOption) (rsp *LdapSyncExecuteResponse, err error)
-	// LdapSyncPreview Preview LDAP sync changes
-	LdapSyncPreview(ctx context.Context, req *LdapSyncPreviewRequest, opts ...http.CallOption) (rsp *LdapSyncPreviewResponse, err error)
-	// ListEmployees List employees with filtering
-	ListEmployees(ctx context.Context, req *ListEmployeesRequest, opts ...http.CallOption) (rsp *ListEmployeesResponse, err error)
-	// UpdateEmployee Update an employee
-	UpdateEmployee(ctx context.Context, req *UpdateEmployeeRequest, opts ...http.CallOption) (rsp *UpdateEmployeeResponse, err error)
-}
-
-type EmployeeServiceHTTPClientImpl struct {
+type UserServiceHTTPClientImpl struct {
 	cc *http.Client
 }
 
-func NewEmployeeServiceHTTPClient(client *http.Client) EmployeeServiceHTTPClient {
-	return &EmployeeServiceHTTPClientImpl{client}
+func NewUserServiceHTTPClient(client *http.Client) UserServiceHTTPClient {
+	return &UserServiceHTTPClientImpl{client}
 }
 
-// CreateEmployee Create a new employee
-func (c *EmployeeServiceHTTPClientImpl) CreateEmployee(ctx context.Context, in *CreateEmployeeRequest, opts ...http.CallOption) (*CreateEmployeeResponse, error) {
-	var out CreateEmployeeResponse
-	pattern := "/v1/employees"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationEmployeeServiceCreateEmployee))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// DeleteEmployee Delete an employee
-func (c *EmployeeServiceHTTPClientImpl) DeleteEmployee(ctx context.Context, in *DeleteEmployeeRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/v1/employees/{id}"
+// ListUsers List portal users available for asset assignment
+func (c *UserServiceHTTPClientImpl) ListUsers(ctx context.Context, in *ListUsersRequest, opts ...http.CallOption) (*ListUsersResponse, error) {
+	var out ListUsersResponse
+	pattern := "/v1/users"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationEmployeeServiceDeleteEmployee))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// GetEmployee Get an employee by ID
-func (c *EmployeeServiceHTTPClientImpl) GetEmployee(ctx context.Context, in *GetEmployeeRequest, opts ...http.CallOption) (*GetEmployeeResponse, error) {
-	var out GetEmployeeResponse
-	pattern := "/v1/employees/{id}"
-	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationEmployeeServiceGetEmployee))
+	opts = append(opts, http.Operation(OperationUserServiceListUsers))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// LdapSyncExecute Execute LDAP sync
-func (c *EmployeeServiceHTTPClientImpl) LdapSyncExecute(ctx context.Context, in *LdapSyncExecuteRequest, opts ...http.CallOption) (*LdapSyncExecuteResponse, error) {
-	var out LdapSyncExecuteResponse
-	pattern := "/v1/employees/ldap-sync/execute"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationEmployeeServiceLdapSyncExecute))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// LdapSyncPreview Preview LDAP sync changes
-func (c *EmployeeServiceHTTPClientImpl) LdapSyncPreview(ctx context.Context, in *LdapSyncPreviewRequest, opts ...http.CallOption) (*LdapSyncPreviewResponse, error) {
-	var out LdapSyncPreviewResponse
-	pattern := "/v1/employees/ldap-sync/preview"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationEmployeeServiceLdapSyncPreview))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// ListEmployees List employees with filtering
-func (c *EmployeeServiceHTTPClientImpl) ListEmployees(ctx context.Context, in *ListEmployeesRequest, opts ...http.CallOption) (*ListEmployeesResponse, error) {
-	var out ListEmployeesResponse
-	pattern := "/v1/employees"
-	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationEmployeeServiceListEmployees))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// UpdateEmployee Update an employee
-func (c *EmployeeServiceHTTPClientImpl) UpdateEmployee(ctx context.Context, in *UpdateEmployeeRequest, opts ...http.CallOption) (*UpdateEmployeeResponse, error) {
-	var out UpdateEmployeeResponse
-	pattern := "/v1/employees/{id}"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationEmployeeServiceUpdateEmployee))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -24,9 +24,6 @@ type Category func(*sql.Selector)
 // Consumable is the predicate function for consumable builders.
 type Consumable func(*sql.Selector)
 
-// Employee is the predicate function for employee builders.
-type Employee func(*sql.Selector)
-
 // InsurancePolicy is the predicate function for insurancepolicy builders.
 type InsurancePolicy func(*sql.Selector)
 

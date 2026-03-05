@@ -135,9 +135,9 @@ func LocationID(v string) predicate.Asset {
 	return predicate.Asset(sql.FieldEQ(FieldLocationID, v))
 }
 
-// EmployeeID applies equality check predicate on the "employee_id" field. It's identical to EmployeeIDEQ.
-func EmployeeID(v string) predicate.Asset {
-	return predicate.Asset(sql.FieldEQ(FieldEmployeeID, v))
+// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
+func UserID(v uint32) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldUserID, v))
 }
 
 // Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
@@ -1085,79 +1085,54 @@ func LocationIDContainsFold(v string) predicate.Asset {
 	return predicate.Asset(sql.FieldContainsFold(FieldLocationID, v))
 }
 
-// EmployeeIDEQ applies the EQ predicate on the "employee_id" field.
-func EmployeeIDEQ(v string) predicate.Asset {
-	return predicate.Asset(sql.FieldEQ(FieldEmployeeID, v))
+// UserIDEQ applies the EQ predicate on the "user_id" field.
+func UserIDEQ(v uint32) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldUserID, v))
 }
 
-// EmployeeIDNEQ applies the NEQ predicate on the "employee_id" field.
-func EmployeeIDNEQ(v string) predicate.Asset {
-	return predicate.Asset(sql.FieldNEQ(FieldEmployeeID, v))
+// UserIDNEQ applies the NEQ predicate on the "user_id" field.
+func UserIDNEQ(v uint32) predicate.Asset {
+	return predicate.Asset(sql.FieldNEQ(FieldUserID, v))
 }
 
-// EmployeeIDIn applies the In predicate on the "employee_id" field.
-func EmployeeIDIn(vs ...string) predicate.Asset {
-	return predicate.Asset(sql.FieldIn(FieldEmployeeID, vs...))
+// UserIDIn applies the In predicate on the "user_id" field.
+func UserIDIn(vs ...uint32) predicate.Asset {
+	return predicate.Asset(sql.FieldIn(FieldUserID, vs...))
 }
 
-// EmployeeIDNotIn applies the NotIn predicate on the "employee_id" field.
-func EmployeeIDNotIn(vs ...string) predicate.Asset {
-	return predicate.Asset(sql.FieldNotIn(FieldEmployeeID, vs...))
+// UserIDNotIn applies the NotIn predicate on the "user_id" field.
+func UserIDNotIn(vs ...uint32) predicate.Asset {
+	return predicate.Asset(sql.FieldNotIn(FieldUserID, vs...))
 }
 
-// EmployeeIDGT applies the GT predicate on the "employee_id" field.
-func EmployeeIDGT(v string) predicate.Asset {
-	return predicate.Asset(sql.FieldGT(FieldEmployeeID, v))
+// UserIDGT applies the GT predicate on the "user_id" field.
+func UserIDGT(v uint32) predicate.Asset {
+	return predicate.Asset(sql.FieldGT(FieldUserID, v))
 }
 
-// EmployeeIDGTE applies the GTE predicate on the "employee_id" field.
-func EmployeeIDGTE(v string) predicate.Asset {
-	return predicate.Asset(sql.FieldGTE(FieldEmployeeID, v))
+// UserIDGTE applies the GTE predicate on the "user_id" field.
+func UserIDGTE(v uint32) predicate.Asset {
+	return predicate.Asset(sql.FieldGTE(FieldUserID, v))
 }
 
-// EmployeeIDLT applies the LT predicate on the "employee_id" field.
-func EmployeeIDLT(v string) predicate.Asset {
-	return predicate.Asset(sql.FieldLT(FieldEmployeeID, v))
+// UserIDLT applies the LT predicate on the "user_id" field.
+func UserIDLT(v uint32) predicate.Asset {
+	return predicate.Asset(sql.FieldLT(FieldUserID, v))
 }
 
-// EmployeeIDLTE applies the LTE predicate on the "employee_id" field.
-func EmployeeIDLTE(v string) predicate.Asset {
-	return predicate.Asset(sql.FieldLTE(FieldEmployeeID, v))
+// UserIDLTE applies the LTE predicate on the "user_id" field.
+func UserIDLTE(v uint32) predicate.Asset {
+	return predicate.Asset(sql.FieldLTE(FieldUserID, v))
 }
 
-// EmployeeIDContains applies the Contains predicate on the "employee_id" field.
-func EmployeeIDContains(v string) predicate.Asset {
-	return predicate.Asset(sql.FieldContains(FieldEmployeeID, v))
+// UserIDIsNil applies the IsNil predicate on the "user_id" field.
+func UserIDIsNil() predicate.Asset {
+	return predicate.Asset(sql.FieldIsNull(FieldUserID))
 }
 
-// EmployeeIDHasPrefix applies the HasPrefix predicate on the "employee_id" field.
-func EmployeeIDHasPrefix(v string) predicate.Asset {
-	return predicate.Asset(sql.FieldHasPrefix(FieldEmployeeID, v))
-}
-
-// EmployeeIDHasSuffix applies the HasSuffix predicate on the "employee_id" field.
-func EmployeeIDHasSuffix(v string) predicate.Asset {
-	return predicate.Asset(sql.FieldHasSuffix(FieldEmployeeID, v))
-}
-
-// EmployeeIDIsNil applies the IsNil predicate on the "employee_id" field.
-func EmployeeIDIsNil() predicate.Asset {
-	return predicate.Asset(sql.FieldIsNull(FieldEmployeeID))
-}
-
-// EmployeeIDNotNil applies the NotNil predicate on the "employee_id" field.
-func EmployeeIDNotNil() predicate.Asset {
-	return predicate.Asset(sql.FieldNotNull(FieldEmployeeID))
-}
-
-// EmployeeIDEqualFold applies the EqualFold predicate on the "employee_id" field.
-func EmployeeIDEqualFold(v string) predicate.Asset {
-	return predicate.Asset(sql.FieldEqualFold(FieldEmployeeID, v))
-}
-
-// EmployeeIDContainsFold applies the ContainsFold predicate on the "employee_id" field.
-func EmployeeIDContainsFold(v string) predicate.Asset {
-	return predicate.Asset(sql.FieldContainsFold(FieldEmployeeID, v))
+// UserIDNotNil applies the NotNil predicate on the "user_id" field.
+func UserIDNotNil() predicate.Asset {
+	return predicate.Asset(sql.FieldNotNull(FieldUserID))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.
@@ -1871,29 +1846,6 @@ func HasLocation() predicate.Asset {
 func HasLocationWith(preds ...predicate.Location) predicate.Asset {
 	return predicate.Asset(func(s *sql.Selector) {
 		step := newLocationStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasEmployee applies the HasEdge predicate on the "employee" edge.
-func HasEmployee() predicate.Asset {
-	return predicate.Asset(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, EmployeeTable, EmployeeColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasEmployeeWith applies the HasEdge predicate on the "employee" edge with a given conditions (other predicates).
-func HasEmployeeWith(preds ...predicate.Employee) predicate.Asset {
-	return predicate.Asset(func(s *sql.Selector) {
-		step := newEmployeeStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

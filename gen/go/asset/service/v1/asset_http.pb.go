@@ -38,7 +38,7 @@ const OperationAssetServiceUploadDocument = "/asset.service.v1.AssetService/Uplo
 const OperationAssetServiceUploadPhoto = "/asset.service.v1.AssetService/UploadPhoto"
 
 type AssetServiceHTTPServer interface {
-	// AssignAsset Assign an asset to an employee
+	// AssignAsset Assign an asset to a user
 	AssignAsset(context.Context, *AssignAssetRequest) (*AssignAssetResponse, error)
 	// CreateAsset Create a new asset
 	CreateAsset(context.Context, *CreateAssetRequest) (*CreateAssetResponse, error)
@@ -62,7 +62,7 @@ type AssetServiceHTTPServer interface {
 	ListAssets(context.Context, *ListAssetsRequest) (*ListAssetsResponse, error)
 	// ListDocuments List documents for an asset
 	ListDocuments(context.Context, *ListAssetDocumentsRequest) (*ListAssetDocumentsResponse, error)
-	// UnassignAsset Unassign an asset from an employee
+	// UnassignAsset Unassign an asset from a user
 	UnassignAsset(context.Context, *UnassignAssetRequest) (*UnassignAssetResponse, error)
 	// UpdateAsset Update an asset
 	UpdateAsset(context.Context, *UpdateAssetRequest) (*UpdateAssetResponse, error)
@@ -457,7 +457,7 @@ func _AssetService_InventorySyncExecute0_HTTP_Handler(srv AssetServiceHTTPServer
 }
 
 type AssetServiceHTTPClient interface {
-	// AssignAsset Assign an asset to an employee
+	// AssignAsset Assign an asset to a user
 	AssignAsset(ctx context.Context, req *AssignAssetRequest, opts ...http.CallOption) (rsp *AssignAssetResponse, err error)
 	// CreateAsset Create a new asset
 	CreateAsset(ctx context.Context, req *CreateAssetRequest, opts ...http.CallOption) (rsp *CreateAssetResponse, err error)
@@ -481,7 +481,7 @@ type AssetServiceHTTPClient interface {
 	ListAssets(ctx context.Context, req *ListAssetsRequest, opts ...http.CallOption) (rsp *ListAssetsResponse, err error)
 	// ListDocuments List documents for an asset
 	ListDocuments(ctx context.Context, req *ListAssetDocumentsRequest, opts ...http.CallOption) (rsp *ListAssetDocumentsResponse, err error)
-	// UnassignAsset Unassign an asset from an employee
+	// UnassignAsset Unassign an asset from a user
 	UnassignAsset(ctx context.Context, req *UnassignAssetRequest, opts ...http.CallOption) (rsp *UnassignAssetResponse, err error)
 	// UpdateAsset Update an asset
 	UpdateAsset(ctx context.Context, req *UpdateAssetRequest, opts ...http.CallOption) (rsp *UpdateAssetResponse, err error)
@@ -499,7 +499,7 @@ func NewAssetServiceHTTPClient(client *http.Client) AssetServiceHTTPClient {
 	return &AssetServiceHTTPClientImpl{client}
 }
 
-// AssignAsset Assign an asset to an employee
+// AssignAsset Assign an asset to a user
 func (c *AssetServiceHTTPClientImpl) AssignAsset(ctx context.Context, in *AssignAssetRequest, opts ...http.CallOption) (*AssignAssetResponse, error) {
 	var out AssignAssetResponse
 	pattern := "/v1/assets/{id}/assign"
@@ -667,7 +667,7 @@ func (c *AssetServiceHTTPClientImpl) ListDocuments(ctx context.Context, in *List
 	return &out, nil
 }
 
-// UnassignAsset Unassign an asset from an employee
+// UnassignAsset Unassign an asset from a user
 func (c *AssetServiceHTTPClientImpl) UnassignAsset(ctx context.Context, in *UnassignAssetRequest, opts ...http.CallOption) (*UnassignAssetResponse, error) {
 	var out UnassignAssetResponse
 	pattern := "/v1/assets/{id}/unassign"

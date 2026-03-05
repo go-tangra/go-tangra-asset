@@ -31,9 +31,12 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	systemService := service.NewSystemService(context, statisticsRepo)
 	supplierRepo := data.NewSupplierRepo(context, entClient)
 	supplierService := service.NewSupplierService(context, supplierRepo)
-	employeeRepo := data.NewEmployeeRepo(context, entClient)
-	ldapClient := data.NewLdapClient(context)
-	employeeService := service.NewEmployeeService(context, employeeRepo, ldapClient)
+	adminClient, cleanup2, err := data.NewAdminClient(context)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	userService := service.NewUserService(context, adminClient)
 	locationRepo := data.NewLocationRepo(context, entClient)
 	locationService := service.NewLocationService(context, locationRepo)
 	categoryRepo := data.NewCategoryRepo(context, entClient)
@@ -41,18 +44,20 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	assetRepo := data.NewAssetRepo(context, entClient)
 	assignmentRepo := data.NewAssignmentRepo(context, entClient)
 	documentRepo := data.NewDocumentRepo(context, entClient)
-	storageClient, cleanup2, err := data.NewStorageClient(context)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	inventoryClient, cleanup3, err := data.NewInventoryClient(context)
+	storageClient, cleanup3, err := data.NewStorageClient(context)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	assetService := service.NewAssetService(context, assetRepo, assignmentRepo, documentRepo, employeeRepo, storageClient, inventoryClient)
+	inventoryClient, cleanup4, err := data.NewInventoryClient(context)
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	assetService := service.NewAssetService(context, assetRepo, assignmentRepo, documentRepo, adminClient, storageClient, inventoryClient)
 	consumableRepo := data.NewConsumableRepo(context, entClient)
 	consumableService := service.NewConsumableService(context, consumableRepo, documentRepo, storageClient)
 	licenseRepo := data.NewLicenseRepo(context, entClient)
@@ -60,10 +65,11 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	insurancePolicyRepo := data.NewInsurancePolicyRepo(context, entClient)
 	insurancePolicyService := service.NewInsurancePolicyService(context, insurancePolicyRepo, assetRepo)
 	backupService := service.NewBackupService(context, entClient)
-	grpcServer := server.NewGRPCServer(context, certManager, auditLogRepo, systemService, supplierService, employeeService, locationService, categoryService, assetService, consumableService, licenseService, insurancePolicyService, backupService)
+	grpcServer := server.NewGRPCServer(context, certManager, auditLogRepo, systemService, supplierService, userService, locationService, categoryService, assetService, consumableService, licenseService, insurancePolicyService, backupService)
 	httpServer := server.NewHTTPServer(context)
 	app := newApp(context, grpcServer, httpServer)
 	return app, func() {
+		cleanup4()
 		cleanup3()
 		cleanup2()
 		cleanup()

@@ -17,7 +17,6 @@ import (
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/asset"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/assetassignment"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/category"
-	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/location"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/predicate"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/supplier"
@@ -33,7 +32,6 @@ type AssetQuery struct {
 	withCategory    *CategoryQuery
 	withSupplier    *SupplierQuery
 	withLocation    *LocationQuery
-	withEmployee    *EmployeeQuery
 	withAssignments *AssetAssignmentQuery
 	modifiers       []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
@@ -131,28 +129,6 @@ func (_q *AssetQuery) QueryLocation() *LocationQuery {
 			sqlgraph.From(asset.Table, asset.FieldID, selector),
 			sqlgraph.To(location.Table, location.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, false, asset.LocationTable, asset.LocationColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryEmployee chains the current query on the "employee" edge.
-func (_q *AssetQuery) QueryEmployee() *EmployeeQuery {
-	query := (&EmployeeClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(asset.Table, asset.FieldID, selector),
-			sqlgraph.To(employee.Table, employee.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, asset.EmployeeTable, asset.EmployeeColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -377,7 +353,6 @@ func (_q *AssetQuery) Clone() *AssetQuery {
 		withCategory:    _q.withCategory.Clone(),
 		withSupplier:    _q.withSupplier.Clone(),
 		withLocation:    _q.withLocation.Clone(),
-		withEmployee:    _q.withEmployee.Clone(),
 		withAssignments: _q.withAssignments.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
@@ -416,17 +391,6 @@ func (_q *AssetQuery) WithLocation(opts ...func(*LocationQuery)) *AssetQuery {
 		opt(query)
 	}
 	_q.withLocation = query
-	return _q
-}
-
-// WithEmployee tells the query-builder to eager-load the nodes that are connected to
-// the "employee" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *AssetQuery) WithEmployee(opts ...func(*EmployeeQuery)) *AssetQuery {
-	query := (&EmployeeClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withEmployee = query
 	return _q
 }
 
@@ -525,11 +489,10 @@ func (_q *AssetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Asset,
 	var (
 		nodes       = []*Asset{}
 		_spec       = _q.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [4]bool{
 			_q.withCategory != nil,
 			_q.withSupplier != nil,
 			_q.withLocation != nil,
-			_q.withEmployee != nil,
 			_q.withAssignments != nil,
 		}
 	)
@@ -569,12 +532,6 @@ func (_q *AssetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Asset,
 	if query := _q.withLocation; query != nil {
 		if err := _q.loadLocation(ctx, query, nodes, nil,
 			func(n *Asset, e *Location) { n.Edges.Location = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := _q.withEmployee; query != nil {
-		if err := _q.loadEmployee(ctx, query, nodes, nil,
-			func(n *Asset, e *Employee) { n.Edges.Employee = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -675,35 +632,6 @@ func (_q *AssetQuery) loadLocation(ctx context.Context, query *LocationQuery, no
 	}
 	return nil
 }
-func (_q *AssetQuery) loadEmployee(ctx context.Context, query *EmployeeQuery, nodes []*Asset, init func(*Asset), assign func(*Asset, *Employee)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Asset)
-	for i := range nodes {
-		fk := nodes[i].EmployeeID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(employee.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "employee_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (_q *AssetQuery) loadAssignments(ctx context.Context, query *AssetAssignmentQuery, nodes []*Asset, init func(*Asset), assign func(*Asset, *AssetAssignment)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[string]*Asset)
@@ -771,9 +699,6 @@ func (_q *AssetQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withLocation != nil {
 			_spec.Node.AddColumnOnce(asset.FieldLocationID)
-		}
-		if _q.withEmployee != nil {
-			_spec.Node.AddColumnOnce(asset.FieldEmployeeID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

@@ -54,9 +54,9 @@ type AssetServiceClient interface {
 	UpdateAsset(ctx context.Context, in *UpdateAssetRequest, opts ...grpc.CallOption) (*UpdateAssetResponse, error)
 	// Delete an asset
 	DeleteAsset(ctx context.Context, in *DeleteAssetRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// Assign an asset to an employee
+	// Assign an asset to a user
 	AssignAsset(ctx context.Context, in *AssignAssetRequest, opts ...grpc.CallOption) (*AssignAssetResponse, error)
-	// Unassign an asset from an employee
+	// Unassign an asset from a user
 	UnassignAsset(ctx context.Context, in *UnassignAssetRequest, opts ...grpc.CallOption) (*UnassignAssetResponse, error)
 	// Get assignment history for an asset
 	GetAssignmentHistory(ctx context.Context, in *GetAssignmentHistoryRequest, opts ...grpc.CallOption) (*GetAssignmentHistoryResponse, error)
@@ -262,9 +262,9 @@ type AssetServiceServer interface {
 	UpdateAsset(context.Context, *UpdateAssetRequest) (*UpdateAssetResponse, error)
 	// Delete an asset
 	DeleteAsset(context.Context, *DeleteAssetRequest) (*emptypb.Empty, error)
-	// Assign an asset to an employee
+	// Assign an asset to a user
 	AssignAsset(context.Context, *AssignAssetRequest) (*AssignAssetResponse, error)
-	// Unassign an asset from an employee
+	// Unassign an asset from a user
 	UnassignAsset(context.Context, *UnassignAssetRequest) (*UnassignAssetResponse, error)
 	// Get assignment history for an asset
 	GetAssignmentHistory(context.Context, *GetAssignmentHistoryRequest) (*GetAssignmentHistoryResponse, error)

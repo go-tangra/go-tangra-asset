@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/asset"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/assetassignment"
-	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
 )
 
 // AssetAssignmentCreate is the builder for creating a AssetAssignment entity.
@@ -45,22 +44,22 @@ func (_c *AssetAssignmentCreate) SetNillableAssetName(v *string) *AssetAssignmen
 	return _c
 }
 
-// SetEmployeeID sets the "employee_id" field.
-func (_c *AssetAssignmentCreate) SetEmployeeID(v string) *AssetAssignmentCreate {
-	_c.mutation.SetEmployeeID(v)
+// SetUserID sets the "user_id" field.
+func (_c *AssetAssignmentCreate) SetUserID(v uint32) *AssetAssignmentCreate {
+	_c.mutation.SetUserID(v)
 	return _c
 }
 
-// SetEmployeeName sets the "employee_name" field.
-func (_c *AssetAssignmentCreate) SetEmployeeName(v string) *AssetAssignmentCreate {
-	_c.mutation.SetEmployeeName(v)
+// SetUserName sets the "user_name" field.
+func (_c *AssetAssignmentCreate) SetUserName(v string) *AssetAssignmentCreate {
+	_c.mutation.SetUserName(v)
 	return _c
 }
 
-// SetNillableEmployeeName sets the "employee_name" field if the given value is not nil.
-func (_c *AssetAssignmentCreate) SetNillableEmployeeName(v *string) *AssetAssignmentCreate {
+// SetNillableUserName sets the "user_name" field if the given value is not nil.
+func (_c *AssetAssignmentCreate) SetNillableUserName(v *string) *AssetAssignmentCreate {
 	if v != nil {
-		_c.SetEmployeeName(*v)
+		_c.SetUserName(*v)
 	}
 	return _c
 }
@@ -138,11 +137,6 @@ func (_c *AssetAssignmentCreate) SetAsset(v *Asset) *AssetAssignmentCreate {
 	return _c.SetAssetID(v.ID)
 }
 
-// SetEmployee sets the "employee" edge to the Employee entity.
-func (_c *AssetAssignmentCreate) SetEmployee(v *Employee) *AssetAssignmentCreate {
-	return _c.SetEmployeeID(v.ID)
-}
-
 // Mutation returns the AssetAssignmentMutation object of the builder.
 func (_c *AssetAssignmentCreate) Mutation() *AssetAssignmentMutation {
 	return _c.mutation
@@ -194,13 +188,8 @@ func (_c *AssetAssignmentCreate) check() error {
 			return &ValidationError{Name: "asset_id", err: fmt.Errorf(`ent: validator failed for field "AssetAssignment.asset_id": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.EmployeeID(); !ok {
-		return &ValidationError{Name: "employee_id", err: errors.New(`ent: missing required field "AssetAssignment.employee_id"`)}
-	}
-	if v, ok := _c.mutation.EmployeeID(); ok {
-		if err := assetassignment.EmployeeIDValidator(v); err != nil {
-			return &ValidationError{Name: "employee_id", err: fmt.Errorf(`ent: validator failed for field "AssetAssignment.employee_id": %w`, err)}
-		}
+	if _, ok := _c.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "AssetAssignment.user_id"`)}
 	}
 	if _, ok := _c.mutation.Action(); !ok {
 		return &ValidationError{Name: "action", err: errors.New(`ent: missing required field "AssetAssignment.action"`)}
@@ -215,9 +204,6 @@ func (_c *AssetAssignmentCreate) check() error {
 	}
 	if len(_c.mutation.AssetIDs()) == 0 {
 		return &ValidationError{Name: "asset", err: errors.New(`ent: missing required edge "AssetAssignment.asset"`)}
-	}
-	if len(_c.mutation.EmployeeIDs()) == 0 {
-		return &ValidationError{Name: "employee", err: errors.New(`ent: missing required edge "AssetAssignment.employee"`)}
 	}
 	return nil
 }
@@ -259,9 +245,13 @@ func (_c *AssetAssignmentCreate) createSpec() (*AssetAssignment, *sqlgraph.Creat
 		_spec.SetField(assetassignment.FieldAssetName, field.TypeString, value)
 		_node.AssetName = value
 	}
-	if value, ok := _c.mutation.EmployeeName(); ok {
-		_spec.SetField(assetassignment.FieldEmployeeName, field.TypeString, value)
-		_node.EmployeeName = value
+	if value, ok := _c.mutation.UserID(); ok {
+		_spec.SetField(assetassignment.FieldUserID, field.TypeUint32, value)
+		_node.UserID = value
+	}
+	if value, ok := _c.mutation.UserName(); ok {
+		_spec.SetField(assetassignment.FieldUserName, field.TypeString, value)
+		_node.UserName = value
 	}
 	if value, ok := _c.mutation.Action(); ok {
 		_spec.SetField(assetassignment.FieldAction, field.TypeInt32, value)
@@ -298,23 +288,6 @@ func (_c *AssetAssignmentCreate) createSpec() (*AssetAssignment, *sqlgraph.Creat
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.AssetID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := _c.mutation.EmployeeIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   assetassignment.EmployeeTable,
-			Columns: []string{assetassignment.EmployeeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(employee.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.EmployeeID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -399,33 +372,39 @@ func (u *AssetAssignmentUpsert) ClearAssetName() *AssetAssignmentUpsert {
 	return u
 }
 
-// SetEmployeeID sets the "employee_id" field.
-func (u *AssetAssignmentUpsert) SetEmployeeID(v string) *AssetAssignmentUpsert {
-	u.Set(assetassignment.FieldEmployeeID, v)
+// SetUserID sets the "user_id" field.
+func (u *AssetAssignmentUpsert) SetUserID(v uint32) *AssetAssignmentUpsert {
+	u.Set(assetassignment.FieldUserID, v)
 	return u
 }
 
-// UpdateEmployeeID sets the "employee_id" field to the value that was provided on create.
-func (u *AssetAssignmentUpsert) UpdateEmployeeID() *AssetAssignmentUpsert {
-	u.SetExcluded(assetassignment.FieldEmployeeID)
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *AssetAssignmentUpsert) UpdateUserID() *AssetAssignmentUpsert {
+	u.SetExcluded(assetassignment.FieldUserID)
 	return u
 }
 
-// SetEmployeeName sets the "employee_name" field.
-func (u *AssetAssignmentUpsert) SetEmployeeName(v string) *AssetAssignmentUpsert {
-	u.Set(assetassignment.FieldEmployeeName, v)
+// AddUserID adds v to the "user_id" field.
+func (u *AssetAssignmentUpsert) AddUserID(v uint32) *AssetAssignmentUpsert {
+	u.Add(assetassignment.FieldUserID, v)
 	return u
 }
 
-// UpdateEmployeeName sets the "employee_name" field to the value that was provided on create.
-func (u *AssetAssignmentUpsert) UpdateEmployeeName() *AssetAssignmentUpsert {
-	u.SetExcluded(assetassignment.FieldEmployeeName)
+// SetUserName sets the "user_name" field.
+func (u *AssetAssignmentUpsert) SetUserName(v string) *AssetAssignmentUpsert {
+	u.Set(assetassignment.FieldUserName, v)
 	return u
 }
 
-// ClearEmployeeName clears the value of the "employee_name" field.
-func (u *AssetAssignmentUpsert) ClearEmployeeName() *AssetAssignmentUpsert {
-	u.SetNull(assetassignment.FieldEmployeeName)
+// UpdateUserName sets the "user_name" field to the value that was provided on create.
+func (u *AssetAssignmentUpsert) UpdateUserName() *AssetAssignmentUpsert {
+	u.SetExcluded(assetassignment.FieldUserName)
+	return u
+}
+
+// ClearUserName clears the value of the "user_name" field.
+func (u *AssetAssignmentUpsert) ClearUserName() *AssetAssignmentUpsert {
+	u.SetNull(assetassignment.FieldUserName)
 	return u
 }
 
@@ -602,38 +581,45 @@ func (u *AssetAssignmentUpsertOne) ClearAssetName() *AssetAssignmentUpsertOne {
 	})
 }
 
-// SetEmployeeID sets the "employee_id" field.
-func (u *AssetAssignmentUpsertOne) SetEmployeeID(v string) *AssetAssignmentUpsertOne {
+// SetUserID sets the "user_id" field.
+func (u *AssetAssignmentUpsertOne) SetUserID(v uint32) *AssetAssignmentUpsertOne {
 	return u.Update(func(s *AssetAssignmentUpsert) {
-		s.SetEmployeeID(v)
+		s.SetUserID(v)
 	})
 }
 
-// UpdateEmployeeID sets the "employee_id" field to the value that was provided on create.
-func (u *AssetAssignmentUpsertOne) UpdateEmployeeID() *AssetAssignmentUpsertOne {
+// AddUserID adds v to the "user_id" field.
+func (u *AssetAssignmentUpsertOne) AddUserID(v uint32) *AssetAssignmentUpsertOne {
 	return u.Update(func(s *AssetAssignmentUpsert) {
-		s.UpdateEmployeeID()
+		s.AddUserID(v)
 	})
 }
 
-// SetEmployeeName sets the "employee_name" field.
-func (u *AssetAssignmentUpsertOne) SetEmployeeName(v string) *AssetAssignmentUpsertOne {
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *AssetAssignmentUpsertOne) UpdateUserID() *AssetAssignmentUpsertOne {
 	return u.Update(func(s *AssetAssignmentUpsert) {
-		s.SetEmployeeName(v)
+		s.UpdateUserID()
 	})
 }
 
-// UpdateEmployeeName sets the "employee_name" field to the value that was provided on create.
-func (u *AssetAssignmentUpsertOne) UpdateEmployeeName() *AssetAssignmentUpsertOne {
+// SetUserName sets the "user_name" field.
+func (u *AssetAssignmentUpsertOne) SetUserName(v string) *AssetAssignmentUpsertOne {
 	return u.Update(func(s *AssetAssignmentUpsert) {
-		s.UpdateEmployeeName()
+		s.SetUserName(v)
 	})
 }
 
-// ClearEmployeeName clears the value of the "employee_name" field.
-func (u *AssetAssignmentUpsertOne) ClearEmployeeName() *AssetAssignmentUpsertOne {
+// UpdateUserName sets the "user_name" field to the value that was provided on create.
+func (u *AssetAssignmentUpsertOne) UpdateUserName() *AssetAssignmentUpsertOne {
 	return u.Update(func(s *AssetAssignmentUpsert) {
-		s.ClearEmployeeName()
+		s.UpdateUserName()
+	})
+}
+
+// ClearUserName clears the value of the "user_name" field.
+func (u *AssetAssignmentUpsertOne) ClearUserName() *AssetAssignmentUpsertOne {
+	return u.Update(func(s *AssetAssignmentUpsert) {
+		s.ClearUserName()
 	})
 }
 
@@ -992,38 +978,45 @@ func (u *AssetAssignmentUpsertBulk) ClearAssetName() *AssetAssignmentUpsertBulk 
 	})
 }
 
-// SetEmployeeID sets the "employee_id" field.
-func (u *AssetAssignmentUpsertBulk) SetEmployeeID(v string) *AssetAssignmentUpsertBulk {
+// SetUserID sets the "user_id" field.
+func (u *AssetAssignmentUpsertBulk) SetUserID(v uint32) *AssetAssignmentUpsertBulk {
 	return u.Update(func(s *AssetAssignmentUpsert) {
-		s.SetEmployeeID(v)
+		s.SetUserID(v)
 	})
 }
 
-// UpdateEmployeeID sets the "employee_id" field to the value that was provided on create.
-func (u *AssetAssignmentUpsertBulk) UpdateEmployeeID() *AssetAssignmentUpsertBulk {
+// AddUserID adds v to the "user_id" field.
+func (u *AssetAssignmentUpsertBulk) AddUserID(v uint32) *AssetAssignmentUpsertBulk {
 	return u.Update(func(s *AssetAssignmentUpsert) {
-		s.UpdateEmployeeID()
+		s.AddUserID(v)
 	})
 }
 
-// SetEmployeeName sets the "employee_name" field.
-func (u *AssetAssignmentUpsertBulk) SetEmployeeName(v string) *AssetAssignmentUpsertBulk {
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *AssetAssignmentUpsertBulk) UpdateUserID() *AssetAssignmentUpsertBulk {
 	return u.Update(func(s *AssetAssignmentUpsert) {
-		s.SetEmployeeName(v)
+		s.UpdateUserID()
 	})
 }
 
-// UpdateEmployeeName sets the "employee_name" field to the value that was provided on create.
-func (u *AssetAssignmentUpsertBulk) UpdateEmployeeName() *AssetAssignmentUpsertBulk {
+// SetUserName sets the "user_name" field.
+func (u *AssetAssignmentUpsertBulk) SetUserName(v string) *AssetAssignmentUpsertBulk {
 	return u.Update(func(s *AssetAssignmentUpsert) {
-		s.UpdateEmployeeName()
+		s.SetUserName(v)
 	})
 }
 
-// ClearEmployeeName clears the value of the "employee_name" field.
-func (u *AssetAssignmentUpsertBulk) ClearEmployeeName() *AssetAssignmentUpsertBulk {
+// UpdateUserName sets the "user_name" field to the value that was provided on create.
+func (u *AssetAssignmentUpsertBulk) UpdateUserName() *AssetAssignmentUpsertBulk {
 	return u.Update(func(s *AssetAssignmentUpsert) {
-		s.ClearEmployeeName()
+		s.UpdateUserName()
+	})
+}
+
+// ClearUserName clears the value of the "user_name" field.
+func (u *AssetAssignmentUpsertBulk) ClearUserName() *AssetAssignmentUpsertBulk {
+	return u.Update(func(s *AssetAssignmentUpsert) {
+		s.ClearUserName()
 	})
 }
 

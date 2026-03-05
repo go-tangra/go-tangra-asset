@@ -252,7 +252,7 @@ func (x *Asset) Redact() string {
 
 	// Safe field: LocationId
 
-	// Safe field: EmployeeId
+	// Safe field: UserId
 
 	// Safe field: Status
 
@@ -300,9 +300,9 @@ func (x *AssetAssignment) Redact() string {
 
 	// Safe field: AssetName
 
-	// Safe field: EmployeeId
+	// Safe field: UserId
 
-	// Safe field: EmployeeName
+	// Safe field: UserName
 
 	// Safe field: Action
 
@@ -452,7 +452,7 @@ func (x *ListAssetsRequest) Redact() string {
 
 	// Safe field: LocationId
 
-	// Safe field: EmployeeId
+	// Safe field: UserId
 	return x.String()
 }
 
@@ -510,7 +510,7 @@ func (x *AssignAssetRequest) Redact() string {
 
 	// Safe field: Id
 
-	// Safe field: EmployeeId
+	// Safe field: UserId
 
 	// Safe field: Notes
 	return x.String()

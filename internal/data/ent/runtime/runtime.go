@@ -11,7 +11,6 @@ import (
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/auditlog"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/category"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/consumable"
-	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/insurancepolicy"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/insurancepolicyasset"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/license"
@@ -87,10 +86,6 @@ func init() {
 	assetassignmentDescAssetID := assetassignmentFields[1].Descriptor()
 	// assetassignment.AssetIDValidator is a validator for the "asset_id" field. It is called by the builders before save.
 	assetassignment.AssetIDValidator = assetassignmentDescAssetID.Validators[0].(func(string) error)
-	// assetassignmentDescEmployeeID is the schema descriptor for employee_id field.
-	assetassignmentDescEmployeeID := assetassignmentFields[3].Descriptor()
-	// assetassignment.EmployeeIDValidator is a validator for the "employee_id" field. It is called by the builders before save.
-	assetassignment.EmployeeIDValidator = assetassignmentDescEmployeeID.Validators[0].(func(string) error)
 	// assetassignmentDescAction is the schema descriptor for action field.
 	assetassignmentDescAction := assetassignmentFields[5].Descriptor()
 	// assetassignment.DefaultAction holds the default value on creation for the action field.
@@ -261,64 +256,6 @@ func init() {
 	consumableDescID := consumableFields[0].Descriptor()
 	// consumable.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	consumable.IDValidator = consumableDescID.Validators[0].(func(string) error)
-	employeeMixin := schema.Employee{}.Mixin()
-	employee.Policy = privacy.NewPolicies(employeeMixin[3], schema.Employee{})
-	employee.Hooks[0] = func(next ent.Mutator) ent.Mutator {
-		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-			if err := employee.Policy.EvalMutation(ctx, m); err != nil {
-				return nil, err
-			}
-			return next.Mutate(ctx, m)
-		})
-	}
-	employeeMixinFields3 := employeeMixin[3].Fields()
-	_ = employeeMixinFields3
-	employeeFields := schema.Employee{}.Fields()
-	_ = employeeFields
-	// employeeDescTenantID is the schema descriptor for tenant_id field.
-	employeeDescTenantID := employeeMixinFields3[0].Descriptor()
-	// employee.DefaultTenantID holds the default value on creation for the tenant_id field.
-	employee.DefaultTenantID = employeeDescTenantID.Default.(uint32)
-	// employeeDescFirstName is the schema descriptor for first_name field.
-	employeeDescFirstName := employeeFields[1].Descriptor()
-	// employee.FirstNameValidator is a validator for the "first_name" field. It is called by the builders before save.
-	employee.FirstNameValidator = func() func(string) error {
-		validators := employeeDescFirstName.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(first_name string) error {
-			for _, fn := range fns {
-				if err := fn(first_name); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// employeeDescLastName is the schema descriptor for last_name field.
-	employeeDescLastName := employeeFields[2].Descriptor()
-	// employee.LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
-	employee.LastNameValidator = func() func(string) error {
-		validators := employeeDescLastName.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(last_name string) error {
-			for _, fn := range fns {
-				if err := fn(last_name); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// employeeDescID is the schema descriptor for id field.
-	employeeDescID := employeeFields[0].Descriptor()
-	// employee.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	employee.IDValidator = employeeDescID.Validators[0].(func(string) error)
 	insurancepolicyMixin := schema.InsurancePolicy{}.Mixin()
 	insurancepolicy.Policy = privacy.NewPolicies(insurancepolicyMixin[3], schema.InsurancePolicy{})
 	insurancepolicy.Hooks[0] = func(next ent.Mutator) ent.Mutator {

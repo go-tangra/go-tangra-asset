@@ -4,17 +4,11 @@
 package assetpb
 
 import (
-	validate "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	context "context"
 	redact "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
-	annotations "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
-	structpb "google.golang.org/protobuf/types/known/structpb"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -24,37 +18,30 @@ var (
 	_ redact.Redactor
 	_ codes.Code
 	_ status.Status
-	_ validate.Rule
-	_ annotations.FieldBehavior
-	_ timestamppb.Timestamp
-	_ emptypb.Empty
-	_ fieldmaskpb.FieldMask
-	_ structpb.Struct
-	_ redact.FieldRules
 )
 
-// RegisterRedactedEmployeeServiceServer wraps the EmployeeServiceServer with the redacted server and registers the service in GRPC
-func RegisterRedactedEmployeeServiceServer(s grpc.ServiceRegistrar, srv EmployeeServiceServer, bypass redact.Bypass) {
-	RegisterEmployeeServiceServer(s, RedactedEmployeeServiceServer(srv, bypass))
+// RegisterRedactedUserServiceServer wraps the UserServiceServer with the redacted server and registers the service in GRPC
+func RegisterRedactedUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer, bypass redact.Bypass) {
+	RegisterUserServiceServer(s, RedactedUserServiceServer(srv, bypass))
 }
 
-func RedactedEmployeeServiceServer(srv EmployeeServiceServer, bypass redact.Bypass) EmployeeServiceServer {
+func RedactedUserServiceServer(srv UserServiceServer, bypass redact.Bypass) UserServiceServer {
 	if bypass == nil {
 		bypass = redact.Falsy
 	}
-	return &redactedEmployeeServiceServer{srv: srv, bypass: bypass}
+	return &redactedUserServiceServer{srv: srv, bypass: bypass}
 }
 
-type redactedEmployeeServiceServer struct {
-	UnsafeEmployeeServiceServer
-	srv    EmployeeServiceServer
+type redactedUserServiceServer struct {
+	UnsafeUserServiceServer
+	srv    UserServiceServer
 	bypass redact.Bypass
 }
 
-// CreateEmployee is the redacted wrapper for the actual EmployeeServiceServer.CreateEmployee method
+// ListUsers is the redacted wrapper for the actual UserServiceServer.ListUsers method
 // Unary RPC
-func (s *redactedEmployeeServiceServer) CreateEmployee(ctx context.Context, in *CreateEmployeeRequest) (*CreateEmployeeResponse, error) {
-	res, err := s.srv.CreateEmployee(ctx, in)
+func (s *redactedUserServiceServer) ListUsers(ctx context.Context, in *ListUsersRequest) (*ListUsersResponse, error) {
+	res, err := s.srv.ListUsers(ctx, in)
 	if !s.bypass.CheckInternal(ctx) {
 		// Apply redaction to the response
 		redact.Apply(res)
@@ -62,206 +49,36 @@ func (s *redactedEmployeeServiceServer) CreateEmployee(ctx context.Context, in *
 	return res, err
 }
 
-// GetEmployee is the redacted wrapper for the actual EmployeeServiceServer.GetEmployee method
-// Unary RPC
-func (s *redactedEmployeeServiceServer) GetEmployee(ctx context.Context, in *GetEmployeeRequest) (*GetEmployeeResponse, error) {
-	res, err := s.srv.GetEmployee(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.Apply(res)
-	}
-	return res, err
-}
-
-// ListEmployees is the redacted wrapper for the actual EmployeeServiceServer.ListEmployees method
-// Unary RPC
-func (s *redactedEmployeeServiceServer) ListEmployees(ctx context.Context, in *ListEmployeesRequest) (*ListEmployeesResponse, error) {
-	res, err := s.srv.ListEmployees(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.Apply(res)
-	}
-	return res, err
-}
-
-// UpdateEmployee is the redacted wrapper for the actual EmployeeServiceServer.UpdateEmployee method
-// Unary RPC
-func (s *redactedEmployeeServiceServer) UpdateEmployee(ctx context.Context, in *UpdateEmployeeRequest) (*UpdateEmployeeResponse, error) {
-	res, err := s.srv.UpdateEmployee(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.Apply(res)
-	}
-	return res, err
-}
-
-// DeleteEmployee is the redacted wrapper for the actual EmployeeServiceServer.DeleteEmployee method
-// Unary RPC
-func (s *redactedEmployeeServiceServer) DeleteEmployee(ctx context.Context, in *DeleteEmployeeRequest) (*emptypb.Empty, error) {
-	res, err := s.srv.DeleteEmployee(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.Apply(res)
-	}
-	return res, err
-}
-
-// LdapSyncPreview is the redacted wrapper for the actual EmployeeServiceServer.LdapSyncPreview method
-// Unary RPC
-func (s *redactedEmployeeServiceServer) LdapSyncPreview(ctx context.Context, in *LdapSyncPreviewRequest) (*LdapSyncPreviewResponse, error) {
-	res, err := s.srv.LdapSyncPreview(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.Apply(res)
-	}
-	return res, err
-}
-
-// LdapSyncExecute is the redacted wrapper for the actual EmployeeServiceServer.LdapSyncExecute method
-// Unary RPC
-func (s *redactedEmployeeServiceServer) LdapSyncExecute(ctx context.Context, in *LdapSyncExecuteRequest) (*LdapSyncExecuteResponse, error) {
-	res, err := s.srv.LdapSyncExecute(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.Apply(res)
-	}
-	return res, err
-}
-
-// Redact method implementation for Employee
-func (x *Employee) Redact() string {
+// Redact method implementation for PortalUser
+func (x *PortalUser) Redact() string {
 	if x == nil {
 		return ""
 	}
 
 	// Safe field: Id
 
-	// Safe field: TenantId
+	// Safe field: Username
 
-	// Safe field: FirstName
+	// Safe field: Realname
 
-	// Safe field: LastName
+	// Safe field: Email
 
-	// Redacting field: Email
-	EmailTmp := ``
-	x.Email = &EmailTmp
+	// Safe field: OrgUnitNames
 
-	// Redacting field: Phone
-	PhoneTmp := ``
-	x.Phone = &PhoneTmp
-
-	// Safe field: Department
-
-	// Safe field: JobTitle
-
-	// Safe field: EmployeeNumber
-
-	// Safe field: Notes
-
-	// Safe field: Tags
-
-	// Safe field: Metadata
-
-	// Safe field: CreatedAt
-
-	// Safe field: UpdatedAt
-
-	// Safe field: CreatedBy
-
-	// Safe field: UpdatedBy
+	// Safe field: PositionNames
 	return x.String()
 }
 
-// Redact method implementation for CreateEmployeeRequest
-func (x *CreateEmployeeRequest) Redact() string {
+// Redact method implementation for ListUsersRequest
+func (x *ListUsersRequest) Redact() string {
 	if x == nil {
 		return ""
 	}
-
-	// Safe field: TenantId
-
-	// Safe field: FirstName
-
-	// Safe field: LastName
-
-	// Redacting field: Email
-	EmailTmp := ``
-	x.Email = &EmailTmp
-
-	// Redacting field: Phone
-	PhoneTmp := ``
-	x.Phone = &PhoneTmp
-
-	// Safe field: Department
-
-	// Safe field: JobTitle
-
-	// Safe field: EmployeeNumber
-
-	// Safe field: Notes
-
-	// Safe field: Tags
-
-	// Safe field: Metadata
 	return x.String()
 }
 
-// Redact method implementation for CreateEmployeeResponse
-func (x *CreateEmployeeResponse) Redact() string {
-	if x == nil {
-		return ""
-	}
-
-	// Safe field: Employee
-	return x.String()
-}
-
-// Redact method implementation for GetEmployeeRequest
-func (x *GetEmployeeRequest) Redact() string {
-	if x == nil {
-		return ""
-	}
-
-	// Safe field: Id
-	return x.String()
-}
-
-// Redact method implementation for GetEmployeeResponse
-func (x *GetEmployeeResponse) Redact() string {
-	if x == nil {
-		return ""
-	}
-
-	// Safe field: Employee
-	return x.String()
-}
-
-// Redact method implementation for ListEmployeesRequest
-func (x *ListEmployeesRequest) Redact() string {
-	if x == nil {
-		return ""
-	}
-
-	// Safe field: TenantId
-
-	// Safe field: Page
-
-	// Safe field: PageSize
-
-	// Safe field: NoPaging
-
-	// Safe field: Query
-
-	// Safe field: OrderBy
-
-	// Safe field: FieldMask
-
-	// Safe field: Department
-	return x.String()
-}
-
-// Redact method implementation for ListEmployeesResponse
-func (x *ListEmployeesResponse) Redact() string {
+// Redact method implementation for ListUsersResponse
+func (x *ListUsersResponse) Redact() string {
 	if x == nil {
 		return ""
 	}
@@ -269,117 +86,5 @@ func (x *ListEmployeesResponse) Redact() string {
 	// Safe field: Items
 
 	// Safe field: Total
-	return x.String()
-}
-
-// Redact method implementation for UpdateEmployeeRequest
-func (x *UpdateEmployeeRequest) Redact() string {
-	if x == nil {
-		return ""
-	}
-
-	// Safe field: Id
-
-	// Safe field: Data
-
-	// Safe field: UpdateMask
-	return x.String()
-}
-
-// Redact method implementation for UpdateEmployeeResponse
-func (x *UpdateEmployeeResponse) Redact() string {
-	if x == nil {
-		return ""
-	}
-
-	// Safe field: Employee
-	return x.String()
-}
-
-// Redact method implementation for DeleteEmployeeRequest
-func (x *DeleteEmployeeRequest) Redact() string {
-	if x == nil {
-		return ""
-	}
-
-	// Safe field: Id
-	return x.String()
-}
-
-// Redact method implementation for LdapSyncPreviewRequest
-func (x *LdapSyncPreviewRequest) Redact() string {
-	if x == nil {
-		return ""
-	}
-
-	// Safe field: TenantId
-	return x.String()
-}
-
-// Redact method implementation for LdapSyncChange
-func (x *LdapSyncChange) Redact() string {
-	if x == nil {
-		return ""
-	}
-
-	// Safe field: Action
-
-	// Safe field: Employee
-
-	// Safe field: ChangedFields
-
-	// Safe field: ExistingId
-
-	// Safe field: LdapDn
-	return x.String()
-}
-
-// Redact method implementation for LdapSyncPreviewResponse
-func (x *LdapSyncPreviewResponse) Redact() string {
-	if x == nil {
-		return ""
-	}
-
-	// Safe field: TotalLdapEntries
-
-	// Safe field: NewCount
-
-	// Safe field: UpdateCount
-
-	// Safe field: UnchangedCount
-
-	// Safe field: Changes
-
-	// Safe field: Warnings
-	return x.String()
-}
-
-// Redact method implementation for LdapSyncExecuteRequest
-func (x *LdapSyncExecuteRequest) Redact() string {
-	if x == nil {
-		return ""
-	}
-
-	// Safe field: TenantId
-
-	// Safe field: SelectedDns
-	return x.String()
-}
-
-// Redact method implementation for LdapSyncExecuteResponse
-func (x *LdapSyncExecuteResponse) Redact() string {
-	if x == nil {
-		return ""
-	}
-
-	// Safe field: CreatedCount
-
-	// Safe field: UpdatedCount
-
-	// Safe field: SkippedCount
-
-	// Safe field: ErrorCount
-
-	// Safe field: Errors
 	return x.String()
 }

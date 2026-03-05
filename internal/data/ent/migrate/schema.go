@@ -23,6 +23,7 @@ var (
 		{Name: "serial", Type: field.TypeString, Nullable: true, Comment: "Serial number"},
 		{Name: "model_name", Type: field.TypeString, Nullable: true, Comment: "Model name"},
 		{Name: "model_number", Type: field.TypeString, Nullable: true, Comment: "Model number"},
+		{Name: "user_id", Type: field.TypeUint32, Nullable: true, Comment: "Portal user ID (when assigned)"},
 		{Name: "status", Type: field.TypeInt32, Comment: "Asset status: 1=Deployable, 2=Assigned, 3=Broken, 4=Archived", Default: 1},
 		{Name: "photo_key", Type: field.TypeString, Nullable: true, Comment: "Photo storage key in S3"},
 		{Name: "warranty_months", Type: field.TypeInt32, Nullable: true, Comment: "Warranty duration in months"},
@@ -38,7 +39,6 @@ var (
 		{Name: "category_id", Type: field.TypeString, Nullable: true, Comment: "Category ID"},
 		{Name: "supplier_id", Type: field.TypeString, Nullable: true, Comment: "Supplier ID"},
 		{Name: "location_id", Type: field.TypeString, Nullable: true, Comment: "Location ID (when unassigned)"},
-		{Name: "employee_id", Type: field.TypeString, Nullable: true, Comment: "Employee ID (when assigned)"},
 	}
 	// AssetAssetsTable holds the schema information for the "asset_assets" table.
 	AssetAssetsTable = &schema.Table{
@@ -48,26 +48,20 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "asset_assets_asset_categories_category",
-				Columns:    []*schema.Column{AssetAssetsColumns[24]},
+				Columns:    []*schema.Column{AssetAssetsColumns[25]},
 				RefColumns: []*schema.Column{AssetCategoriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "asset_assets_asset_suppliers_supplier",
-				Columns:    []*schema.Column{AssetAssetsColumns[25]},
+				Columns:    []*schema.Column{AssetAssetsColumns[26]},
 				RefColumns: []*schema.Column{AssetSuppliersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "asset_assets_asset_locations_location",
-				Columns:    []*schema.Column{AssetAssetsColumns[26]},
-				RefColumns: []*schema.Column{AssetLocationsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "asset_assets_asset_employees_employee",
 				Columns:    []*schema.Column{AssetAssetsColumns[27]},
-				RefColumns: []*schema.Column{AssetEmployeesColumns[0]},
+				RefColumns: []*schema.Column{AssetLocationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
@@ -90,27 +84,27 @@ var (
 			{
 				Name:    "asset_status",
 				Unique:  false,
-				Columns: []*schema.Column{AssetAssetsColumns[12]},
+				Columns: []*schema.Column{AssetAssetsColumns[13]},
 			},
 			{
 				Name:    "asset_category_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssetAssetsColumns[24]},
+				Columns: []*schema.Column{AssetAssetsColumns[25]},
 			},
 			{
 				Name:    "asset_supplier_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssetAssetsColumns[25]},
+				Columns: []*schema.Column{AssetAssetsColumns[26]},
 			},
 			{
-				Name:    "asset_employee_id",
+				Name:    "asset_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssetAssetsColumns[27]},
+				Columns: []*schema.Column{AssetAssetsColumns[12]},
 			},
 			{
 				Name:    "asset_location_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssetAssetsColumns[26]},
+				Columns: []*schema.Column{AssetAssetsColumns[27]},
 			},
 		},
 	}
@@ -118,14 +112,14 @@ var (
 	AssetAssignmentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Comment: "Unique identifier"},
 		{Name: "asset_name", Type: field.TypeString, Nullable: true, Comment: "Asset name (denormalized)"},
-		{Name: "employee_name", Type: field.TypeString, Nullable: true, Comment: "Employee name (denormalized)"},
+		{Name: "user_id", Type: field.TypeUint32, Comment: "Portal user ID"},
+		{Name: "user_name", Type: field.TypeString, Nullable: true, Comment: "User display name (denormalized)"},
 		{Name: "action", Type: field.TypeInt32, Comment: "Action: 1=Assigned, 2=Unassigned, 3=Transferred", Default: 1},
 		{Name: "assigned_at", Type: field.TypeTime, Comment: "When the assignment was made"},
 		{Name: "returned_at", Type: field.TypeTime, Nullable: true, Comment: "When the asset was returned"},
 		{Name: "assigned_by", Type: field.TypeUint32, Nullable: true, Comment: "User who performed the assignment"},
 		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Notes"},
 		{Name: "asset_id", Type: field.TypeString, Comment: "Asset ID"},
-		{Name: "employee_id", Type: field.TypeString, Comment: "Employee ID"},
 	}
 	// AssetAssignmentsTable holds the schema information for the "asset_assignments" table.
 	AssetAssignmentsTable = &schema.Table{
@@ -135,14 +129,8 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "asset_assignments_asset_assets_assignments",
-				Columns:    []*schema.Column{AssetAssignmentsColumns[8]},
-				RefColumns: []*schema.Column{AssetAssetsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "asset_assignments_asset_employees_employee",
 				Columns:    []*schema.Column{AssetAssignmentsColumns[9]},
-				RefColumns: []*schema.Column{AssetEmployeesColumns[0]},
+				RefColumns: []*schema.Column{AssetAssetsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
@@ -150,17 +138,17 @@ var (
 			{
 				Name:    "assetassignment_asset_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssetAssignmentsColumns[8]},
+				Columns: []*schema.Column{AssetAssignmentsColumns[9]},
 			},
 			{
-				Name:    "assetassignment_employee_id",
+				Name:    "assetassignment_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssetAssignmentsColumns[9]},
+				Columns: []*schema.Column{AssetAssignmentsColumns[2]},
 			},
 			{
 				Name:    "assetassignment_asset_id_returned_at",
 				Unique:  false,
-				Columns: []*schema.Column{AssetAssignmentsColumns[8], AssetAssignmentsColumns[5]},
+				Columns: []*schema.Column{AssetAssignmentsColumns[9], AssetAssignmentsColumns[6]},
 			},
 		},
 	}
@@ -393,54 +381,6 @@ var (
 				Name:    "consumable_location_id",
 				Unique:  false,
 				Columns: []*schema.Column{AssetConsumablesColumns[21]},
-			},
-		},
-	}
-	// AssetEmployeesColumns holds the columns for the "asset_employees" table.
-	AssetEmployeesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true, Comment: "Unique identifier"},
-		{Name: "create_by", Type: field.TypeUint32, Nullable: true, Comment: "创建者ID"},
-		{Name: "update_by", Type: field.TypeUint32, Nullable: true, Comment: "更新者ID"},
-		{Name: "create_time", Type: field.TypeTime, Nullable: true, Comment: "创建时间"},
-		{Name: "update_time", Type: field.TypeTime, Nullable: true, Comment: "更新时间"},
-		{Name: "delete_time", Type: field.TypeTime, Nullable: true, Comment: "删除时间"},
-		{Name: "tenant_id", Type: field.TypeUint32, Nullable: true, Comment: "租户ID", Default: 0},
-		{Name: "first_name", Type: field.TypeString, Size: 255, Comment: "First name"},
-		{Name: "last_name", Type: field.TypeString, Size: 255, Comment: "Last name"},
-		{Name: "email", Type: field.TypeString, Nullable: true, Comment: "Email address"},
-		{Name: "phone", Type: field.TypeString, Nullable: true, Comment: "Phone number"},
-		{Name: "department", Type: field.TypeString, Nullable: true, Comment: "Department"},
-		{Name: "job_title", Type: field.TypeString, Nullable: true, Comment: "Job title"},
-		{Name: "employee_number", Type: field.TypeString, Nullable: true, Comment: "Employee number"},
-		{Name: "notes", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Notes"},
-		{Name: "tags", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "Custom tags (JSON)"},
-		{Name: "metadata", Type: field.TypeJSON, Nullable: true, Comment: "Custom metadata (JSON)"},
-	}
-	// AssetEmployeesTable holds the schema information for the "asset_employees" table.
-	AssetEmployeesTable = &schema.Table{
-		Name:       "asset_employees",
-		Columns:    AssetEmployeesColumns,
-		PrimaryKey: []*schema.Column{AssetEmployeesColumns[0]},
-		Indexes: []*schema.Index{
-			{
-				Name:    "employee_tenant_id_email",
-				Unique:  true,
-				Columns: []*schema.Column{AssetEmployeesColumns[6], AssetEmployeesColumns[9]},
-			},
-			{
-				Name:    "employee_tenant_id_employee_number",
-				Unique:  true,
-				Columns: []*schema.Column{AssetEmployeesColumns[6], AssetEmployeesColumns[13]},
-			},
-			{
-				Name:    "employee_tenant_id",
-				Unique:  false,
-				Columns: []*schema.Column{AssetEmployeesColumns[6]},
-			},
-			{
-				Name:    "employee_department",
-				Unique:  false,
-				Columns: []*schema.Column{AssetEmployeesColumns[11]},
 			},
 		},
 	}
@@ -712,7 +652,6 @@ var (
 		AssetAuditLogsTable,
 		AssetCategoriesTable,
 		AssetConsumablesTable,
-		AssetEmployeesTable,
 		AssetInsurancePoliciesTable,
 		AssetInsurancePolicyAssetsTable,
 		AssetLicensesTable,
@@ -725,12 +664,10 @@ func init() {
 	AssetAssetsTable.ForeignKeys[0].RefTable = AssetCategoriesTable
 	AssetAssetsTable.ForeignKeys[1].RefTable = AssetSuppliersTable
 	AssetAssetsTable.ForeignKeys[2].RefTable = AssetLocationsTable
-	AssetAssetsTable.ForeignKeys[3].RefTable = AssetEmployeesTable
 	AssetAssetsTable.Annotation = &entsql.Annotation{
 		Table: "asset_assets",
 	}
 	AssetAssignmentsTable.ForeignKeys[0].RefTable = AssetAssetsTable
-	AssetAssignmentsTable.ForeignKeys[1].RefTable = AssetEmployeesTable
 	AssetAssignmentsTable.Annotation = &entsql.Annotation{
 		Table: "asset_assignments",
 	}
@@ -749,9 +686,6 @@ func init() {
 	AssetConsumablesTable.ForeignKeys[2].RefTable = AssetLocationsTable
 	AssetConsumablesTable.Annotation = &entsql.Annotation{
 		Table: "asset_consumables",
-	}
-	AssetEmployeesTable.Annotation = &entsql.Annotation{
-		Table: "asset_employees",
 	}
 	AssetInsurancePoliciesTable.Annotation = &entsql.Annotation{
 		Table: "asset_insurance_policies",

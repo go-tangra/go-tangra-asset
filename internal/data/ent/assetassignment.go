@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/asset"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/assetassignment"
-	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
 )
 
 // AssetAssignment is the model entity for the AssetAssignment schema.
@@ -24,10 +23,10 @@ type AssetAssignment struct {
 	AssetID string `json:"asset_id,omitempty"`
 	// Asset name (denormalized)
 	AssetName string `json:"asset_name,omitempty"`
-	// Employee ID
-	EmployeeID string `json:"employee_id,omitempty"`
-	// Employee name (denormalized)
-	EmployeeName string `json:"employee_name,omitempty"`
+	// Portal user ID
+	UserID uint32 `json:"user_id,omitempty"`
+	// User display name (denormalized)
+	UserName string `json:"user_name,omitempty"`
 	// Action: 1=Assigned, 2=Unassigned, 3=Transferred
 	Action int32 `json:"action,omitempty"`
 	// When the assignment was made
@@ -48,11 +47,9 @@ type AssetAssignment struct {
 type AssetAssignmentEdges struct {
 	// Asset holds the value of the asset edge.
 	Asset *Asset `json:"asset,omitempty"`
-	// Employee holds the value of the employee edge.
-	Employee *Employee `json:"employee,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [1]bool
 }
 
 // AssetOrErr returns the Asset value or an error if the edge
@@ -66,25 +63,14 @@ func (e AssetAssignmentEdges) AssetOrErr() (*Asset, error) {
 	return nil, &NotLoadedError{edge: "asset"}
 }
 
-// EmployeeOrErr returns the Employee value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e AssetAssignmentEdges) EmployeeOrErr() (*Employee, error) {
-	if e.Employee != nil {
-		return e.Employee, nil
-	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: employee.Label}
-	}
-	return nil, &NotLoadedError{edge: "employee"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*AssetAssignment) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case assetassignment.FieldAction, assetassignment.FieldAssignedBy:
+		case assetassignment.FieldUserID, assetassignment.FieldAction, assetassignment.FieldAssignedBy:
 			values[i] = new(sql.NullInt64)
-		case assetassignment.FieldID, assetassignment.FieldAssetID, assetassignment.FieldAssetName, assetassignment.FieldEmployeeID, assetassignment.FieldEmployeeName, assetassignment.FieldNotes:
+		case assetassignment.FieldID, assetassignment.FieldAssetID, assetassignment.FieldAssetName, assetassignment.FieldUserName, assetassignment.FieldNotes:
 			values[i] = new(sql.NullString)
 		case assetassignment.FieldAssignedAt, assetassignment.FieldReturnedAt:
 			values[i] = new(sql.NullTime)
@@ -121,17 +107,17 @@ func (_m *AssetAssignment) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.AssetName = value.String
 			}
-		case assetassignment.FieldEmployeeID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field employee_id", values[i])
+		case assetassignment.FieldUserID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				_m.EmployeeID = value.String
+				_m.UserID = uint32(value.Int64)
 			}
-		case assetassignment.FieldEmployeeName:
+		case assetassignment.FieldUserName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field employee_name", values[i])
+				return fmt.Errorf("unexpected type %T for field user_name", values[i])
 			} else if value.Valid {
-				_m.EmployeeName = value.String
+				_m.UserName = value.String
 			}
 		case assetassignment.FieldAction:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -183,11 +169,6 @@ func (_m *AssetAssignment) QueryAsset() *AssetQuery {
 	return NewAssetAssignmentClient(_m.config).QueryAsset(_m)
 }
 
-// QueryEmployee queries the "employee" edge of the AssetAssignment entity.
-func (_m *AssetAssignment) QueryEmployee() *EmployeeQuery {
-	return NewAssetAssignmentClient(_m.config).QueryEmployee(_m)
-}
-
 // Update returns a builder for updating this AssetAssignment.
 // Note that you need to call AssetAssignment.Unwrap() before calling this method if this AssetAssignment
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -217,11 +198,11 @@ func (_m *AssetAssignment) String() string {
 	builder.WriteString("asset_name=")
 	builder.WriteString(_m.AssetName)
 	builder.WriteString(", ")
-	builder.WriteString("employee_id=")
-	builder.WriteString(_m.EmployeeID)
+	builder.WriteString("user_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")
-	builder.WriteString("employee_name=")
-	builder.WriteString(_m.EmployeeName)
+	builder.WriteString("user_name=")
+	builder.WriteString(_m.UserName)
 	builder.WriteString(", ")
 	builder.WriteString("action=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Action))

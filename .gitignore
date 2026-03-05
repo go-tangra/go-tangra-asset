@@ -31,3 +31,4 @@ frontend/.__mf__temp/
 # Embedded frontend build artifacts (populated by CI/Docker build)
 cmd/server/assets/frontend-dist/*
 !cmd/server/assets/frontend-dist/.gitkeep
+server

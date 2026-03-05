@@ -14,20 +14,18 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/asset"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/assetassignment"
-	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/predicate"
 )
 
 // AssetAssignmentQuery is the builder for querying AssetAssignment entities.
 type AssetAssignmentQuery struct {
 	config
-	ctx          *QueryContext
-	order        []assetassignment.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.AssetAssignment
-	withAsset    *AssetQuery
-	withEmployee *EmployeeQuery
-	modifiers    []func(*sql.Selector)
+	ctx        *QueryContext
+	order      []assetassignment.OrderOption
+	inters     []Interceptor
+	predicates []predicate.AssetAssignment
+	withAsset  *AssetQuery
+	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -79,28 +77,6 @@ func (_q *AssetAssignmentQuery) QueryAsset() *AssetQuery {
 			sqlgraph.From(assetassignment.Table, assetassignment.FieldID, selector),
 			sqlgraph.To(asset.Table, asset.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, assetassignment.AssetTable, assetassignment.AssetColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryEmployee chains the current query on the "employee" edge.
-func (_q *AssetAssignmentQuery) QueryEmployee() *EmployeeQuery {
-	query := (&EmployeeClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(assetassignment.Table, assetassignment.FieldID, selector),
-			sqlgraph.To(employee.Table, employee.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, assetassignment.EmployeeTable, assetassignment.EmployeeColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -295,13 +271,12 @@ func (_q *AssetAssignmentQuery) Clone() *AssetAssignmentQuery {
 		return nil
 	}
 	return &AssetAssignmentQuery{
-		config:       _q.config,
-		ctx:          _q.ctx.Clone(),
-		order:        append([]assetassignment.OrderOption{}, _q.order...),
-		inters:       append([]Interceptor{}, _q.inters...),
-		predicates:   append([]predicate.AssetAssignment{}, _q.predicates...),
-		withAsset:    _q.withAsset.Clone(),
-		withEmployee: _q.withEmployee.Clone(),
+		config:     _q.config,
+		ctx:        _q.ctx.Clone(),
+		order:      append([]assetassignment.OrderOption{}, _q.order...),
+		inters:     append([]Interceptor{}, _q.inters...),
+		predicates: append([]predicate.AssetAssignment{}, _q.predicates...),
+		withAsset:  _q.withAsset.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -317,17 +292,6 @@ func (_q *AssetAssignmentQuery) WithAsset(opts ...func(*AssetQuery)) *AssetAssig
 		opt(query)
 	}
 	_q.withAsset = query
-	return _q
-}
-
-// WithEmployee tells the query-builder to eager-load the nodes that are connected to
-// the "employee" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *AssetAssignmentQuery) WithEmployee(opts ...func(*EmployeeQuery)) *AssetAssignmentQuery {
-	query := (&EmployeeClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withEmployee = query
 	return _q
 }
 
@@ -409,9 +373,8 @@ func (_q *AssetAssignmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	var (
 		nodes       = []*AssetAssignment{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [1]bool{
 			_q.withAsset != nil,
-			_q.withEmployee != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -441,12 +404,6 @@ func (_q *AssetAssignmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 			return nil, err
 		}
 	}
-	if query := _q.withEmployee; query != nil {
-		if err := _q.loadEmployee(ctx, query, nodes, nil,
-			func(n *AssetAssignment, e *Employee) { n.Edges.Employee = e }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
 }
 
@@ -472,35 +429,6 @@ func (_q *AssetAssignmentQuery) loadAsset(ctx context.Context, query *AssetQuery
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "asset_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (_q *AssetAssignmentQuery) loadEmployee(ctx context.Context, query *EmployeeQuery, nodes []*AssetAssignment, init func(*AssetAssignment), assign func(*AssetAssignment, *Employee)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*AssetAssignment)
-	for i := range nodes {
-		fk := nodes[i].EmployeeID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(employee.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "employee_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -539,9 +467,6 @@ func (_q *AssetAssignmentQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withAsset != nil {
 			_spec.Node.AddColumnOnce(assetassignment.FieldAssetID)
-		}
-		if _q.withEmployee != nil {
-			_spec.Node.AddColumnOnce(assetassignment.FieldEmployeeID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

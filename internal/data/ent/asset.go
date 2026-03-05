@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/asset"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/category"
-	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/location"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/supplier"
 )
@@ -51,8 +50,8 @@ type Asset struct {
 	SupplierID string `json:"supplier_id,omitempty"`
 	// Location ID (when unassigned)
 	LocationID string `json:"location_id,omitempty"`
-	// Employee ID (when assigned)
-	EmployeeID string `json:"employee_id,omitempty"`
+	// Portal user ID (when assigned)
+	UserID *uint32 `json:"user_id,omitempty"`
 	// Asset status: 1=Deployable, 2=Assigned, 3=Broken, 4=Archived
 	Status int32 `json:"status,omitempty"`
 	// Photo storage key in S3
@@ -91,13 +90,11 @@ type AssetEdges struct {
 	Supplier *Supplier `json:"supplier,omitempty"`
 	// Location holds the value of the location edge.
 	Location *Location `json:"location,omitempty"`
-	// Employee holds the value of the employee edge.
-	Employee *Employee `json:"employee,omitempty"`
 	// Assignments holds the value of the assignments edge.
 	Assignments []*AssetAssignment `json:"assignments,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [4]bool
 }
 
 // CategoryOrErr returns the Category value or an error if the edge
@@ -133,21 +130,10 @@ func (e AssetEdges) LocationOrErr() (*Location, error) {
 	return nil, &NotLoadedError{edge: "location"}
 }
 
-// EmployeeOrErr returns the Employee value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e AssetEdges) EmployeeOrErr() (*Employee, error) {
-	if e.Employee != nil {
-		return e.Employee, nil
-	} else if e.loadedTypes[3] {
-		return nil, &NotFoundError{label: employee.Label}
-	}
-	return nil, &NotLoadedError{edge: "employee"}
-}
-
 // AssignmentsOrErr returns the Assignments value or an error if the edge
 // was not loaded in eager-loading.
 func (e AssetEdges) AssignmentsOrErr() ([]*AssetAssignment, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[3] {
 		return e.Assignments, nil
 	}
 	return nil, &NotLoadedError{edge: "assignments"}
@@ -162,9 +148,9 @@ func (*Asset) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case asset.FieldPurchaseCost, asset.FieldSalvageValue, asset.FieldDepreciationRate:
 			values[i] = new(sql.NullFloat64)
-		case asset.FieldCreateBy, asset.FieldUpdateBy, asset.FieldTenantID, asset.FieldStatus, asset.FieldWarrantyMonths, asset.FieldUsefulLifeYears:
+		case asset.FieldCreateBy, asset.FieldUpdateBy, asset.FieldTenantID, asset.FieldUserID, asset.FieldStatus, asset.FieldWarrantyMonths, asset.FieldUsefulLifeYears:
 			values[i] = new(sql.NullInt64)
-		case asset.FieldID, asset.FieldAssetTag, asset.FieldName, asset.FieldSerial, asset.FieldModelName, asset.FieldModelNumber, asset.FieldCategoryID, asset.FieldSupplierID, asset.FieldLocationID, asset.FieldEmployeeID, asset.FieldPhotoKey, asset.FieldOrderNumber, asset.FieldNotes, asset.FieldTags:
+		case asset.FieldID, asset.FieldAssetTag, asset.FieldName, asset.FieldSerial, asset.FieldModelName, asset.FieldModelNumber, asset.FieldCategoryID, asset.FieldSupplierID, asset.FieldLocationID, asset.FieldPhotoKey, asset.FieldOrderNumber, asset.FieldNotes, asset.FieldTags:
 			values[i] = new(sql.NullString)
 		case asset.FieldCreateTime, asset.FieldUpdateTime, asset.FieldDeleteTime, asset.FieldPurchaseDate:
 			values[i] = new(sql.NullTime)
@@ -279,11 +265,12 @@ func (_m *Asset) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.LocationID = value.String
 			}
-		case asset.FieldEmployeeID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field employee_id", values[i])
+		case asset.FieldUserID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				_m.EmployeeID = value.String
+				_m.UserID = new(uint32)
+				*_m.UserID = uint32(value.Int64)
 			}
 		case asset.FieldStatus:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -393,11 +380,6 @@ func (_m *Asset) QueryLocation() *LocationQuery {
 	return NewAssetClient(_m.config).QueryLocation(_m)
 }
 
-// QueryEmployee queries the "employee" edge of the Asset entity.
-func (_m *Asset) QueryEmployee() *EmployeeQuery {
-	return NewAssetClient(_m.config).QueryEmployee(_m)
-}
-
 // QueryAssignments queries the "assignments" edge of the Asset entity.
 func (_m *Asset) QueryAssignments() *AssetAssignmentQuery {
 	return NewAssetClient(_m.config).QueryAssignments(_m)
@@ -480,8 +462,10 @@ func (_m *Asset) String() string {
 	builder.WriteString("location_id=")
 	builder.WriteString(_m.LocationID)
 	builder.WriteString(", ")
-	builder.WriteString("employee_id=")
-	builder.WriteString(_m.EmployeeID)
+	if v := _m.UserID; v != nil {
+		builder.WriteString("user_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))

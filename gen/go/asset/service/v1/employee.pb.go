@@ -7,15 +7,9 @@
 package assetpb
 
 import (
-	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	_ "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
-	structpb "google.golang.org/protobuf/types/known/structpb"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -28,108 +22,33 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type LdapSyncChange_Action int32
-
-const (
-	LdapSyncChange_ACTION_UNSPECIFIED LdapSyncChange_Action = 0
-	LdapSyncChange_ACTION_CREATE      LdapSyncChange_Action = 1
-	LdapSyncChange_ACTION_UPDATE      LdapSyncChange_Action = 2
-)
-
-// Enum value maps for LdapSyncChange_Action.
-var (
-	LdapSyncChange_Action_name = map[int32]string{
-		0: "ACTION_UNSPECIFIED",
-		1: "ACTION_CREATE",
-		2: "ACTION_UPDATE",
-	}
-	LdapSyncChange_Action_value = map[string]int32{
-		"ACTION_UNSPECIFIED": 0,
-		"ACTION_CREATE":      1,
-		"ACTION_UPDATE":      2,
-	}
-)
-
-func (x LdapSyncChange_Action) Enum() *LdapSyncChange_Action {
-	p := new(LdapSyncChange_Action)
-	*p = x
-	return p
-}
-
-func (x LdapSyncChange_Action) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (LdapSyncChange_Action) Descriptor() protoreflect.EnumDescriptor {
-	return file_asset_service_v1_employee_proto_enumTypes[0].Descriptor()
-}
-
-func (LdapSyncChange_Action) Type() protoreflect.EnumType {
-	return &file_asset_service_v1_employee_proto_enumTypes[0]
-}
-
-func (x LdapSyncChange_Action) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use LdapSyncChange_Action.Descriptor instead.
-func (LdapSyncChange_Action) EnumDescriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{11, 0}
-}
-
-// Employee represents a person who can be assigned assets
-type Employee struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Unique identifier
-	Id *string `protobuf:"bytes,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
-	// Tenant ID for multi-tenancy
-	TenantId *uint32 `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
-	// First name
-	FirstName *string `protobuf:"bytes,3,opt,name=first_name,json=firstName,proto3,oneof" json:"first_name,omitempty"`
-	// Last name
-	LastName *string `protobuf:"bytes,4,opt,name=last_name,json=lastName,proto3,oneof" json:"last_name,omitempty"`
-	// Email
-	Email *string `protobuf:"bytes,5,opt,name=email,proto3,oneof" json:"email,omitempty"`
-	// Phone
-	Phone *string `protobuf:"bytes,6,opt,name=phone,proto3,oneof" json:"phone,omitempty"`
-	// Department
-	Department *string `protobuf:"bytes,7,opt,name=department,proto3,oneof" json:"department,omitempty"`
-	// Job title
-	JobTitle *string `protobuf:"bytes,8,opt,name=job_title,json=jobTitle,proto3,oneof" json:"job_title,omitempty"`
-	// Employee number
-	EmployeeNumber *string `protobuf:"bytes,9,opt,name=employee_number,json=employeeNumber,proto3,oneof" json:"employee_number,omitempty"`
-	// Notes
-	Notes *string `protobuf:"bytes,10,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
-	// Custom tags (JSON)
-	Tags *string `protobuf:"bytes,11,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
-	// Custom metadata (JSON)
-	Metadata *structpb.Struct `protobuf:"bytes,12,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	// Creation timestamp
-	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
-	// Last update timestamp
-	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
-	// Creator user ID
-	CreatedBy *uint32 `protobuf:"varint,22,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
-	// Last updater user ID
-	UpdatedBy     *uint32 `protobuf:"varint,23,opt,name=updated_by,json=updatedBy,proto3,oneof" json:"updated_by,omitempty"`
+// PortalUser represents a user from the portal admin-service
+type PortalUser struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Realname      string                 `protobuf:"bytes,3,opt,name=realname,proto3" json:"realname,omitempty"`
+	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
+	OrgUnitNames  []string               `protobuf:"bytes,5,rep,name=org_unit_names,json=orgUnitNames,proto3" json:"org_unit_names,omitempty"`
+	PositionNames []string               `protobuf:"bytes,6,rep,name=position_names,json=positionNames,proto3" json:"position_names,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Employee) Reset() {
-	*x = Employee{}
+func (x *PortalUser) Reset() {
+	*x = PortalUser{}
 	mi := &file_asset_service_v1_employee_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Employee) String() string {
+func (x *PortalUser) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Employee) ProtoMessage() {}
+func (*PortalUser) ProtoMessage() {}
 
-func (x *Employee) ProtoReflect() protoreflect.Message {
+func (x *PortalUser) ProtoReflect() protoreflect.Message {
 	mi := &file_asset_service_v1_employee_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -141,359 +60,75 @@ func (x *Employee) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Employee.ProtoReflect.Descriptor instead.
-func (*Employee) Descriptor() ([]byte, []int) {
+// Deprecated: Use PortalUser.ProtoReflect.Descriptor instead.
+func (*PortalUser) Descriptor() ([]byte, []int) {
 	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Employee) GetId() string {
-	if x != nil && x.Id != nil {
-		return *x.Id
-	}
-	return ""
-}
-
-func (x *Employee) GetTenantId() uint32 {
-	if x != nil && x.TenantId != nil {
-		return *x.TenantId
-	}
-	return 0
-}
-
-func (x *Employee) GetFirstName() string {
-	if x != nil && x.FirstName != nil {
-		return *x.FirstName
-	}
-	return ""
-}
-
-func (x *Employee) GetLastName() string {
-	if x != nil && x.LastName != nil {
-		return *x.LastName
-	}
-	return ""
-}
-
-func (x *Employee) GetEmail() string {
-	if x != nil && x.Email != nil {
-		return *x.Email
-	}
-	return ""
-}
-
-func (x *Employee) GetPhone() string {
-	if x != nil && x.Phone != nil {
-		return *x.Phone
-	}
-	return ""
-}
-
-func (x *Employee) GetDepartment() string {
-	if x != nil && x.Department != nil {
-		return *x.Department
-	}
-	return ""
-}
-
-func (x *Employee) GetJobTitle() string {
-	if x != nil && x.JobTitle != nil {
-		return *x.JobTitle
-	}
-	return ""
-}
-
-func (x *Employee) GetEmployeeNumber() string {
-	if x != nil && x.EmployeeNumber != nil {
-		return *x.EmployeeNumber
-	}
-	return ""
-}
-
-func (x *Employee) GetNotes() string {
-	if x != nil && x.Notes != nil {
-		return *x.Notes
-	}
-	return ""
-}
-
-func (x *Employee) GetTags() string {
-	if x != nil && x.Tags != nil {
-		return *x.Tags
-	}
-	return ""
-}
-
-func (x *Employee) GetMetadata() *structpb.Struct {
-	if x != nil {
-		return x.Metadata
-	}
-	return nil
-}
-
-func (x *Employee) GetCreatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return nil
-}
-
-func (x *Employee) GetUpdatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdatedAt
-	}
-	return nil
-}
-
-func (x *Employee) GetCreatedBy() uint32 {
-	if x != nil && x.CreatedBy != nil {
-		return *x.CreatedBy
-	}
-	return 0
-}
-
-func (x *Employee) GetUpdatedBy() uint32 {
-	if x != nil && x.UpdatedBy != nil {
-		return *x.UpdatedBy
-	}
-	return 0
-}
-
-// CreateEmployeeRequest creates a new employee
-type CreateEmployeeRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	TenantId       *uint32                `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
-	FirstName      *string                `protobuf:"bytes,2,opt,name=first_name,json=firstName,proto3,oneof" json:"first_name,omitempty"`
-	LastName       *string                `protobuf:"bytes,3,opt,name=last_name,json=lastName,proto3,oneof" json:"last_name,omitempty"`
-	Email          *string                `protobuf:"bytes,4,opt,name=email,proto3,oneof" json:"email,omitempty"`
-	Phone          *string                `protobuf:"bytes,5,opt,name=phone,proto3,oneof" json:"phone,omitempty"`
-	Department     *string                `protobuf:"bytes,6,opt,name=department,proto3,oneof" json:"department,omitempty"`
-	JobTitle       *string                `protobuf:"bytes,7,opt,name=job_title,json=jobTitle,proto3,oneof" json:"job_title,omitempty"`
-	EmployeeNumber *string                `protobuf:"bytes,8,opt,name=employee_number,json=employeeNumber,proto3,oneof" json:"employee_number,omitempty"`
-	Notes          *string                `protobuf:"bytes,9,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
-	Tags           *string                `protobuf:"bytes,10,opt,name=tags,proto3,oneof" json:"tags,omitempty"`
-	Metadata       *structpb.Struct       `protobuf:"bytes,11,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *CreateEmployeeRequest) Reset() {
-	*x = CreateEmployeeRequest{}
-	mi := &file_asset_service_v1_employee_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateEmployeeRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateEmployeeRequest) ProtoMessage() {}
-
-func (x *CreateEmployeeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_asset_service_v1_employee_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateEmployeeRequest.ProtoReflect.Descriptor instead.
-func (*CreateEmployeeRequest) Descriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *CreateEmployeeRequest) GetTenantId() uint32 {
-	if x != nil && x.TenantId != nil {
-		return *x.TenantId
-	}
-	return 0
-}
-
-func (x *CreateEmployeeRequest) GetFirstName() string {
-	if x != nil && x.FirstName != nil {
-		return *x.FirstName
-	}
-	return ""
-}
-
-func (x *CreateEmployeeRequest) GetLastName() string {
-	if x != nil && x.LastName != nil {
-		return *x.LastName
-	}
-	return ""
-}
-
-func (x *CreateEmployeeRequest) GetEmail() string {
-	if x != nil && x.Email != nil {
-		return *x.Email
-	}
-	return ""
-}
-
-func (x *CreateEmployeeRequest) GetPhone() string {
-	if x != nil && x.Phone != nil {
-		return *x.Phone
-	}
-	return ""
-}
-
-func (x *CreateEmployeeRequest) GetDepartment() string {
-	if x != nil && x.Department != nil {
-		return *x.Department
-	}
-	return ""
-}
-
-func (x *CreateEmployeeRequest) GetJobTitle() string {
-	if x != nil && x.JobTitle != nil {
-		return *x.JobTitle
-	}
-	return ""
-}
-
-func (x *CreateEmployeeRequest) GetEmployeeNumber() string {
-	if x != nil && x.EmployeeNumber != nil {
-		return *x.EmployeeNumber
-	}
-	return ""
-}
-
-func (x *CreateEmployeeRequest) GetNotes() string {
-	if x != nil && x.Notes != nil {
-		return *x.Notes
-	}
-	return ""
-}
-
-func (x *CreateEmployeeRequest) GetTags() string {
-	if x != nil && x.Tags != nil {
-		return *x.Tags
-	}
-	return ""
-}
-
-func (x *CreateEmployeeRequest) GetMetadata() *structpb.Struct {
-	if x != nil {
-		return x.Metadata
-	}
-	return nil
-}
-
-type CreateEmployeeResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Employee      *Employee              `protobuf:"bytes,1,opt,name=employee,proto3" json:"employee,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateEmployeeResponse) Reset() {
-	*x = CreateEmployeeResponse{}
-	mi := &file_asset_service_v1_employee_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateEmployeeResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateEmployeeResponse) ProtoMessage() {}
-
-func (x *CreateEmployeeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_asset_service_v1_employee_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateEmployeeResponse.ProtoReflect.Descriptor instead.
-func (*CreateEmployeeResponse) Descriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *CreateEmployeeResponse) GetEmployee() *Employee {
-	if x != nil {
-		return x.Employee
-	}
-	return nil
-}
-
-// GetEmployeeRequest retrieves an employee by ID
-type GetEmployeeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetEmployeeRequest) Reset() {
-	*x = GetEmployeeRequest{}
-	mi := &file_asset_service_v1_employee_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetEmployeeRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetEmployeeRequest) ProtoMessage() {}
-
-func (x *GetEmployeeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_asset_service_v1_employee_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetEmployeeRequest.ProtoReflect.Descriptor instead.
-func (*GetEmployeeRequest) Descriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *GetEmployeeRequest) GetId() string {
+func (x *PortalUser) GetId() uint32 {
 	if x != nil {
 		return x.Id
 	}
+	return 0
+}
+
+func (x *PortalUser) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
 	return ""
 }
 
-type GetEmployeeResponse struct {
+func (x *PortalUser) GetRealname() string {
+	if x != nil {
+		return x.Realname
+	}
+	return ""
+}
+
+func (x *PortalUser) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *PortalUser) GetOrgUnitNames() []string {
+	if x != nil {
+		return x.OrgUnitNames
+	}
+	return nil
+}
+
+func (x *PortalUser) GetPositionNames() []string {
+	if x != nil {
+		return x.PositionNames
+	}
+	return nil
+}
+
+// ListUsersRequest lists portal users for asset assignment
+type ListUsersRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Employee      *Employee              `protobuf:"bytes,1,opt,name=employee,proto3" json:"employee,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetEmployeeResponse) Reset() {
-	*x = GetEmployeeResponse{}
-	mi := &file_asset_service_v1_employee_proto_msgTypes[4]
+func (x *ListUsersRequest) Reset() {
+	*x = ListUsersRequest{}
+	mi := &file_asset_service_v1_employee_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetEmployeeResponse) String() string {
+func (x *ListUsersRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetEmployeeResponse) ProtoMessage() {}
+func (*ListUsersRequest) ProtoMessage() {}
 
-func (x *GetEmployeeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_asset_service_v1_employee_proto_msgTypes[4]
+func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_asset_service_v1_employee_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -504,143 +139,34 @@ func (x *GetEmployeeResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetEmployeeResponse.ProtoReflect.Descriptor instead.
-func (*GetEmployeeResponse) Descriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{4}
+// Deprecated: Use ListUsersRequest.ProtoReflect.Descriptor instead.
+func (*ListUsersRequest) Descriptor() ([]byte, []int) {
+	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *GetEmployeeResponse) GetEmployee() *Employee {
-	if x != nil {
-		return x.Employee
-	}
-	return nil
-}
-
-// ListEmployeesRequest lists employees with filtering
-type ListEmployeesRequest struct {
-	state     protoimpl.MessageState `protogen:"open.v1"`
-	TenantId  *uint32                `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
-	Page      *int32                 `protobuf:"varint,2,opt,name=page,proto3,oneof" json:"page,omitempty"`
-	PageSize  *int32                 `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
-	NoPaging  *bool                  `protobuf:"varint,4,opt,name=no_paging,json=noPaging,proto3,oneof" json:"no_paging,omitempty"`
-	Query     *string                `protobuf:"bytes,5,opt,name=query,proto3,oneof" json:"query,omitempty"`
-	OrderBy   []string               `protobuf:"bytes,6,rep,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
-	FieldMask *string                `protobuf:"bytes,7,opt,name=field_mask,json=fieldMask,proto3,oneof" json:"field_mask,omitempty"`
-	// Filter by department
-	Department    *string `protobuf:"bytes,10,opt,name=department,proto3,oneof" json:"department,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListEmployeesRequest) Reset() {
-	*x = ListEmployeesRequest{}
-	mi := &file_asset_service_v1_employee_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListEmployeesRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListEmployeesRequest) ProtoMessage() {}
-
-func (x *ListEmployeesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_asset_service_v1_employee_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListEmployeesRequest.ProtoReflect.Descriptor instead.
-func (*ListEmployeesRequest) Descriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ListEmployeesRequest) GetTenantId() uint32 {
-	if x != nil && x.TenantId != nil {
-		return *x.TenantId
-	}
-	return 0
-}
-
-func (x *ListEmployeesRequest) GetPage() int32 {
-	if x != nil && x.Page != nil {
-		return *x.Page
-	}
-	return 0
-}
-
-func (x *ListEmployeesRequest) GetPageSize() int32 {
-	if x != nil && x.PageSize != nil {
-		return *x.PageSize
-	}
-	return 0
-}
-
-func (x *ListEmployeesRequest) GetNoPaging() bool {
-	if x != nil && x.NoPaging != nil {
-		return *x.NoPaging
-	}
-	return false
-}
-
-func (x *ListEmployeesRequest) GetQuery() string {
-	if x != nil && x.Query != nil {
-		return *x.Query
-	}
-	return ""
-}
-
-func (x *ListEmployeesRequest) GetOrderBy() []string {
-	if x != nil {
-		return x.OrderBy
-	}
-	return nil
-}
-
-func (x *ListEmployeesRequest) GetFieldMask() string {
-	if x != nil && x.FieldMask != nil {
-		return *x.FieldMask
-	}
-	return ""
-}
-
-func (x *ListEmployeesRequest) GetDepartment() string {
-	if x != nil && x.Department != nil {
-		return *x.Department
-	}
-	return ""
-}
-
-type ListEmployeesResponse struct {
+type ListUsersResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Items         []*Employee            `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	Items         []*PortalUser          `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
 	Total         *int32                 `protobuf:"varint,2,opt,name=total,proto3,oneof" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListEmployeesResponse) Reset() {
-	*x = ListEmployeesResponse{}
-	mi := &file_asset_service_v1_employee_proto_msgTypes[6]
+func (x *ListUsersResponse) Reset() {
+	*x = ListUsersResponse{}
+	mi := &file_asset_service_v1_employee_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListEmployeesResponse) String() string {
+func (x *ListUsersResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListEmployeesResponse) ProtoMessage() {}
+func (*ListUsersResponse) ProtoMessage() {}
 
-func (x *ListEmployeesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_asset_service_v1_employee_proto_msgTypes[6]
+func (x *ListUsersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_asset_service_v1_employee_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -651,682 +177,45 @@ func (x *ListEmployeesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListEmployeesResponse.ProtoReflect.Descriptor instead.
-func (*ListEmployeesResponse) Descriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{6}
+// Deprecated: Use ListUsersResponse.ProtoReflect.Descriptor instead.
+func (*ListUsersResponse) Descriptor() ([]byte, []int) {
+	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ListEmployeesResponse) GetItems() []*Employee {
+func (x *ListUsersResponse) GetItems() []*PortalUser {
 	if x != nil {
 		return x.Items
 	}
 	return nil
 }
 
-func (x *ListEmployeesResponse) GetTotal() int32 {
+func (x *ListUsersResponse) GetTotal() int32 {
 	if x != nil && x.Total != nil {
 		return *x.Total
 	}
 	return 0
 }
 
-// UpdateEmployeeRequest updates an employee
-type UpdateEmployeeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Data          *Employee              `protobuf:"bytes,2,opt,name=data,proto3,oneof" json:"data,omitempty"`
-	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateEmployeeRequest) Reset() {
-	*x = UpdateEmployeeRequest{}
-	mi := &file_asset_service_v1_employee_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateEmployeeRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateEmployeeRequest) ProtoMessage() {}
-
-func (x *UpdateEmployeeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_asset_service_v1_employee_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateEmployeeRequest.ProtoReflect.Descriptor instead.
-func (*UpdateEmployeeRequest) Descriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *UpdateEmployeeRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *UpdateEmployeeRequest) GetData() *Employee {
-	if x != nil {
-		return x.Data
-	}
-	return nil
-}
-
-func (x *UpdateEmployeeRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
-	if x != nil {
-		return x.UpdateMask
-	}
-	return nil
-}
-
-type UpdateEmployeeResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Employee      *Employee              `protobuf:"bytes,1,opt,name=employee,proto3" json:"employee,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateEmployeeResponse) Reset() {
-	*x = UpdateEmployeeResponse{}
-	mi := &file_asset_service_v1_employee_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateEmployeeResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateEmployeeResponse) ProtoMessage() {}
-
-func (x *UpdateEmployeeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_asset_service_v1_employee_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateEmployeeResponse.ProtoReflect.Descriptor instead.
-func (*UpdateEmployeeResponse) Descriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *UpdateEmployeeResponse) GetEmployee() *Employee {
-	if x != nil {
-		return x.Employee
-	}
-	return nil
-}
-
-// DeleteEmployeeRequest deletes an employee
-type DeleteEmployeeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteEmployeeRequest) Reset() {
-	*x = DeleteEmployeeRequest{}
-	mi := &file_asset_service_v1_employee_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteEmployeeRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteEmployeeRequest) ProtoMessage() {}
-
-func (x *DeleteEmployeeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_asset_service_v1_employee_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteEmployeeRequest.ProtoReflect.Descriptor instead.
-func (*DeleteEmployeeRequest) Descriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *DeleteEmployeeRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-// LdapSyncPreviewRequest requests a preview of LDAP sync changes
-type LdapSyncPreviewRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TenantId      *uint32                `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *LdapSyncPreviewRequest) Reset() {
-	*x = LdapSyncPreviewRequest{}
-	mi := &file_asset_service_v1_employee_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *LdapSyncPreviewRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*LdapSyncPreviewRequest) ProtoMessage() {}
-
-func (x *LdapSyncPreviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_asset_service_v1_employee_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use LdapSyncPreviewRequest.ProtoReflect.Descriptor instead.
-func (*LdapSyncPreviewRequest) Descriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *LdapSyncPreviewRequest) GetTenantId() uint32 {
-	if x != nil && x.TenantId != nil {
-		return *x.TenantId
-	}
-	return 0
-}
-
-// LdapSyncChange describes a single change from LDAP sync
-type LdapSyncChange struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Action        LdapSyncChange_Action  `protobuf:"varint,1,opt,name=action,proto3,enum=asset.service.v1.LdapSyncChange_Action" json:"action,omitempty"`
-	Employee      *Employee              `protobuf:"bytes,2,opt,name=employee,proto3,oneof" json:"employee,omitempty"`
-	ChangedFields []string               `protobuf:"bytes,3,rep,name=changed_fields,json=changedFields,proto3" json:"changed_fields,omitempty"`
-	ExistingId    *string                `protobuf:"bytes,4,opt,name=existing_id,json=existingId,proto3,oneof" json:"existing_id,omitempty"`
-	LdapDn        *string                `protobuf:"bytes,5,opt,name=ldap_dn,json=ldapDn,proto3,oneof" json:"ldap_dn,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *LdapSyncChange) Reset() {
-	*x = LdapSyncChange{}
-	mi := &file_asset_service_v1_employee_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *LdapSyncChange) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*LdapSyncChange) ProtoMessage() {}
-
-func (x *LdapSyncChange) ProtoReflect() protoreflect.Message {
-	mi := &file_asset_service_v1_employee_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use LdapSyncChange.ProtoReflect.Descriptor instead.
-func (*LdapSyncChange) Descriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *LdapSyncChange) GetAction() LdapSyncChange_Action {
-	if x != nil {
-		return x.Action
-	}
-	return LdapSyncChange_ACTION_UNSPECIFIED
-}
-
-func (x *LdapSyncChange) GetEmployee() *Employee {
-	if x != nil {
-		return x.Employee
-	}
-	return nil
-}
-
-func (x *LdapSyncChange) GetChangedFields() []string {
-	if x != nil {
-		return x.ChangedFields
-	}
-	return nil
-}
-
-func (x *LdapSyncChange) GetExistingId() string {
-	if x != nil && x.ExistingId != nil {
-		return *x.ExistingId
-	}
-	return ""
-}
-
-func (x *LdapSyncChange) GetLdapDn() string {
-	if x != nil && x.LdapDn != nil {
-		return *x.LdapDn
-	}
-	return ""
-}
-
-// LdapSyncPreviewResponse contains the preview of LDAP sync changes
-type LdapSyncPreviewResponse struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	TotalLdapEntries int32                  `protobuf:"varint,1,opt,name=total_ldap_entries,json=totalLdapEntries,proto3" json:"total_ldap_entries,omitempty"`
-	NewCount         int32                  `protobuf:"varint,2,opt,name=new_count,json=newCount,proto3" json:"new_count,omitempty"`
-	UpdateCount      int32                  `protobuf:"varint,3,opt,name=update_count,json=updateCount,proto3" json:"update_count,omitempty"`
-	UnchangedCount   int32                  `protobuf:"varint,4,opt,name=unchanged_count,json=unchangedCount,proto3" json:"unchanged_count,omitempty"`
-	Changes          []*LdapSyncChange      `protobuf:"bytes,5,rep,name=changes,proto3" json:"changes,omitempty"`
-	Warnings         []string               `protobuf:"bytes,6,rep,name=warnings,proto3" json:"warnings,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *LdapSyncPreviewResponse) Reset() {
-	*x = LdapSyncPreviewResponse{}
-	mi := &file_asset_service_v1_employee_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *LdapSyncPreviewResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*LdapSyncPreviewResponse) ProtoMessage() {}
-
-func (x *LdapSyncPreviewResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_asset_service_v1_employee_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use LdapSyncPreviewResponse.ProtoReflect.Descriptor instead.
-func (*LdapSyncPreviewResponse) Descriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *LdapSyncPreviewResponse) GetTotalLdapEntries() int32 {
-	if x != nil {
-		return x.TotalLdapEntries
-	}
-	return 0
-}
-
-func (x *LdapSyncPreviewResponse) GetNewCount() int32 {
-	if x != nil {
-		return x.NewCount
-	}
-	return 0
-}
-
-func (x *LdapSyncPreviewResponse) GetUpdateCount() int32 {
-	if x != nil {
-		return x.UpdateCount
-	}
-	return 0
-}
-
-func (x *LdapSyncPreviewResponse) GetUnchangedCount() int32 {
-	if x != nil {
-		return x.UnchangedCount
-	}
-	return 0
-}
-
-func (x *LdapSyncPreviewResponse) GetChanges() []*LdapSyncChange {
-	if x != nil {
-		return x.Changes
-	}
-	return nil
-}
-
-func (x *LdapSyncPreviewResponse) GetWarnings() []string {
-	if x != nil {
-		return x.Warnings
-	}
-	return nil
-}
-
-// LdapSyncExecuteRequest executes the LDAP sync
-type LdapSyncExecuteRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TenantId      *uint32                `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`
-	SelectedDns   []string               `protobuf:"bytes,2,rep,name=selected_dns,json=selectedDns,proto3" json:"selected_dns,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *LdapSyncExecuteRequest) Reset() {
-	*x = LdapSyncExecuteRequest{}
-	mi := &file_asset_service_v1_employee_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *LdapSyncExecuteRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*LdapSyncExecuteRequest) ProtoMessage() {}
-
-func (x *LdapSyncExecuteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_asset_service_v1_employee_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use LdapSyncExecuteRequest.ProtoReflect.Descriptor instead.
-func (*LdapSyncExecuteRequest) Descriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *LdapSyncExecuteRequest) GetTenantId() uint32 {
-	if x != nil && x.TenantId != nil {
-		return *x.TenantId
-	}
-	return 0
-}
-
-func (x *LdapSyncExecuteRequest) GetSelectedDns() []string {
-	if x != nil {
-		return x.SelectedDns
-	}
-	return nil
-}
-
-// LdapSyncExecuteResponse contains the results of LDAP sync execution
-type LdapSyncExecuteResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CreatedCount  int32                  `protobuf:"varint,1,opt,name=created_count,json=createdCount,proto3" json:"created_count,omitempty"`
-	UpdatedCount  int32                  `protobuf:"varint,2,opt,name=updated_count,json=updatedCount,proto3" json:"updated_count,omitempty"`
-	SkippedCount  int32                  `protobuf:"varint,3,opt,name=skipped_count,json=skippedCount,proto3" json:"skipped_count,omitempty"`
-	ErrorCount    int32                  `protobuf:"varint,4,opt,name=error_count,json=errorCount,proto3" json:"error_count,omitempty"`
-	Errors        []string               `protobuf:"bytes,5,rep,name=errors,proto3" json:"errors,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *LdapSyncExecuteResponse) Reset() {
-	*x = LdapSyncExecuteResponse{}
-	mi := &file_asset_service_v1_employee_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *LdapSyncExecuteResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*LdapSyncExecuteResponse) ProtoMessage() {}
-
-func (x *LdapSyncExecuteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_asset_service_v1_employee_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use LdapSyncExecuteResponse.ProtoReflect.Descriptor instead.
-func (*LdapSyncExecuteResponse) Descriptor() ([]byte, []int) {
-	return file_asset_service_v1_employee_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *LdapSyncExecuteResponse) GetCreatedCount() int32 {
-	if x != nil {
-		return x.CreatedCount
-	}
-	return 0
-}
-
-func (x *LdapSyncExecuteResponse) GetUpdatedCount() int32 {
-	if x != nil {
-		return x.UpdatedCount
-	}
-	return 0
-}
-
-func (x *LdapSyncExecuteResponse) GetSkippedCount() int32 {
-	if x != nil {
-		return x.SkippedCount
-	}
-	return 0
-}
-
-func (x *LdapSyncExecuteResponse) GetErrorCount() int32 {
-	if x != nil {
-		return x.ErrorCount
-	}
-	return 0
-}
-
-func (x *LdapSyncExecuteResponse) GetErrors() []string {
-	if x != nil {
-		return x.Errors
-	}
-	return nil
-}
-
 var File_asset_service_v1_employee_proto protoreflect.FileDescriptor
 
 const file_asset_service_v1_employee_proto_rawDesc = "" +
 	"\n" +
-	"\x1fasset/service/v1/employee.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x16redact/v3/redact.proto\"\xb9\x06\n" +
-	"\bEmployee\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
-	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12\"\n" +
+	"\x1fasset/service/v1/employee.proto\x12\x10asset.service.v1\x1a\x1cgoogle/api/annotations.proto\"\xb7\x01\n" +
 	"\n" +
-	"first_name\x18\x03 \x01(\tH\x02R\tfirstName\x88\x01\x01\x12 \n" +
-	"\tlast_name\x18\x04 \x01(\tH\x03R\blastName\x88\x01\x01\x12!\n" +
-	"\x05email\x18\x05 \x01(\tB\x06ڶ\x1a\x02z\x00H\x04R\x05email\x88\x01\x01\x12!\n" +
-	"\x05phone\x18\x06 \x01(\tB\x06ڶ\x1a\x02z\x00H\x05R\x05phone\x88\x01\x01\x12#\n" +
-	"\n" +
-	"department\x18\a \x01(\tH\x06R\n" +
-	"department\x88\x01\x01\x12 \n" +
-	"\tjob_title\x18\b \x01(\tH\aR\bjobTitle\x88\x01\x01\x12,\n" +
-	"\x0femployee_number\x18\t \x01(\tH\bR\x0eemployeeNumber\x88\x01\x01\x12\x19\n" +
-	"\x05notes\x18\n" +
-	" \x01(\tH\tR\x05notes\x88\x01\x01\x12\x17\n" +
-	"\x04tags\x18\v \x01(\tH\n" +
-	"R\x04tags\x88\x01\x01\x123\n" +
-	"\bmetadata\x18\f \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12>\n" +
-	"\n" +
-	"created_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampH\vR\tcreatedAt\x88\x01\x01\x12>\n" +
-	"\n" +
-	"updated_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampH\fR\tupdatedAt\x88\x01\x01\x12\"\n" +
-	"\n" +
-	"created_by\x18\x16 \x01(\rH\rR\tcreatedBy\x88\x01\x01\x12\"\n" +
-	"\n" +
-	"updated_by\x18\x17 \x01(\rH\x0eR\tupdatedBy\x88\x01\x01B\x05\n" +
-	"\x03_idB\f\n" +
-	"\n" +
-	"_tenant_idB\r\n" +
-	"\v_first_nameB\f\n" +
-	"\n" +
-	"_last_nameB\b\n" +
-	"\x06_emailB\b\n" +
-	"\x06_phoneB\r\n" +
-	"\v_departmentB\f\n" +
-	"\n" +
-	"_job_titleB\x12\n" +
-	"\x10_employee_numberB\b\n" +
-	"\x06_notesB\a\n" +
-	"\x05_tagsB\r\n" +
-	"\v_created_atB\r\n" +
-	"\v_updated_atB\r\n" +
-	"\v_created_byB\r\n" +
-	"\v_updated_by\"\xc9\x04\n" +
-	"\x15CreateEmployeeRequest\x12%\n" +
-	"\ttenant_id\x18\x01 \x01(\rB\x03\xe0A\x02H\x00R\btenantId\x88\x01\x01\x121\n" +
-	"\n" +
-	"first_name\x18\x02 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x01\x18\xff\x01H\x01R\tfirstName\x88\x01\x01\x12/\n" +
-	"\tlast_name\x18\x03 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x01\x18\xff\x01H\x02R\blastName\x88\x01\x01\x12!\n" +
-	"\x05email\x18\x04 \x01(\tB\x06ڶ\x1a\x02z\x00H\x03R\x05email\x88\x01\x01\x12!\n" +
-	"\x05phone\x18\x05 \x01(\tB\x06ڶ\x1a\x02z\x00H\x04R\x05phone\x88\x01\x01\x12#\n" +
-	"\n" +
-	"department\x18\x06 \x01(\tH\x05R\n" +
-	"department\x88\x01\x01\x12 \n" +
-	"\tjob_title\x18\a \x01(\tH\x06R\bjobTitle\x88\x01\x01\x12,\n" +
-	"\x0femployee_number\x18\b \x01(\tH\aR\x0eemployeeNumber\x88\x01\x01\x12\x19\n" +
-	"\x05notes\x18\t \x01(\tH\bR\x05notes\x88\x01\x01\x12\x17\n" +
-	"\x04tags\x18\n" +
-	" \x01(\tH\tR\x04tags\x88\x01\x01\x123\n" +
-	"\bmetadata\x18\v \x01(\v2\x17.google.protobuf.StructR\bmetadataB\f\n" +
-	"\n" +
-	"_tenant_idB\r\n" +
-	"\v_first_nameB\f\n" +
-	"\n" +
-	"_last_nameB\b\n" +
-	"\x06_emailB\b\n" +
-	"\x06_phoneB\r\n" +
-	"\v_departmentB\f\n" +
-	"\n" +
-	"_job_titleB\x12\n" +
-	"\x10_employee_numberB\b\n" +
-	"\x06_notesB\a\n" +
-	"\x05_tags\"P\n" +
-	"\x16CreateEmployeeResponse\x126\n" +
-	"\bemployee\x18\x01 \x01(\v2\x1a.asset.service.v1.EmployeeR\bemployee\"0\n" +
-	"\x12GetEmployeeRequest\x12\x1a\n" +
-	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\"M\n" +
-	"\x13GetEmployeeResponse\x126\n" +
-	"\bemployee\x18\x01 \x01(\v2\x1a.asset.service.v1.EmployeeR\bemployee\"\xef\x02\n" +
-	"\x14ListEmployeesRequest\x12 \n" +
-	"\ttenant_id\x18\x01 \x01(\rH\x00R\btenantId\x88\x01\x01\x12\x17\n" +
-	"\x04page\x18\x02 \x01(\x05H\x01R\x04page\x88\x01\x01\x12 \n" +
-	"\tpage_size\x18\x03 \x01(\x05H\x02R\bpageSize\x88\x01\x01\x12 \n" +
-	"\tno_paging\x18\x04 \x01(\bH\x03R\bnoPaging\x88\x01\x01\x12\x19\n" +
-	"\x05query\x18\x05 \x01(\tH\x04R\x05query\x88\x01\x01\x12\x19\n" +
-	"\border_by\x18\x06 \x03(\tR\aorderBy\x12\"\n" +
-	"\n" +
-	"field_mask\x18\a \x01(\tH\x05R\tfieldMask\x88\x01\x01\x12#\n" +
-	"\n" +
-	"department\x18\n" +
-	" \x01(\tH\x06R\n" +
-	"department\x88\x01\x01B\f\n" +
-	"\n" +
-	"_tenant_idB\a\n" +
-	"\x05_pageB\f\n" +
-	"\n" +
-	"_page_sizeB\f\n" +
-	"\n" +
-	"_no_pagingB\b\n" +
-	"\x06_queryB\r\n" +
-	"\v_field_maskB\r\n" +
-	"\v_department\"n\n" +
-	"\x15ListEmployeesResponse\x120\n" +
-	"\x05items\x18\x01 \x03(\v2\x1a.asset.service.v1.EmployeeR\x05items\x12\x19\n" +
+	"PortalUser\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x1a\n" +
+	"\brealname\x18\x03 \x01(\tR\brealname\x12\x14\n" +
+	"\x05email\x18\x04 \x01(\tR\x05email\x12$\n" +
+	"\x0eorg_unit_names\x18\x05 \x03(\tR\forgUnitNames\x12%\n" +
+	"\x0eposition_names\x18\x06 \x03(\tR\rpositionNames\"\x12\n" +
+	"\x10ListUsersRequest\"l\n" +
+	"\x11ListUsersResponse\x122\n" +
+	"\x05items\x18\x01 \x03(\v2\x1c.asset.service.v1.PortalUserR\x05items\x12\x19\n" +
 	"\x05total\x18\x02 \x01(\x05H\x00R\x05total\x88\x01\x01B\b\n" +
-	"\x06_total\"\xae\x01\n" +
-	"\x15UpdateEmployeeRequest\x12\x1a\n" +
-	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x123\n" +
-	"\x04data\x18\x02 \x01(\v2\x1a.asset.service.v1.EmployeeH\x00R\x04data\x88\x01\x01\x12;\n" +
-	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
-	"updateMaskB\a\n" +
-	"\x05_data\"P\n" +
-	"\x16UpdateEmployeeResponse\x126\n" +
-	"\bemployee\x18\x01 \x01(\v2\x1a.asset.service.v1.EmployeeR\bemployee\"3\n" +
-	"\x15DeleteEmployeeRequest\x12\x1a\n" +
-	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\"H\n" +
-	"\x16LdapSyncPreviewRequest\x12 \n" +
-	"\ttenant_id\x18\x01 \x01(\rH\x00R\btenantId\x88\x01\x01B\f\n" +
-	"\n" +
-	"_tenant_id\"\xea\x02\n" +
-	"\x0eLdapSyncChange\x12?\n" +
-	"\x06action\x18\x01 \x01(\x0e2'.asset.service.v1.LdapSyncChange.ActionR\x06action\x12;\n" +
-	"\bemployee\x18\x02 \x01(\v2\x1a.asset.service.v1.EmployeeH\x00R\bemployee\x88\x01\x01\x12%\n" +
-	"\x0echanged_fields\x18\x03 \x03(\tR\rchangedFields\x12$\n" +
-	"\vexisting_id\x18\x04 \x01(\tH\x01R\n" +
-	"existingId\x88\x01\x01\x12\x1c\n" +
-	"\aldap_dn\x18\x05 \x01(\tH\x02R\x06ldapDn\x88\x01\x01\"F\n" +
-	"\x06Action\x12\x16\n" +
-	"\x12ACTION_UNSPECIFIED\x10\x00\x12\x11\n" +
-	"\rACTION_CREATE\x10\x01\x12\x11\n" +
-	"\rACTION_UPDATE\x10\x02B\v\n" +
-	"\t_employeeB\x0e\n" +
-	"\f_existing_idB\n" +
-	"\n" +
-	"\b_ldap_dn\"\x88\x02\n" +
-	"\x17LdapSyncPreviewResponse\x12,\n" +
-	"\x12total_ldap_entries\x18\x01 \x01(\x05R\x10totalLdapEntries\x12\x1b\n" +
-	"\tnew_count\x18\x02 \x01(\x05R\bnewCount\x12!\n" +
-	"\fupdate_count\x18\x03 \x01(\x05R\vupdateCount\x12'\n" +
-	"\x0funchanged_count\x18\x04 \x01(\x05R\x0eunchangedCount\x12:\n" +
-	"\achanges\x18\x05 \x03(\v2 .asset.service.v1.LdapSyncChangeR\achanges\x12\x1a\n" +
-	"\bwarnings\x18\x06 \x03(\tR\bwarnings\"k\n" +
-	"\x16LdapSyncExecuteRequest\x12 \n" +
-	"\ttenant_id\x18\x01 \x01(\rH\x00R\btenantId\x88\x01\x01\x12!\n" +
-	"\fselected_dns\x18\x02 \x03(\tR\vselectedDnsB\f\n" +
-	"\n" +
-	"_tenant_id\"\xc1\x01\n" +
-	"\x17LdapSyncExecuteResponse\x12#\n" +
-	"\rcreated_count\x18\x01 \x01(\x05R\fcreatedCount\x12#\n" +
-	"\rupdated_count\x18\x02 \x01(\x05R\fupdatedCount\x12#\n" +
-	"\rskipped_count\x18\x03 \x01(\x05R\fskippedCount\x12\x1f\n" +
-	"\verror_count\x18\x04 \x01(\x05R\n" +
-	"errorCount\x12\x16\n" +
-	"\x06errors\x18\x05 \x03(\tR\x06errors2\x9f\a\n" +
-	"\x0fEmployeeService\x12}\n" +
-	"\x0eCreateEmployee\x12'.asset.service.v1.CreateEmployeeRequest\x1a(.asset.service.v1.CreateEmployeeResponse\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/v1/employees\x12v\n" +
-	"\vGetEmployee\x12$.asset.service.v1.GetEmployeeRequest\x1a%.asset.service.v1.GetEmployeeResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/v1/employees/{id}\x12w\n" +
-	"\rListEmployees\x12&.asset.service.v1.ListEmployeesRequest\x1a'.asset.service.v1.ListEmployeesResponse\"\x15\x82\xd3\xe4\x93\x02\x0f\x12\r/v1/employees\x12\x82\x01\n" +
-	"\x0eUpdateEmployee\x12'.asset.service.v1.UpdateEmployeeRequest\x1a(.asset.service.v1.UpdateEmployeeResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\x1a\x12/v1/employees/{id}\x12m\n" +
-	"\x0eDeleteEmployee\x12'.asset.service.v1.DeleteEmployeeRequest\x1a\x16.google.protobuf.Empty\"\x1a\x82\xd3\xe4\x93\x02\x14*\x12/v1/employees/{id}\x12\x92\x01\n" +
-	"\x0fLdapSyncPreview\x12(.asset.service.v1.LdapSyncPreviewRequest\x1a).asset.service.v1.LdapSyncPreviewResponse\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/employees/ldap-sync/preview\x12\x92\x01\n" +
-	"\x0fLdapSyncExecute\x12(.asset.service.v1.LdapSyncExecuteRequest\x1a).asset.service.v1.LdapSyncExecuteResponse\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/employees/ldap-sync/executeB\xcd\x01\n" +
+	"\x06_total2v\n" +
+	"\vUserService\x12g\n" +
+	"\tListUsers\x12\".asset.service.v1.ListUsersRequest\x1a#.asset.service.v1.ListUsersResponse\"\x11\x82\xd3\xe4\x93\x02\v\x12\t/v1/usersB\xcd\x01\n" +
 	"\x14com.asset.service.v1B\rEmployeeProtoP\x01ZDgithub.com/go-tangra/go-tangra-asset/gen/go/asset/service/v1;assetpb\xa2\x02\x03ASX\xaa\x02\x10Asset.Service.V1\xca\x02\x10Asset\\Service\\V1\xe2\x02\x1cAsset\\Service\\V1\\GPBMetadata\xea\x02\x12Asset::Service::V1b\x06proto3"
 
 var (
@@ -1341,63 +230,21 @@ func file_asset_service_v1_employee_proto_rawDescGZIP() []byte {
 	return file_asset_service_v1_employee_proto_rawDescData
 }
 
-var file_asset_service_v1_employee_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_asset_service_v1_employee_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_asset_service_v1_employee_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_asset_service_v1_employee_proto_goTypes = []any{
-	(LdapSyncChange_Action)(0),      // 0: asset.service.v1.LdapSyncChange.Action
-	(*Employee)(nil),                // 1: asset.service.v1.Employee
-	(*CreateEmployeeRequest)(nil),   // 2: asset.service.v1.CreateEmployeeRequest
-	(*CreateEmployeeResponse)(nil),  // 3: asset.service.v1.CreateEmployeeResponse
-	(*GetEmployeeRequest)(nil),      // 4: asset.service.v1.GetEmployeeRequest
-	(*GetEmployeeResponse)(nil),     // 5: asset.service.v1.GetEmployeeResponse
-	(*ListEmployeesRequest)(nil),    // 6: asset.service.v1.ListEmployeesRequest
-	(*ListEmployeesResponse)(nil),   // 7: asset.service.v1.ListEmployeesResponse
-	(*UpdateEmployeeRequest)(nil),   // 8: asset.service.v1.UpdateEmployeeRequest
-	(*UpdateEmployeeResponse)(nil),  // 9: asset.service.v1.UpdateEmployeeResponse
-	(*DeleteEmployeeRequest)(nil),   // 10: asset.service.v1.DeleteEmployeeRequest
-	(*LdapSyncPreviewRequest)(nil),  // 11: asset.service.v1.LdapSyncPreviewRequest
-	(*LdapSyncChange)(nil),          // 12: asset.service.v1.LdapSyncChange
-	(*LdapSyncPreviewResponse)(nil), // 13: asset.service.v1.LdapSyncPreviewResponse
-	(*LdapSyncExecuteRequest)(nil),  // 14: asset.service.v1.LdapSyncExecuteRequest
-	(*LdapSyncExecuteResponse)(nil), // 15: asset.service.v1.LdapSyncExecuteResponse
-	(*structpb.Struct)(nil),         // 16: google.protobuf.Struct
-	(*timestamppb.Timestamp)(nil),   // 17: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),   // 18: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),           // 19: google.protobuf.Empty
+	(*PortalUser)(nil),        // 0: asset.service.v1.PortalUser
+	(*ListUsersRequest)(nil),  // 1: asset.service.v1.ListUsersRequest
+	(*ListUsersResponse)(nil), // 2: asset.service.v1.ListUsersResponse
 }
 var file_asset_service_v1_employee_proto_depIdxs = []int32{
-	16, // 0: asset.service.v1.Employee.metadata:type_name -> google.protobuf.Struct
-	17, // 1: asset.service.v1.Employee.created_at:type_name -> google.protobuf.Timestamp
-	17, // 2: asset.service.v1.Employee.updated_at:type_name -> google.protobuf.Timestamp
-	16, // 3: asset.service.v1.CreateEmployeeRequest.metadata:type_name -> google.protobuf.Struct
-	1,  // 4: asset.service.v1.CreateEmployeeResponse.employee:type_name -> asset.service.v1.Employee
-	1,  // 5: asset.service.v1.GetEmployeeResponse.employee:type_name -> asset.service.v1.Employee
-	1,  // 6: asset.service.v1.ListEmployeesResponse.items:type_name -> asset.service.v1.Employee
-	1,  // 7: asset.service.v1.UpdateEmployeeRequest.data:type_name -> asset.service.v1.Employee
-	18, // 8: asset.service.v1.UpdateEmployeeRequest.update_mask:type_name -> google.protobuf.FieldMask
-	1,  // 9: asset.service.v1.UpdateEmployeeResponse.employee:type_name -> asset.service.v1.Employee
-	0,  // 10: asset.service.v1.LdapSyncChange.action:type_name -> asset.service.v1.LdapSyncChange.Action
-	1,  // 11: asset.service.v1.LdapSyncChange.employee:type_name -> asset.service.v1.Employee
-	12, // 12: asset.service.v1.LdapSyncPreviewResponse.changes:type_name -> asset.service.v1.LdapSyncChange
-	2,  // 13: asset.service.v1.EmployeeService.CreateEmployee:input_type -> asset.service.v1.CreateEmployeeRequest
-	4,  // 14: asset.service.v1.EmployeeService.GetEmployee:input_type -> asset.service.v1.GetEmployeeRequest
-	6,  // 15: asset.service.v1.EmployeeService.ListEmployees:input_type -> asset.service.v1.ListEmployeesRequest
-	8,  // 16: asset.service.v1.EmployeeService.UpdateEmployee:input_type -> asset.service.v1.UpdateEmployeeRequest
-	10, // 17: asset.service.v1.EmployeeService.DeleteEmployee:input_type -> asset.service.v1.DeleteEmployeeRequest
-	11, // 18: asset.service.v1.EmployeeService.LdapSyncPreview:input_type -> asset.service.v1.LdapSyncPreviewRequest
-	14, // 19: asset.service.v1.EmployeeService.LdapSyncExecute:input_type -> asset.service.v1.LdapSyncExecuteRequest
-	3,  // 20: asset.service.v1.EmployeeService.CreateEmployee:output_type -> asset.service.v1.CreateEmployeeResponse
-	5,  // 21: asset.service.v1.EmployeeService.GetEmployee:output_type -> asset.service.v1.GetEmployeeResponse
-	7,  // 22: asset.service.v1.EmployeeService.ListEmployees:output_type -> asset.service.v1.ListEmployeesResponse
-	9,  // 23: asset.service.v1.EmployeeService.UpdateEmployee:output_type -> asset.service.v1.UpdateEmployeeResponse
-	19, // 24: asset.service.v1.EmployeeService.DeleteEmployee:output_type -> google.protobuf.Empty
-	13, // 25: asset.service.v1.EmployeeService.LdapSyncPreview:output_type -> asset.service.v1.LdapSyncPreviewResponse
-	15, // 26: asset.service.v1.EmployeeService.LdapSyncExecute:output_type -> asset.service.v1.LdapSyncExecuteResponse
-	20, // [20:27] is the sub-list for method output_type
-	13, // [13:20] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	0, // 0: asset.service.v1.ListUsersResponse.items:type_name -> asset.service.v1.PortalUser
+	1, // 1: asset.service.v1.UserService.ListUsers:input_type -> asset.service.v1.ListUsersRequest
+	2, // 2: asset.service.v1.UserService.ListUsers:output_type -> asset.service.v1.ListUsersResponse
+	2, // [2:3] is the sub-list for method output_type
+	1, // [1:2] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_asset_service_v1_employee_proto_init() }
@@ -1405,27 +252,19 @@ func file_asset_service_v1_employee_proto_init() {
 	if File_asset_service_v1_employee_proto != nil {
 		return
 	}
-	file_asset_service_v1_employee_proto_msgTypes[0].OneofWrappers = []any{}
-	file_asset_service_v1_employee_proto_msgTypes[1].OneofWrappers = []any{}
-	file_asset_service_v1_employee_proto_msgTypes[5].OneofWrappers = []any{}
-	file_asset_service_v1_employee_proto_msgTypes[6].OneofWrappers = []any{}
-	file_asset_service_v1_employee_proto_msgTypes[7].OneofWrappers = []any{}
-	file_asset_service_v1_employee_proto_msgTypes[10].OneofWrappers = []any{}
-	file_asset_service_v1_employee_proto_msgTypes[11].OneofWrappers = []any{}
-	file_asset_service_v1_employee_proto_msgTypes[13].OneofWrappers = []any{}
+	file_asset_service_v1_employee_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_asset_service_v1_employee_proto_rawDesc), len(file_asset_service_v1_employee_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   15,
+			NumEnums:      0,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_asset_service_v1_employee_proto_goTypes,
 		DependencyIndexes: file_asset_service_v1_employee_proto_depIdxs,
-		EnumInfos:         file_asset_service_v1_employee_proto_enumTypes,
 		MessageInfos:      file_asset_service_v1_employee_proto_msgTypes,
 	}.Build()
 	File_asset_service_v1_employee_proto = out.File

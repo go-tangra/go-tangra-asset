@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,347 +19,107 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	EmployeeService_CreateEmployee_FullMethodName  = "/asset.service.v1.EmployeeService/CreateEmployee"
-	EmployeeService_GetEmployee_FullMethodName     = "/asset.service.v1.EmployeeService/GetEmployee"
-	EmployeeService_ListEmployees_FullMethodName   = "/asset.service.v1.EmployeeService/ListEmployees"
-	EmployeeService_UpdateEmployee_FullMethodName  = "/asset.service.v1.EmployeeService/UpdateEmployee"
-	EmployeeService_DeleteEmployee_FullMethodName  = "/asset.service.v1.EmployeeService/DeleteEmployee"
-	EmployeeService_LdapSyncPreview_FullMethodName = "/asset.service.v1.EmployeeService/LdapSyncPreview"
-	EmployeeService_LdapSyncExecute_FullMethodName = "/asset.service.v1.EmployeeService/LdapSyncExecute"
+	UserService_ListUsers_FullMethodName = "/asset.service.v1.UserService/ListUsers"
 )
 
-// EmployeeServiceClient is the client API for EmployeeService service.
+// UserServiceClient is the client API for UserService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// EmployeeService manages employees for asset assignment
-type EmployeeServiceClient interface {
-	// Create a new employee
-	CreateEmployee(ctx context.Context, in *CreateEmployeeRequest, opts ...grpc.CallOption) (*CreateEmployeeResponse, error)
-	// Get an employee by ID
-	GetEmployee(ctx context.Context, in *GetEmployeeRequest, opts ...grpc.CallOption) (*GetEmployeeResponse, error)
-	// List employees with filtering
-	ListEmployees(ctx context.Context, in *ListEmployeesRequest, opts ...grpc.CallOption) (*ListEmployeesResponse, error)
-	// Update an employee
-	UpdateEmployee(ctx context.Context, in *UpdateEmployeeRequest, opts ...grpc.CallOption) (*UpdateEmployeeResponse, error)
-	// Delete an employee
-	DeleteEmployee(ctx context.Context, in *DeleteEmployeeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// Preview LDAP sync changes
-	LdapSyncPreview(ctx context.Context, in *LdapSyncPreviewRequest, opts ...grpc.CallOption) (*LdapSyncPreviewResponse, error)
-	// Execute LDAP sync
-	LdapSyncExecute(ctx context.Context, in *LdapSyncExecuteRequest, opts ...grpc.CallOption) (*LdapSyncExecuteResponse, error)
+// UserService provides access to portal users for asset assignment
+type UserServiceClient interface {
+	// List portal users available for asset assignment
+	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
 }
 
-type employeeServiceClient struct {
+type userServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewEmployeeServiceClient(cc grpc.ClientConnInterface) EmployeeServiceClient {
-	return &employeeServiceClient{cc}
+func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
+	return &userServiceClient{cc}
 }
 
-func (c *employeeServiceClient) CreateEmployee(ctx context.Context, in *CreateEmployeeRequest, opts ...grpc.CallOption) (*CreateEmployeeResponse, error) {
+func (c *userServiceClient) ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateEmployeeResponse)
-	err := c.cc.Invoke(ctx, EmployeeService_CreateEmployee_FullMethodName, in, out, cOpts...)
+	out := new(ListUsersResponse)
+	err := c.cc.Invoke(ctx, UserService_ListUsers_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *employeeServiceClient) GetEmployee(ctx context.Context, in *GetEmployeeRequest, opts ...grpc.CallOption) (*GetEmployeeResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetEmployeeResponse)
-	err := c.cc.Invoke(ctx, EmployeeService_GetEmployee_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *employeeServiceClient) ListEmployees(ctx context.Context, in *ListEmployeesRequest, opts ...grpc.CallOption) (*ListEmployeesResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListEmployeesResponse)
-	err := c.cc.Invoke(ctx, EmployeeService_ListEmployees_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *employeeServiceClient) UpdateEmployee(ctx context.Context, in *UpdateEmployeeRequest, opts ...grpc.CallOption) (*UpdateEmployeeResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateEmployeeResponse)
-	err := c.cc.Invoke(ctx, EmployeeService_UpdateEmployee_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *employeeServiceClient) DeleteEmployee(ctx context.Context, in *DeleteEmployeeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, EmployeeService_DeleteEmployee_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *employeeServiceClient) LdapSyncPreview(ctx context.Context, in *LdapSyncPreviewRequest, opts ...grpc.CallOption) (*LdapSyncPreviewResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(LdapSyncPreviewResponse)
-	err := c.cc.Invoke(ctx, EmployeeService_LdapSyncPreview_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *employeeServiceClient) LdapSyncExecute(ctx context.Context, in *LdapSyncExecuteRequest, opts ...grpc.CallOption) (*LdapSyncExecuteResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(LdapSyncExecuteResponse)
-	err := c.cc.Invoke(ctx, EmployeeService_LdapSyncExecute_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// EmployeeServiceServer is the server API for EmployeeService service.
-// All implementations must embed UnimplementedEmployeeServiceServer
+// UserServiceServer is the server API for UserService service.
+// All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
 //
-// EmployeeService manages employees for asset assignment
-type EmployeeServiceServer interface {
-	// Create a new employee
-	CreateEmployee(context.Context, *CreateEmployeeRequest) (*CreateEmployeeResponse, error)
-	// Get an employee by ID
-	GetEmployee(context.Context, *GetEmployeeRequest) (*GetEmployeeResponse, error)
-	// List employees with filtering
-	ListEmployees(context.Context, *ListEmployeesRequest) (*ListEmployeesResponse, error)
-	// Update an employee
-	UpdateEmployee(context.Context, *UpdateEmployeeRequest) (*UpdateEmployeeResponse, error)
-	// Delete an employee
-	DeleteEmployee(context.Context, *DeleteEmployeeRequest) (*emptypb.Empty, error)
-	// Preview LDAP sync changes
-	LdapSyncPreview(context.Context, *LdapSyncPreviewRequest) (*LdapSyncPreviewResponse, error)
-	// Execute LDAP sync
-	LdapSyncExecute(context.Context, *LdapSyncExecuteRequest) (*LdapSyncExecuteResponse, error)
-	mustEmbedUnimplementedEmployeeServiceServer()
+// UserService provides access to portal users for asset assignment
+type UserServiceServer interface {
+	// List portal users available for asset assignment
+	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
+	mustEmbedUnimplementedUserServiceServer()
 }
 
-// UnimplementedEmployeeServiceServer must be embedded to have
+// UnimplementedUserServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedEmployeeServiceServer struct{}
+type UnimplementedUserServiceServer struct{}
 
-func (UnimplementedEmployeeServiceServer) CreateEmployee(context.Context, *CreateEmployeeRequest) (*CreateEmployeeResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method CreateEmployee not implemented")
+func (UnimplementedUserServiceServer) ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListUsers not implemented")
 }
-func (UnimplementedEmployeeServiceServer) GetEmployee(context.Context, *GetEmployeeRequest) (*GetEmployeeResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetEmployee not implemented")
-}
-func (UnimplementedEmployeeServiceServer) ListEmployees(context.Context, *ListEmployeesRequest) (*ListEmployeesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListEmployees not implemented")
-}
-func (UnimplementedEmployeeServiceServer) UpdateEmployee(context.Context, *UpdateEmployeeRequest) (*UpdateEmployeeResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateEmployee not implemented")
-}
-func (UnimplementedEmployeeServiceServer) DeleteEmployee(context.Context, *DeleteEmployeeRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method DeleteEmployee not implemented")
-}
-func (UnimplementedEmployeeServiceServer) LdapSyncPreview(context.Context, *LdapSyncPreviewRequest) (*LdapSyncPreviewResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method LdapSyncPreview not implemented")
-}
-func (UnimplementedEmployeeServiceServer) LdapSyncExecute(context.Context, *LdapSyncExecuteRequest) (*LdapSyncExecuteResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method LdapSyncExecute not implemented")
-}
-func (UnimplementedEmployeeServiceServer) mustEmbedUnimplementedEmployeeServiceServer() {}
-func (UnimplementedEmployeeServiceServer) testEmbeddedByValue()                         {}
+func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
+func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
 
-// UnsafeEmployeeServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to EmployeeServiceServer will
+// UnsafeUserServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to UserServiceServer will
 // result in compilation errors.
-type UnsafeEmployeeServiceServer interface {
-	mustEmbedUnimplementedEmployeeServiceServer()
+type UnsafeUserServiceServer interface {
+	mustEmbedUnimplementedUserServiceServer()
 }
 
-func RegisterEmployeeServiceServer(s grpc.ServiceRegistrar, srv EmployeeServiceServer) {
-	// If the following call panics, it indicates UnimplementedEmployeeServiceServer was
+func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
+	// If the following call panics, it indicates UnimplementedUserServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&EmployeeService_ServiceDesc, srv)
+	s.RegisterService(&UserService_ServiceDesc, srv)
 }
 
-func _EmployeeService_CreateEmployee_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateEmployeeRequest)
+func _UserService_ListUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListUsersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(EmployeeServiceServer).CreateEmployee(ctx, in)
+		return srv.(UserServiceServer).ListUsers(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: EmployeeService_CreateEmployee_FullMethodName,
+		FullMethod: UserService_ListUsers_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EmployeeServiceServer).CreateEmployee(ctx, req.(*CreateEmployeeRequest))
+		return srv.(UserServiceServer).ListUsers(ctx, req.(*ListUsersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _EmployeeService_GetEmployee_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetEmployeeRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(EmployeeServiceServer).GetEmployee(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: EmployeeService_GetEmployee_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EmployeeServiceServer).GetEmployee(ctx, req.(*GetEmployeeRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _EmployeeService_ListEmployees_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListEmployeesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(EmployeeServiceServer).ListEmployees(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: EmployeeService_ListEmployees_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EmployeeServiceServer).ListEmployees(ctx, req.(*ListEmployeesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _EmployeeService_UpdateEmployee_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateEmployeeRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(EmployeeServiceServer).UpdateEmployee(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: EmployeeService_UpdateEmployee_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EmployeeServiceServer).UpdateEmployee(ctx, req.(*UpdateEmployeeRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _EmployeeService_DeleteEmployee_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteEmployeeRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(EmployeeServiceServer).DeleteEmployee(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: EmployeeService_DeleteEmployee_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EmployeeServiceServer).DeleteEmployee(ctx, req.(*DeleteEmployeeRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _EmployeeService_LdapSyncPreview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LdapSyncPreviewRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(EmployeeServiceServer).LdapSyncPreview(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: EmployeeService_LdapSyncPreview_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EmployeeServiceServer).LdapSyncPreview(ctx, req.(*LdapSyncPreviewRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _EmployeeService_LdapSyncExecute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LdapSyncExecuteRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(EmployeeServiceServer).LdapSyncExecute(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: EmployeeService_LdapSyncExecute_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EmployeeServiceServer).LdapSyncExecute(ctx, req.(*LdapSyncExecuteRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// EmployeeService_ServiceDesc is the grpc.ServiceDesc for EmployeeService service.
+// UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var EmployeeService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "asset.service.v1.EmployeeService",
-	HandlerType: (*EmployeeServiceServer)(nil),
+var UserService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "asset.service.v1.UserService",
+	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateEmployee",
-			Handler:    _EmployeeService_CreateEmployee_Handler,
-		},
-		{
-			MethodName: "GetEmployee",
-			Handler:    _EmployeeService_GetEmployee_Handler,
-		},
-		{
-			MethodName: "ListEmployees",
-			Handler:    _EmployeeService_ListEmployees_Handler,
-		},
-		{
-			MethodName: "UpdateEmployee",
-			Handler:    _EmployeeService_UpdateEmployee_Handler,
-		},
-		{
-			MethodName: "DeleteEmployee",
-			Handler:    _EmployeeService_DeleteEmployee_Handler,
-		},
-		{
-			MethodName: "LdapSyncPreview",
-			Handler:    _EmployeeService_LdapSyncPreview_Handler,
-		},
-		{
-			MethodName: "LdapSyncExecute",
-			Handler:    _EmployeeService_LdapSyncExecute_Handler,
+			MethodName: "ListUsers",
+			Handler:    _UserService_ListUsers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

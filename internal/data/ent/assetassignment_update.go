@@ -13,7 +13,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/asset"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/assetassignment"
-	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/predicate"
 )
 
@@ -65,37 +64,44 @@ func (_u *AssetAssignmentUpdate) ClearAssetName() *AssetAssignmentUpdate {
 	return _u
 }
 
-// SetEmployeeID sets the "employee_id" field.
-func (_u *AssetAssignmentUpdate) SetEmployeeID(v string) *AssetAssignmentUpdate {
-	_u.mutation.SetEmployeeID(v)
+// SetUserID sets the "user_id" field.
+func (_u *AssetAssignmentUpdate) SetUserID(v uint32) *AssetAssignmentUpdate {
+	_u.mutation.ResetUserID()
+	_u.mutation.SetUserID(v)
 	return _u
 }
 
-// SetNillableEmployeeID sets the "employee_id" field if the given value is not nil.
-func (_u *AssetAssignmentUpdate) SetNillableEmployeeID(v *string) *AssetAssignmentUpdate {
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (_u *AssetAssignmentUpdate) SetNillableUserID(v *uint32) *AssetAssignmentUpdate {
 	if v != nil {
-		_u.SetEmployeeID(*v)
+		_u.SetUserID(*v)
 	}
 	return _u
 }
 
-// SetEmployeeName sets the "employee_name" field.
-func (_u *AssetAssignmentUpdate) SetEmployeeName(v string) *AssetAssignmentUpdate {
-	_u.mutation.SetEmployeeName(v)
+// AddUserID adds value to the "user_id" field.
+func (_u *AssetAssignmentUpdate) AddUserID(v int32) *AssetAssignmentUpdate {
+	_u.mutation.AddUserID(v)
 	return _u
 }
 
-// SetNillableEmployeeName sets the "employee_name" field if the given value is not nil.
-func (_u *AssetAssignmentUpdate) SetNillableEmployeeName(v *string) *AssetAssignmentUpdate {
+// SetUserName sets the "user_name" field.
+func (_u *AssetAssignmentUpdate) SetUserName(v string) *AssetAssignmentUpdate {
+	_u.mutation.SetUserName(v)
+	return _u
+}
+
+// SetNillableUserName sets the "user_name" field if the given value is not nil.
+func (_u *AssetAssignmentUpdate) SetNillableUserName(v *string) *AssetAssignmentUpdate {
 	if v != nil {
-		_u.SetEmployeeName(*v)
+		_u.SetUserName(*v)
 	}
 	return _u
 }
 
-// ClearEmployeeName clears the value of the "employee_name" field.
-func (_u *AssetAssignmentUpdate) ClearEmployeeName() *AssetAssignmentUpdate {
-	_u.mutation.ClearEmployeeName()
+// ClearUserName clears the value of the "user_name" field.
+func (_u *AssetAssignmentUpdate) ClearUserName() *AssetAssignmentUpdate {
+	_u.mutation.ClearUserName()
 	return _u
 }
 
@@ -206,11 +212,6 @@ func (_u *AssetAssignmentUpdate) SetAsset(v *Asset) *AssetAssignmentUpdate {
 	return _u.SetAssetID(v.ID)
 }
 
-// SetEmployee sets the "employee" edge to the Employee entity.
-func (_u *AssetAssignmentUpdate) SetEmployee(v *Employee) *AssetAssignmentUpdate {
-	return _u.SetEmployeeID(v.ID)
-}
-
 // Mutation returns the AssetAssignmentMutation object of the builder.
 func (_u *AssetAssignmentUpdate) Mutation() *AssetAssignmentMutation {
 	return _u.mutation
@@ -219,12 +220,6 @@ func (_u *AssetAssignmentUpdate) Mutation() *AssetAssignmentMutation {
 // ClearAsset clears the "asset" edge to the Asset entity.
 func (_u *AssetAssignmentUpdate) ClearAsset() *AssetAssignmentUpdate {
 	_u.mutation.ClearAsset()
-	return _u
-}
-
-// ClearEmployee clears the "employee" edge to the Employee entity.
-func (_u *AssetAssignmentUpdate) ClearEmployee() *AssetAssignmentUpdate {
-	_u.mutation.ClearEmployee()
 	return _u
 }
 
@@ -262,16 +257,8 @@ func (_u *AssetAssignmentUpdate) check() error {
 			return &ValidationError{Name: "asset_id", err: fmt.Errorf(`ent: validator failed for field "AssetAssignment.asset_id": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.EmployeeID(); ok {
-		if err := assetassignment.EmployeeIDValidator(v); err != nil {
-			return &ValidationError{Name: "employee_id", err: fmt.Errorf(`ent: validator failed for field "AssetAssignment.employee_id": %w`, err)}
-		}
-	}
 	if _u.mutation.AssetCleared() && len(_u.mutation.AssetIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "AssetAssignment.asset"`)
-	}
-	if _u.mutation.EmployeeCleared() && len(_u.mutation.EmployeeIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "AssetAssignment.employee"`)
 	}
 	return nil
 }
@@ -300,11 +287,17 @@ func (_u *AssetAssignmentUpdate) sqlSave(ctx context.Context) (_node int, err er
 	if _u.mutation.AssetNameCleared() {
 		_spec.ClearField(assetassignment.FieldAssetName, field.TypeString)
 	}
-	if value, ok := _u.mutation.EmployeeName(); ok {
-		_spec.SetField(assetassignment.FieldEmployeeName, field.TypeString, value)
+	if value, ok := _u.mutation.UserID(); ok {
+		_spec.SetField(assetassignment.FieldUserID, field.TypeUint32, value)
 	}
-	if _u.mutation.EmployeeNameCleared() {
-		_spec.ClearField(assetassignment.FieldEmployeeName, field.TypeString)
+	if value, ok := _u.mutation.AddedUserID(); ok {
+		_spec.AddField(assetassignment.FieldUserID, field.TypeUint32, value)
+	}
+	if value, ok := _u.mutation.UserName(); ok {
+		_spec.SetField(assetassignment.FieldUserName, field.TypeString, value)
+	}
+	if _u.mutation.UserNameCleared() {
+		_spec.ClearField(assetassignment.FieldUserName, field.TypeString)
 	}
 	if value, ok := _u.mutation.Action(); ok {
 		_spec.SetField(assetassignment.FieldAction, field.TypeInt32, value)
@@ -358,35 +351,6 @@ func (_u *AssetAssignmentUpdate) sqlSave(ctx context.Context) (_node int, err er
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(asset.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.EmployeeCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   assetassignment.EmployeeTable,
-			Columns: []string{assetassignment.EmployeeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(employee.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.EmployeeIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   assetassignment.EmployeeTable,
-			Columns: []string{assetassignment.EmployeeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(employee.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -450,37 +414,44 @@ func (_u *AssetAssignmentUpdateOne) ClearAssetName() *AssetAssignmentUpdateOne {
 	return _u
 }
 
-// SetEmployeeID sets the "employee_id" field.
-func (_u *AssetAssignmentUpdateOne) SetEmployeeID(v string) *AssetAssignmentUpdateOne {
-	_u.mutation.SetEmployeeID(v)
+// SetUserID sets the "user_id" field.
+func (_u *AssetAssignmentUpdateOne) SetUserID(v uint32) *AssetAssignmentUpdateOne {
+	_u.mutation.ResetUserID()
+	_u.mutation.SetUserID(v)
 	return _u
 }
 
-// SetNillableEmployeeID sets the "employee_id" field if the given value is not nil.
-func (_u *AssetAssignmentUpdateOne) SetNillableEmployeeID(v *string) *AssetAssignmentUpdateOne {
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (_u *AssetAssignmentUpdateOne) SetNillableUserID(v *uint32) *AssetAssignmentUpdateOne {
 	if v != nil {
-		_u.SetEmployeeID(*v)
+		_u.SetUserID(*v)
 	}
 	return _u
 }
 
-// SetEmployeeName sets the "employee_name" field.
-func (_u *AssetAssignmentUpdateOne) SetEmployeeName(v string) *AssetAssignmentUpdateOne {
-	_u.mutation.SetEmployeeName(v)
+// AddUserID adds value to the "user_id" field.
+func (_u *AssetAssignmentUpdateOne) AddUserID(v int32) *AssetAssignmentUpdateOne {
+	_u.mutation.AddUserID(v)
 	return _u
 }
 
-// SetNillableEmployeeName sets the "employee_name" field if the given value is not nil.
-func (_u *AssetAssignmentUpdateOne) SetNillableEmployeeName(v *string) *AssetAssignmentUpdateOne {
+// SetUserName sets the "user_name" field.
+func (_u *AssetAssignmentUpdateOne) SetUserName(v string) *AssetAssignmentUpdateOne {
+	_u.mutation.SetUserName(v)
+	return _u
+}
+
+// SetNillableUserName sets the "user_name" field if the given value is not nil.
+func (_u *AssetAssignmentUpdateOne) SetNillableUserName(v *string) *AssetAssignmentUpdateOne {
 	if v != nil {
-		_u.SetEmployeeName(*v)
+		_u.SetUserName(*v)
 	}
 	return _u
 }
 
-// ClearEmployeeName clears the value of the "employee_name" field.
-func (_u *AssetAssignmentUpdateOne) ClearEmployeeName() *AssetAssignmentUpdateOne {
-	_u.mutation.ClearEmployeeName()
+// ClearUserName clears the value of the "user_name" field.
+func (_u *AssetAssignmentUpdateOne) ClearUserName() *AssetAssignmentUpdateOne {
+	_u.mutation.ClearUserName()
 	return _u
 }
 
@@ -591,11 +562,6 @@ func (_u *AssetAssignmentUpdateOne) SetAsset(v *Asset) *AssetAssignmentUpdateOne
 	return _u.SetAssetID(v.ID)
 }
 
-// SetEmployee sets the "employee" edge to the Employee entity.
-func (_u *AssetAssignmentUpdateOne) SetEmployee(v *Employee) *AssetAssignmentUpdateOne {
-	return _u.SetEmployeeID(v.ID)
-}
-
 // Mutation returns the AssetAssignmentMutation object of the builder.
 func (_u *AssetAssignmentUpdateOne) Mutation() *AssetAssignmentMutation {
 	return _u.mutation
@@ -604,12 +570,6 @@ func (_u *AssetAssignmentUpdateOne) Mutation() *AssetAssignmentMutation {
 // ClearAsset clears the "asset" edge to the Asset entity.
 func (_u *AssetAssignmentUpdateOne) ClearAsset() *AssetAssignmentUpdateOne {
 	_u.mutation.ClearAsset()
-	return _u
-}
-
-// ClearEmployee clears the "employee" edge to the Employee entity.
-func (_u *AssetAssignmentUpdateOne) ClearEmployee() *AssetAssignmentUpdateOne {
-	_u.mutation.ClearEmployee()
 	return _u
 }
 
@@ -660,16 +620,8 @@ func (_u *AssetAssignmentUpdateOne) check() error {
 			return &ValidationError{Name: "asset_id", err: fmt.Errorf(`ent: validator failed for field "AssetAssignment.asset_id": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.EmployeeID(); ok {
-		if err := assetassignment.EmployeeIDValidator(v); err != nil {
-			return &ValidationError{Name: "employee_id", err: fmt.Errorf(`ent: validator failed for field "AssetAssignment.employee_id": %w`, err)}
-		}
-	}
 	if _u.mutation.AssetCleared() && len(_u.mutation.AssetIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "AssetAssignment.asset"`)
-	}
-	if _u.mutation.EmployeeCleared() && len(_u.mutation.EmployeeIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "AssetAssignment.employee"`)
 	}
 	return nil
 }
@@ -715,11 +667,17 @@ func (_u *AssetAssignmentUpdateOne) sqlSave(ctx context.Context) (_node *AssetAs
 	if _u.mutation.AssetNameCleared() {
 		_spec.ClearField(assetassignment.FieldAssetName, field.TypeString)
 	}
-	if value, ok := _u.mutation.EmployeeName(); ok {
-		_spec.SetField(assetassignment.FieldEmployeeName, field.TypeString, value)
+	if value, ok := _u.mutation.UserID(); ok {
+		_spec.SetField(assetassignment.FieldUserID, field.TypeUint32, value)
 	}
-	if _u.mutation.EmployeeNameCleared() {
-		_spec.ClearField(assetassignment.FieldEmployeeName, field.TypeString)
+	if value, ok := _u.mutation.AddedUserID(); ok {
+		_spec.AddField(assetassignment.FieldUserID, field.TypeUint32, value)
+	}
+	if value, ok := _u.mutation.UserName(); ok {
+		_spec.SetField(assetassignment.FieldUserName, field.TypeString, value)
+	}
+	if _u.mutation.UserNameCleared() {
+		_spec.ClearField(assetassignment.FieldUserName, field.TypeString)
 	}
 	if value, ok := _u.mutation.Action(); ok {
 		_spec.SetField(assetassignment.FieldAction, field.TypeInt32, value)
@@ -773,35 +731,6 @@ func (_u *AssetAssignmentUpdateOne) sqlSave(ctx context.Context) (_node *AssetAs
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(asset.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.EmployeeCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   assetassignment.EmployeeTable,
-			Columns: []string{assetassignment.EmployeeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(employee.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.EmployeeIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   assetassignment.EmployeeTable,
-			Columns: []string{assetassignment.EmployeeColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(employee.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

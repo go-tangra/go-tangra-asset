@@ -16,10 +16,10 @@ const (
 	FieldAssetID = "asset_id"
 	// FieldAssetName holds the string denoting the asset_name field in the database.
 	FieldAssetName = "asset_name"
-	// FieldEmployeeID holds the string denoting the employee_id field in the database.
-	FieldEmployeeID = "employee_id"
-	// FieldEmployeeName holds the string denoting the employee_name field in the database.
-	FieldEmployeeName = "employee_name"
+	// FieldUserID holds the string denoting the user_id field in the database.
+	FieldUserID = "user_id"
+	// FieldUserName holds the string denoting the user_name field in the database.
+	FieldUserName = "user_name"
 	// FieldAction holds the string denoting the action field in the database.
 	FieldAction = "action"
 	// FieldAssignedAt holds the string denoting the assigned_at field in the database.
@@ -32,8 +32,6 @@ const (
 	FieldNotes = "notes"
 	// EdgeAsset holds the string denoting the asset edge name in mutations.
 	EdgeAsset = "asset"
-	// EdgeEmployee holds the string denoting the employee edge name in mutations.
-	EdgeEmployee = "employee"
 	// Table holds the table name of the assetassignment in the database.
 	Table = "asset_assignments"
 	// AssetTable is the table that holds the asset relation/edge.
@@ -43,13 +41,6 @@ const (
 	AssetInverseTable = "asset_assets"
 	// AssetColumn is the table column denoting the asset relation/edge.
 	AssetColumn = "asset_id"
-	// EmployeeTable is the table that holds the employee relation/edge.
-	EmployeeTable = "asset_assignments"
-	// EmployeeInverseTable is the table name for the Employee entity.
-	// It exists in this package in order to avoid circular dependency with the "employee" package.
-	EmployeeInverseTable = "asset_employees"
-	// EmployeeColumn is the table column denoting the employee relation/edge.
-	EmployeeColumn = "employee_id"
 )
 
 // Columns holds all SQL columns for assetassignment fields.
@@ -57,8 +48,8 @@ var Columns = []string{
 	FieldID,
 	FieldAssetID,
 	FieldAssetName,
-	FieldEmployeeID,
-	FieldEmployeeName,
+	FieldUserID,
+	FieldUserName,
 	FieldAction,
 	FieldAssignedAt,
 	FieldReturnedAt,
@@ -79,8 +70,6 @@ func ValidColumn(column string) bool {
 var (
 	// AssetIDValidator is a validator for the "asset_id" field. It is called by the builders before save.
 	AssetIDValidator func(string) error
-	// EmployeeIDValidator is a validator for the "employee_id" field. It is called by the builders before save.
-	EmployeeIDValidator func(string) error
 	// DefaultAction holds the default value on creation for the "action" field.
 	DefaultAction int32
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
@@ -105,14 +94,14 @@ func ByAssetName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAssetName, opts...).ToFunc()
 }
 
-// ByEmployeeID orders the results by the employee_id field.
-func ByEmployeeID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEmployeeID, opts...).ToFunc()
+// ByUserID orders the results by the user_id field.
+func ByUserID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
-// ByEmployeeName orders the results by the employee_name field.
-func ByEmployeeName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEmployeeName, opts...).ToFunc()
+// ByUserName orders the results by the user_name field.
+func ByUserName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserName, opts...).ToFunc()
 }
 
 // ByAction orders the results by the action field.
@@ -146,24 +135,10 @@ func ByAssetField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newAssetStep(), sql.OrderByField(field, opts...))
 	}
 }
-
-// ByEmployeeField orders the results by employee field.
-func ByEmployeeField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newEmployeeStep(), sql.OrderByField(field, opts...))
-	}
-}
 func newAssetStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AssetInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, AssetTable, AssetColumn),
-	)
-}
-func newEmployeeStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(EmployeeInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, EmployeeTable, EmployeeColumn),
 	)
 }

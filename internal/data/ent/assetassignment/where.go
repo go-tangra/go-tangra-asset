@@ -75,14 +75,14 @@ func AssetName(v string) predicate.AssetAssignment {
 	return predicate.AssetAssignment(sql.FieldEQ(FieldAssetName, v))
 }
 
-// EmployeeID applies equality check predicate on the "employee_id" field. It's identical to EmployeeIDEQ.
-func EmployeeID(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldEQ(FieldEmployeeID, v))
+// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
+func UserID(v uint32) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldEQ(FieldUserID, v))
 }
 
-// EmployeeName applies equality check predicate on the "employee_name" field. It's identical to EmployeeNameEQ.
-func EmployeeName(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldEQ(FieldEmployeeName, v))
+// UserName applies equality check predicate on the "user_name" field. It's identical to UserNameEQ.
+func UserName(v string) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldEQ(FieldUserName, v))
 }
 
 // Action applies equality check predicate on the "action" field. It's identical to ActionEQ.
@@ -250,144 +250,119 @@ func AssetNameContainsFold(v string) predicate.AssetAssignment {
 	return predicate.AssetAssignment(sql.FieldContainsFold(FieldAssetName, v))
 }
 
-// EmployeeIDEQ applies the EQ predicate on the "employee_id" field.
-func EmployeeIDEQ(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldEQ(FieldEmployeeID, v))
+// UserIDEQ applies the EQ predicate on the "user_id" field.
+func UserIDEQ(v uint32) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldEQ(FieldUserID, v))
 }
 
-// EmployeeIDNEQ applies the NEQ predicate on the "employee_id" field.
-func EmployeeIDNEQ(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldNEQ(FieldEmployeeID, v))
+// UserIDNEQ applies the NEQ predicate on the "user_id" field.
+func UserIDNEQ(v uint32) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldNEQ(FieldUserID, v))
 }
 
-// EmployeeIDIn applies the In predicate on the "employee_id" field.
-func EmployeeIDIn(vs ...string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldIn(FieldEmployeeID, vs...))
+// UserIDIn applies the In predicate on the "user_id" field.
+func UserIDIn(vs ...uint32) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldIn(FieldUserID, vs...))
 }
 
-// EmployeeIDNotIn applies the NotIn predicate on the "employee_id" field.
-func EmployeeIDNotIn(vs ...string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldNotIn(FieldEmployeeID, vs...))
+// UserIDNotIn applies the NotIn predicate on the "user_id" field.
+func UserIDNotIn(vs ...uint32) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldNotIn(FieldUserID, vs...))
 }
 
-// EmployeeIDGT applies the GT predicate on the "employee_id" field.
-func EmployeeIDGT(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldGT(FieldEmployeeID, v))
+// UserIDGT applies the GT predicate on the "user_id" field.
+func UserIDGT(v uint32) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldGT(FieldUserID, v))
 }
 
-// EmployeeIDGTE applies the GTE predicate on the "employee_id" field.
-func EmployeeIDGTE(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldGTE(FieldEmployeeID, v))
+// UserIDGTE applies the GTE predicate on the "user_id" field.
+func UserIDGTE(v uint32) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldGTE(FieldUserID, v))
 }
 
-// EmployeeIDLT applies the LT predicate on the "employee_id" field.
-func EmployeeIDLT(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldLT(FieldEmployeeID, v))
+// UserIDLT applies the LT predicate on the "user_id" field.
+func UserIDLT(v uint32) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldLT(FieldUserID, v))
 }
 
-// EmployeeIDLTE applies the LTE predicate on the "employee_id" field.
-func EmployeeIDLTE(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldLTE(FieldEmployeeID, v))
+// UserIDLTE applies the LTE predicate on the "user_id" field.
+func UserIDLTE(v uint32) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldLTE(FieldUserID, v))
 }
 
-// EmployeeIDContains applies the Contains predicate on the "employee_id" field.
-func EmployeeIDContains(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldContains(FieldEmployeeID, v))
+// UserNameEQ applies the EQ predicate on the "user_name" field.
+func UserNameEQ(v string) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldEQ(FieldUserName, v))
 }
 
-// EmployeeIDHasPrefix applies the HasPrefix predicate on the "employee_id" field.
-func EmployeeIDHasPrefix(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldHasPrefix(FieldEmployeeID, v))
+// UserNameNEQ applies the NEQ predicate on the "user_name" field.
+func UserNameNEQ(v string) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldNEQ(FieldUserName, v))
 }
 
-// EmployeeIDHasSuffix applies the HasSuffix predicate on the "employee_id" field.
-func EmployeeIDHasSuffix(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldHasSuffix(FieldEmployeeID, v))
+// UserNameIn applies the In predicate on the "user_name" field.
+func UserNameIn(vs ...string) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldIn(FieldUserName, vs...))
 }
 
-// EmployeeIDEqualFold applies the EqualFold predicate on the "employee_id" field.
-func EmployeeIDEqualFold(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldEqualFold(FieldEmployeeID, v))
+// UserNameNotIn applies the NotIn predicate on the "user_name" field.
+func UserNameNotIn(vs ...string) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldNotIn(FieldUserName, vs...))
 }
 
-// EmployeeIDContainsFold applies the ContainsFold predicate on the "employee_id" field.
-func EmployeeIDContainsFold(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldContainsFold(FieldEmployeeID, v))
+// UserNameGT applies the GT predicate on the "user_name" field.
+func UserNameGT(v string) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldGT(FieldUserName, v))
 }
 
-// EmployeeNameEQ applies the EQ predicate on the "employee_name" field.
-func EmployeeNameEQ(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldEQ(FieldEmployeeName, v))
+// UserNameGTE applies the GTE predicate on the "user_name" field.
+func UserNameGTE(v string) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldGTE(FieldUserName, v))
 }
 
-// EmployeeNameNEQ applies the NEQ predicate on the "employee_name" field.
-func EmployeeNameNEQ(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldNEQ(FieldEmployeeName, v))
+// UserNameLT applies the LT predicate on the "user_name" field.
+func UserNameLT(v string) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldLT(FieldUserName, v))
 }
 
-// EmployeeNameIn applies the In predicate on the "employee_name" field.
-func EmployeeNameIn(vs ...string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldIn(FieldEmployeeName, vs...))
+// UserNameLTE applies the LTE predicate on the "user_name" field.
+func UserNameLTE(v string) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldLTE(FieldUserName, v))
 }
 
-// EmployeeNameNotIn applies the NotIn predicate on the "employee_name" field.
-func EmployeeNameNotIn(vs ...string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldNotIn(FieldEmployeeName, vs...))
+// UserNameContains applies the Contains predicate on the "user_name" field.
+func UserNameContains(v string) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldContains(FieldUserName, v))
 }
 
-// EmployeeNameGT applies the GT predicate on the "employee_name" field.
-func EmployeeNameGT(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldGT(FieldEmployeeName, v))
+// UserNameHasPrefix applies the HasPrefix predicate on the "user_name" field.
+func UserNameHasPrefix(v string) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldHasPrefix(FieldUserName, v))
 }
 
-// EmployeeNameGTE applies the GTE predicate on the "employee_name" field.
-func EmployeeNameGTE(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldGTE(FieldEmployeeName, v))
+// UserNameHasSuffix applies the HasSuffix predicate on the "user_name" field.
+func UserNameHasSuffix(v string) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldHasSuffix(FieldUserName, v))
 }
 
-// EmployeeNameLT applies the LT predicate on the "employee_name" field.
-func EmployeeNameLT(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldLT(FieldEmployeeName, v))
+// UserNameIsNil applies the IsNil predicate on the "user_name" field.
+func UserNameIsNil() predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldIsNull(FieldUserName))
 }
 
-// EmployeeNameLTE applies the LTE predicate on the "employee_name" field.
-func EmployeeNameLTE(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldLTE(FieldEmployeeName, v))
+// UserNameNotNil applies the NotNil predicate on the "user_name" field.
+func UserNameNotNil() predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldNotNull(FieldUserName))
 }
 
-// EmployeeNameContains applies the Contains predicate on the "employee_name" field.
-func EmployeeNameContains(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldContains(FieldEmployeeName, v))
+// UserNameEqualFold applies the EqualFold predicate on the "user_name" field.
+func UserNameEqualFold(v string) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldEqualFold(FieldUserName, v))
 }
 
-// EmployeeNameHasPrefix applies the HasPrefix predicate on the "employee_name" field.
-func EmployeeNameHasPrefix(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldHasPrefix(FieldEmployeeName, v))
-}
-
-// EmployeeNameHasSuffix applies the HasSuffix predicate on the "employee_name" field.
-func EmployeeNameHasSuffix(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldHasSuffix(FieldEmployeeName, v))
-}
-
-// EmployeeNameIsNil applies the IsNil predicate on the "employee_name" field.
-func EmployeeNameIsNil() predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldIsNull(FieldEmployeeName))
-}
-
-// EmployeeNameNotNil applies the NotNil predicate on the "employee_name" field.
-func EmployeeNameNotNil() predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldNotNull(FieldEmployeeName))
-}
-
-// EmployeeNameEqualFold applies the EqualFold predicate on the "employee_name" field.
-func EmployeeNameEqualFold(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldEqualFold(FieldEmployeeName, v))
-}
-
-// EmployeeNameContainsFold applies the ContainsFold predicate on the "employee_name" field.
-func EmployeeNameContainsFold(v string) predicate.AssetAssignment {
-	return predicate.AssetAssignment(sql.FieldContainsFold(FieldEmployeeName, v))
+// UserNameContainsFold applies the ContainsFold predicate on the "user_name" field.
+func UserNameContainsFold(v string) predicate.AssetAssignment {
+	return predicate.AssetAssignment(sql.FieldContainsFold(FieldUserName, v))
 }
 
 // ActionEQ applies the EQ predicate on the "action" field.
@@ -660,29 +635,6 @@ func HasAsset() predicate.AssetAssignment {
 func HasAssetWith(preds ...predicate.Asset) predicate.AssetAssignment {
 	return predicate.AssetAssignment(func(s *sql.Selector) {
 		step := newAssetStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasEmployee applies the HasEdge predicate on the "employee" edge.
-func HasEmployee() predicate.AssetAssignment {
-	return predicate.AssetAssignment(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, EmployeeTable, EmployeeColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasEmployeeWith applies the HasEdge predicate on the "employee" edge with a given conditions (other predicates).
-func HasEmployeeWith(preds ...predicate.Employee) predicate.AssetAssignment {
-	return predicate.AssetAssignment(func(s *sql.Selector) {
-		step := newEmployeeStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

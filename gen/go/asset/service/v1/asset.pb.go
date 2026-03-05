@@ -206,10 +206,10 @@ type Asset struct {
 	CategoryId *string `protobuf:"bytes,8,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
 	// Supplier ID
 	SupplierId *string `protobuf:"bytes,9,opt,name=supplier_id,json=supplierId,proto3,oneof" json:"supplier_id,omitempty"`
-	// Location ID (when not assigned to an employee)
+	// Location ID (when not assigned to a user)
 	LocationId *string `protobuf:"bytes,10,opt,name=location_id,json=locationId,proto3,oneof" json:"location_id,omitempty"`
-	// Employee ID (when assigned)
-	EmployeeId *string `protobuf:"bytes,11,opt,name=employee_id,json=employeeId,proto3,oneof" json:"employee_id,omitempty"`
+	// Portal user ID (when assigned)
+	UserId *uint32 `protobuf:"varint,40,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
 	// Asset status
 	Status *AssetStatus `protobuf:"varint,12,opt,name=status,proto3,enum=asset.service.v1.AssetStatus,oneof" json:"status,omitempty"`
 	// Photo storage key in S3
@@ -346,11 +346,11 @@ func (x *Asset) GetLocationId() string {
 	return ""
 }
 
-func (x *Asset) GetEmployeeId() string {
-	if x != nil && x.EmployeeId != nil {
-		return *x.EmployeeId
+func (x *Asset) GetUserId() uint32 {
+	if x != nil && x.UserId != nil {
+		return *x.UserId
 	}
-	return ""
+	return 0
 }
 
 func (x *Asset) GetStatus() AssetStatus {
@@ -474,10 +474,10 @@ type AssetAssignment struct {
 	AssetId *string `protobuf:"bytes,2,opt,name=asset_id,json=assetId,proto3,oneof" json:"asset_id,omitempty"`
 	// Asset name (denormalized)
 	AssetName *string `protobuf:"bytes,3,opt,name=asset_name,json=assetName,proto3,oneof" json:"asset_name,omitempty"`
-	// Employee ID
-	EmployeeId *string `protobuf:"bytes,4,opt,name=employee_id,json=employeeId,proto3,oneof" json:"employee_id,omitempty"`
-	// Employee name (denormalized)
-	EmployeeName *string `protobuf:"bytes,5,opt,name=employee_name,json=employeeName,proto3,oneof" json:"employee_name,omitempty"`
+	// Portal user ID
+	UserId *uint32 `protobuf:"varint,11,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
+	// User display name (denormalized)
+	UserName *string `protobuf:"bytes,12,opt,name=user_name,json=userName,proto3,oneof" json:"user_name,omitempty"`
 	// Assignment action
 	Action *AssignmentAction `protobuf:"varint,6,opt,name=action,proto3,enum=asset.service.v1.AssignmentAction,oneof" json:"action,omitempty"`
 	// When the asset was assigned
@@ -543,16 +543,16 @@ func (x *AssetAssignment) GetAssetName() string {
 	return ""
 }
 
-func (x *AssetAssignment) GetEmployeeId() string {
-	if x != nil && x.EmployeeId != nil {
-		return *x.EmployeeId
+func (x *AssetAssignment) GetUserId() uint32 {
+	if x != nil && x.UserId != nil {
+		return *x.UserId
 	}
-	return ""
+	return 0
 }
 
-func (x *AssetAssignment) GetEmployeeName() string {
-	if x != nil && x.EmployeeName != nil {
-		return *x.EmployeeName
+func (x *AssetAssignment) GetUserName() string {
+	if x != nil && x.UserName != nil {
+		return *x.UserName
 	}
 	return ""
 }
@@ -1076,8 +1076,8 @@ type ListAssetsRequest struct {
 	SupplierId *string `protobuf:"bytes,12,opt,name=supplier_id,json=supplierId,proto3,oneof" json:"supplier_id,omitempty"`
 	// Filter by location
 	LocationId *string `protobuf:"bytes,13,opt,name=location_id,json=locationId,proto3,oneof" json:"location_id,omitempty"`
-	// Filter by employee
-	EmployeeId    *string `protobuf:"bytes,14,opt,name=employee_id,json=employeeId,proto3,oneof" json:"employee_id,omitempty"`
+	// Filter by assigned user
+	UserId        *uint32 `protobuf:"varint,14,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1189,11 +1189,11 @@ func (x *ListAssetsRequest) GetLocationId() string {
 	return ""
 }
 
-func (x *ListAssetsRequest) GetEmployeeId() string {
-	if x != nil && x.EmployeeId != nil {
-		return *x.EmployeeId
+func (x *ListAssetsRequest) GetUserId() uint32 {
+	if x != nil && x.UserId != nil {
+		return *x.UserId
 	}
-	return ""
+	return 0
 }
 
 type ListAssetsResponse struct {
@@ -1398,11 +1398,11 @@ func (x *DeleteAssetRequest) GetId() string {
 	return ""
 }
 
-// AssignAssetRequest assigns an asset to an employee
+// AssignAssetRequest assigns an asset to a user
 type AssignAssetRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	EmployeeId    string                 `protobuf:"bytes,2,opt,name=employee_id,json=employeeId,proto3" json:"employee_id,omitempty"`
+	UserId        uint32                 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Notes         *string                `protobuf:"bytes,3,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1445,11 +1445,11 @@ func (x *AssignAssetRequest) GetId() string {
 	return ""
 }
 
-func (x *AssignAssetRequest) GetEmployeeId() string {
+func (x *AssignAssetRequest) GetUserId() uint32 {
 	if x != nil {
-		return x.EmployeeId
+		return x.UserId
 	}
-	return ""
+	return 0
 }
 
 func (x *AssignAssetRequest) GetNotes() string {
@@ -1503,7 +1503,7 @@ func (x *AssignAssetResponse) GetAsset() *Asset {
 	return nil
 }
 
-// UnassignAssetRequest unassigns an asset from an employee
+// UnassignAssetRequest unassigns an asset from a user
 type UnassignAssetRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -2584,7 +2584,7 @@ var File_asset_service_v1_asset_proto protoreflect.FileDescriptor
 
 const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\n" +
-	"\x1casset/service/v1/asset.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xe2\v\n" +
+	"\x1casset/service/v1/asset.proto\x12\x10asset.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xd6\v\n" +
 	"\x05Asset\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\ttenant_id\x18\x02 \x01(\rH\x01R\btenantId\x88\x01\x01\x12 \n" +
@@ -2600,10 +2600,9 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"supplierId\x88\x01\x01\x12$\n" +
 	"\vlocation_id\x18\n" +
 	" \x01(\tH\tR\n" +
-	"locationId\x88\x01\x01\x12$\n" +
-	"\vemployee_id\x18\v \x01(\tH\n" +
-	"R\n" +
-	"employeeId\x88\x01\x01\x12:\n" +
+	"locationId\x88\x01\x01\x12\x1c\n" +
+	"\auser_id\x18( \x01(\rH\n" +
+	"R\x06userId\x88\x01\x01\x12:\n" +
 	"\x06status\x18\f \x01(\x0e2\x1d.asset.service.v1.AssetStatusH\vR\x06status\x88\x01\x01\x12 \n" +
 	"\tphoto_key\x18\r \x01(\tH\fR\bphotoKey\x88\x01\x01\x12,\n" +
 	"\x0fwarranty_months\x18\x0e \x01(\x05H\rR\x0ewarrantyMonths\x88\x01\x01\x12D\n" +
@@ -2635,8 +2634,9 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\r_model_numberB\x0e\n" +
 	"\f_category_idB\x0e\n" +
 	"\f_supplier_idB\x0e\n" +
-	"\f_location_idB\x0e\n" +
-	"\f_employee_idB\t\n" +
+	"\f_location_idB\n" +
+	"\n" +
+	"\b_user_idB\t\n" +
 	"\a_statusB\f\n" +
 	"\n" +
 	"_photo_keyB\x12\n" +
@@ -2652,15 +2652,14 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\v_created_atB\r\n" +
 	"\v_updated_atB\r\n" +
 	"\v_created_byB\r\n" +
-	"\v_updated_by\"\xca\x04\n" +
+	"\v_updated_by\"\xb2\x04\n" +
 	"\x0fAssetAssignment\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12\x1e\n" +
 	"\basset_id\x18\x02 \x01(\tH\x01R\aassetId\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"asset_name\x18\x03 \x01(\tH\x02R\tassetName\x88\x01\x01\x12$\n" +
-	"\vemployee_id\x18\x04 \x01(\tH\x03R\n" +
-	"employeeId\x88\x01\x01\x12(\n" +
-	"\remployee_name\x18\x05 \x01(\tH\x04R\femployeeName\x88\x01\x01\x12?\n" +
+	"asset_name\x18\x03 \x01(\tH\x02R\tassetName\x88\x01\x01\x12\x1c\n" +
+	"\auser_id\x18\v \x01(\rH\x03R\x06userId\x88\x01\x01\x12 \n" +
+	"\tuser_name\x18\f \x01(\tH\x04R\buserName\x88\x01\x01\x12?\n" +
 	"\x06action\x18\x06 \x01(\x0e2\".asset.service.v1.AssignmentActionH\x05R\x06action\x88\x01\x01\x12@\n" +
 	"\vassigned_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x06R\n" +
 	"assignedAt\x88\x01\x01\x12@\n" +
@@ -2672,9 +2671,11 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	" \x01(\tH\tR\x05notes\x88\x01\x01B\x05\n" +
 	"\x03_idB\v\n" +
 	"\t_asset_idB\r\n" +
-	"\v_asset_nameB\x0e\n" +
-	"\f_employee_idB\x10\n" +
-	"\x0e_employee_nameB\t\n" +
+	"\v_asset_nameB\n" +
+	"\n" +
+	"\b_user_idB\f\n" +
+	"\n" +
+	"_user_nameB\t\n" +
 	"\a_actionB\x0e\n" +
 	"\f_assigned_atB\x0e\n" +
 	"\f_returned_atB\x0e\n" +
@@ -2767,7 +2768,7 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\"A\n" +
 	"\x10GetAssetResponse\x12-\n" +
-	"\x05asset\x18\x01 \x01(\v2\x17.asset.service.v1.AssetR\x05asset\"\xd7\x04\n" +
+	"\x05asset\x18\x01 \x01(\v2\x17.asset.service.v1.AssetR\x05asset\"\xcb\x04\n" +
 	"\x11ListAssetsRequest\x12 \n" +
 	"\ttenant_id\x18\x01 \x01(\rH\x00R\btenantId\x88\x01\x01\x12\x17\n" +
 	"\x04page\x18\x02 \x01(\x05H\x01R\x04page\x88\x01\x01\x12 \n" +
@@ -2784,10 +2785,9 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\vsupplier_id\x18\f \x01(\tH\bR\n" +
 	"supplierId\x88\x01\x01\x12$\n" +
 	"\vlocation_id\x18\r \x01(\tH\tR\n" +
-	"locationId\x88\x01\x01\x12$\n" +
-	"\vemployee_id\x18\x0e \x01(\tH\n" +
-	"R\n" +
-	"employeeId\x88\x01\x01B\f\n" +
+	"locationId\x88\x01\x01\x12\x1c\n" +
+	"\auser_id\x18\x0e \x01(\rH\n" +
+	"R\x06userId\x88\x01\x01B\f\n" +
 	"\n" +
 	"_tenant_idB\a\n" +
 	"\x05_pageB\f\n" +
@@ -2800,8 +2800,9 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\a_statusB\x0e\n" +
 	"\f_category_idB\x0e\n" +
 	"\f_supplier_idB\x0e\n" +
-	"\f_location_idB\x0e\n" +
-	"\f_employee_id\"h\n" +
+	"\f_location_idB\n" +
+	"\n" +
+	"\b_user_id\"h\n" +
 	"\x12ListAssetsResponse\x12-\n" +
 	"\x05items\x18\x01 \x03(\v2\x17.asset.service.v1.AssetR\x05items\x12\x19\n" +
 	"\x05total\x18\x02 \x01(\x05H\x00R\x05total\x88\x01\x01B\b\n" +
@@ -2817,13 +2818,11 @@ const file_asset_service_v1_asset_proto_rawDesc = "" +
 	"\x05asset\x18\x01 \x01(\v2\x17.asset.service.v1.AssetR\x05asset\"0\n" +
 	"\x12DeleteAssetRequest\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\"\x82\x01\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\"s\n" +
 	"\x12AssignAssetRequest\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12+\n" +
-	"\vemployee_id\x18\x02 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\n" +
-	"employeeId\x12\x19\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12\x1c\n" +
+	"\auser_id\x18\x02 \x01(\rB\x03\xe0A\x02R\x06userId\x12\x19\n" +
 	"\x05notes\x18\x03 \x01(\tH\x00R\x05notes\x88\x01\x01B\b\n" +
 	"\x06_notes\"D\n" +
 	"\x13AssignAssetResponse\x12-\n" +

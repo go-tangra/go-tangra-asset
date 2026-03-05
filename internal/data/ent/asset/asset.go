@@ -41,8 +41,8 @@ const (
 	FieldSupplierID = "supplier_id"
 	// FieldLocationID holds the string denoting the location_id field in the database.
 	FieldLocationID = "location_id"
-	// FieldEmployeeID holds the string denoting the employee_id field in the database.
-	FieldEmployeeID = "employee_id"
+	// FieldUserID holds the string denoting the user_id field in the database.
+	FieldUserID = "user_id"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldPhotoKey holds the string denoting the photo_key field in the database.
@@ -73,8 +73,6 @@ const (
 	EdgeSupplier = "supplier"
 	// EdgeLocation holds the string denoting the location edge name in mutations.
 	EdgeLocation = "location"
-	// EdgeEmployee holds the string denoting the employee edge name in mutations.
-	EdgeEmployee = "employee"
 	// EdgeAssignments holds the string denoting the assignments edge name in mutations.
 	EdgeAssignments = "assignments"
 	// Table holds the table name of the asset in the database.
@@ -100,13 +98,6 @@ const (
 	LocationInverseTable = "asset_locations"
 	// LocationColumn is the table column denoting the location relation/edge.
 	LocationColumn = "location_id"
-	// EmployeeTable is the table that holds the employee relation/edge.
-	EmployeeTable = "asset_assets"
-	// EmployeeInverseTable is the table name for the Employee entity.
-	// It exists in this package in order to avoid circular dependency with the "employee" package.
-	EmployeeInverseTable = "asset_employees"
-	// EmployeeColumn is the table column denoting the employee relation/edge.
-	EmployeeColumn = "employee_id"
 	// AssignmentsTable is the table that holds the assignments relation/edge.
 	AssignmentsTable = "asset_assignments"
 	// AssignmentsInverseTable is the table name for the AssetAssignment entity.
@@ -133,7 +124,7 @@ var Columns = []string{
 	FieldCategoryID,
 	FieldSupplierID,
 	FieldLocationID,
-	FieldEmployeeID,
+	FieldUserID,
 	FieldStatus,
 	FieldPhotoKey,
 	FieldWarrantyMonths,
@@ -260,9 +251,9 @@ func ByLocationID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLocationID, opts...).ToFunc()
 }
 
-// ByEmployeeID orders the results by the employee_id field.
-func ByEmployeeID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEmployeeID, opts...).ToFunc()
+// ByUserID orders the results by the user_id field.
+func ByUserID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.
@@ -341,13 +332,6 @@ func ByLocationField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByEmployeeField orders the results by employee field.
-func ByEmployeeField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newEmployeeStep(), sql.OrderByField(field, opts...))
-	}
-}
-
 // ByAssignmentsCount orders the results by assignments count.
 func ByAssignmentsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -380,13 +364,6 @@ func newLocationStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(LocationInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, false, LocationTable, LocationColumn),
-	)
-}
-func newEmployeeStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(EmployeeInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, EmployeeTable, EmployeeColumn),
 	)
 }
 func newAssignmentsStep() *sqlgraph.Step {
