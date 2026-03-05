@@ -70,6 +70,8 @@ func ValidColumn(column string) bool {
 var (
 	// AssetIDValidator is a validator for the "asset_id" field. It is called by the builders before save.
 	AssetIDValidator func(string) error
+	// DefaultUserID holds the default value on creation for the "user_id" field.
+	DefaultUserID uint32
 	// DefaultAction holds the default value on creation for the "action" field.
 	DefaultAction int32
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.

@@ -112,7 +112,7 @@ var (
 	AssetAssignmentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Comment: "Unique identifier"},
 		{Name: "asset_name", Type: field.TypeString, Nullable: true, Comment: "Asset name (denormalized)"},
-		{Name: "user_id", Type: field.TypeUint32, Comment: "Portal user ID"},
+		{Name: "user_id", Type: field.TypeUint32, Comment: "Portal user ID", Default: 0},
 		{Name: "user_name", Type: field.TypeString, Nullable: true, Comment: "User display name (denormalized)"},
 		{Name: "action", Type: field.TypeInt32, Comment: "Action: 1=Assigned, 2=Unassigned, 3=Transferred", Default: 1},
 		{Name: "assigned_at", Type: field.TypeTime, Comment: "When the assignment was made"},

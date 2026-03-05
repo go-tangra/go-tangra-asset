@@ -37,6 +37,7 @@ func (AssetAssignment) Fields() []ent.Field {
 			Comment("Asset name (denormalized)"),
 
 		field.Uint32("user_id").
+			Default(0).
 			Comment("Portal user ID"),
 
 		field.String("user_name").

@@ -50,6 +50,14 @@ func (_c *AssetAssignmentCreate) SetUserID(v uint32) *AssetAssignmentCreate {
 	return _c
 }
 
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (_c *AssetAssignmentCreate) SetNillableUserID(v *uint32) *AssetAssignmentCreate {
+	if v != nil {
+		_c.SetUserID(*v)
+	}
+	return _c
+}
+
 // SetUserName sets the "user_name" field.
 func (_c *AssetAssignmentCreate) SetUserName(v string) *AssetAssignmentCreate {
 	_c.mutation.SetUserName(v)
@@ -172,6 +180,10 @@ func (_c *AssetAssignmentCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *AssetAssignmentCreate) defaults() {
+	if _, ok := _c.mutation.UserID(); !ok {
+		v := assetassignment.DefaultUserID
+		_c.mutation.SetUserID(v)
+	}
 	if _, ok := _c.mutation.Action(); !ok {
 		v := assetassignment.DefaultAction
 		_c.mutation.SetAction(v)

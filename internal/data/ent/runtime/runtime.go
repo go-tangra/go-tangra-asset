@@ -86,6 +86,10 @@ func init() {
 	assetassignmentDescAssetID := assetassignmentFields[1].Descriptor()
 	// assetassignment.AssetIDValidator is a validator for the "asset_id" field. It is called by the builders before save.
 	assetassignment.AssetIDValidator = assetassignmentDescAssetID.Validators[0].(func(string) error)
+	// assetassignmentDescUserID is the schema descriptor for user_id field.
+	assetassignmentDescUserID := assetassignmentFields[3].Descriptor()
+	// assetassignment.DefaultUserID holds the default value on creation for the user_id field.
+	assetassignment.DefaultUserID = assetassignmentDescUserID.Default.(uint32)
 	// assetassignmentDescAction is the schema descriptor for action field.
 	assetassignmentDescAction := assetassignmentFields[5].Descriptor()
 	// assetassignment.DefaultAction holds the default value on creation for the action field.
