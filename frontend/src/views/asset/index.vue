@@ -20,7 +20,7 @@ import { useVbenVxeGrid } from 'shell/adapter/vxe-table';
 import type { Asset } from '../../api/services';
 import {
   CategoryService,
-  EmployeeService,
+  UserService,
   LocationService,
   SupplierService,
   InsurancePolicyService,
@@ -36,16 +36,16 @@ const assetStore = useAssetAssetStore();
 const insuranceStore = useAssetInsuranceStore();
 
 const categoryMap = ref<Map<string, string>>(new Map());
-const employeeMap = ref<Map<string, string>>(new Map());
+const userMap = ref<Map<number, string>>(new Map());
 const supplierMap = ref<Map<string, string>>(new Map());
 
 interface SelectOption {
-  value: string;
+  value: string | number;
   label: string;
 }
 
 const categoryOptions = ref<SelectOption[]>([]);
-const employeeOptions = ref<SelectOption[]>([]);
+const userOptions = ref<SelectOption[]>([]);
 const supplierOptions = ref<SelectOption[]>([]);
 const locationOptions = ref<SelectOption[]>([]);
 const policyOptions = ref<SelectOption[]>([]);
@@ -53,9 +53,9 @@ const insuredAssetIds = ref<Set<string>>(new Set());
 
 async function loadRelatedData() {
   try {
-    const [catResp, empResp, supResp, locResp, polResp] = await Promise.all([
+    const [catResp, usrResp, supResp, locResp, polResp] = await Promise.all([
       CategoryService.list({ noPaging: true }),
-      EmployeeService.list({ noPaging: true }),
+      UserService.list(),
       SupplierService.list({ noPaging: true }),
       LocationService.list({ noPaging: true }),
       InsurancePolicyService.list({ noPaging: true }),
@@ -67,13 +67,13 @@ async function loadRelatedData() {
     });
     categoryMap.value = catMap;
 
-    const empMap = new Map<string, string>();
-    employeeOptions.value = (empResp.items ?? []).map((e) => {
-      const name = `${e.firstName} ${e.lastName}`;
-      empMap.set(e.id, name);
-      return { value: e.id, label: name };
+    const usrMap = new Map<number, string>();
+    userOptions.value = (usrResp.items ?? []).map((u) => {
+      const name = u.realname || u.username;
+      usrMap.set(u.id, name);
+      return { value: u.id, label: name };
     });
-    employeeMap.value = empMap;
+    userMap.value = usrMap;
 
     const supMap = new Map<string, string>();
     supplierOptions.value = (supResp.items ?? []).map((s) => {
@@ -153,9 +153,9 @@ function getCategoryName(id: string | undefined) {
   return categoryMap.value.get(id) ?? id;
 }
 
-function getEmployeeName(id: string | undefined) {
+function getUserName(id: number | undefined) {
   if (!id) return '-';
-  return employeeMap.value.get(id) ?? id;
+  return userMap.value.get(id) ?? `User #${id}`;
 }
 
 function getSupplierName(id: string | undefined) {
@@ -314,10 +314,10 @@ const gridOptions: VxeGridProps<Asset> = {
       slots: { default: 'supplierName' },
     },
     {
-      title: $t('asset.page.asset.employeeId'),
-      field: 'employeeId',
+      title: $t('asset.page.asset.userId'),
+      field: 'userId',
       width: 140,
-      slots: { default: 'employeeName' },
+      slots: { default: 'userName' },
     },
     {
       title: $t('asset.page.asset.purchaseCost'),
@@ -397,22 +397,22 @@ async function handleDelete(row: Asset) {
 // Assign modal
 const assignModalVisible = ref(false);
 const assignTarget = ref<Asset | null>(null);
-const assignEmployeeId = ref<string | undefined>(undefined);
+const assignUserId = ref<number | undefined>(undefined);
 const assignNotes = ref('');
 
 function handleAssign(row: Asset) {
   assignTarget.value = row;
-  assignEmployeeId.value = undefined;
+  assignUserId.value = undefined;
   assignNotes.value = '';
   assignModalVisible.value = true;
 }
 
 async function confirmAssign() {
-  if (!assignTarget.value?.id || !assignEmployeeId.value) return;
+  if (!assignTarget.value?.id || !assignUserId.value) return;
   try {
     await assetStore.assignAsset(
       assignTarget.value.id,
-      assignEmployeeId.value,
+      assignUserId.value,
       assignNotes.value || undefined,
     );
     notification.success({
@@ -519,8 +519,8 @@ onMounted(() => {
       <template #supplierName="{ row }">
         {{ getSupplierName(row.supplierId) }}
       </template>
-      <template #employeeName="{ row }">
-        {{ getEmployeeName(row.employeeId) }}
+      <template #userName="{ row }">
+        {{ getUserName(row.userId) }}
       </template>
       <template #currentValue="{ row }">
         {{ calculateCurrentValue(row) }}
@@ -589,18 +589,18 @@ onMounted(() => {
     <!-- Assign Modal -->
     <Modal
       v-model:open="assignModalVisible"
-      :title="$t('asset.page.asset.assignEmployee')"
+      :title="$t('asset.page.asset.assignUser')"
       :ok-text="$t('asset.page.asset.assign')"
       :cancel-text="$t('ui.button.cancel')"
       @ok="confirmAssign"
     >
       <div class="mb-4">
         <label class="mb-1 block font-medium">{{
-          $t('asset.page.asset.employeeId')
+          $t('asset.page.asset.userId')
         }}</label>
         <Select
-          v-model:value="assignEmployeeId"
-          :options="employeeOptions"
+          v-model:value="assignUserId"
+          :options="userOptions"
           :placeholder="$t('ui.placeholder.select')"
           show-search
           :filter-option="

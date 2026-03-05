@@ -2,7 +2,7 @@ import './styles/tailwind.css';
 import type { TangraModule } from './sdk';
 import routes from './routes';
 import { useAssetSupplierStore } from './stores/asset-supplier.state';
-import { useAssetEmployeeStore } from './stores/asset-employee.state';
+import { useAssetUserStore } from './stores/asset-user.state';
 import { useAssetLocationStore } from './stores/asset-location.state';
 import { useAssetCategoryStore } from './stores/asset-category.state';
 import { useAssetAssetStore } from './stores/asset-asset.state';
@@ -18,7 +18,7 @@ const assetModule: TangraModule = {
   routes,
   stores: {
     'asset-supplier': useAssetSupplierStore,
-    'asset-employee': useAssetEmployeeStore,
+    'asset-user': useAssetUserStore,
     'asset-location': useAssetLocationStore,
     'asset-category': useAssetCategoryStore,
     'asset-asset': useAssetAssetStore,

@@ -36,13 +36,12 @@ func (AssetAssignment) Fields() []ent.Field {
 			Optional().
 			Comment("Asset name (denormalized)"),
 
-		field.String("employee_id").
-			NotEmpty().
-			Comment("Employee ID"),
+		field.Uint32("user_id").
+			Comment("Portal user ID"),
 
-		field.String("employee_name").
+		field.String("user_name").
 			Optional().
-			Comment("Employee name (denormalized)"),
+			Comment("User display name (denormalized)"),
 
 		field.Int32("action").
 			Default(1).
@@ -74,17 +73,13 @@ func (AssetAssignment) Edges() []ent.Edge {
 			Field("asset_id").
 			Unique().
 			Required(),
-		edge.To("employee", Employee.Type).
-			Field("employee_id").
-			Unique().
-			Required(),
 	}
 }
 
 func (AssetAssignment) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("asset_id"),
-		index.Fields("employee_id"),
+		index.Fields("user_id"),
 		index.Fields("asset_id", "returned_at"),
 	}
 }

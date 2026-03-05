@@ -75,16 +75,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import('./views/supplier/index.vue'),
       },
       {
-        path: 'employee',
-        name: 'AssetEmployees',
-        meta: {
-          icon: 'lucide:users',
-          title: 'asset.menu.employees',
-          authority: ['platform:admin', 'tenant:manager'],
-        },
-        component: () => import('./views/employee/index.vue'),
-      },
-      {
         path: 'location',
         name: 'AssetLocations',
         meta: {

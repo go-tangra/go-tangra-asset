@@ -26,15 +26,15 @@ func NewAssignmentRepo(ctx *bootstrap.Context, entClient *entCrud.EntClient[*ent
 	}
 }
 
-func (r *AssignmentRepo) Create(ctx context.Context, assetID, assetName, employeeID, employeeName string, action int32, assignedBy *uint32, notes string) (*ent.AssetAssignment, error) {
+func (r *AssignmentRepo) Create(ctx context.Context, assetID, assetName string, userID uint32, userName string, action int32, assignedBy *uint32, notes string) (*ent.AssetAssignment, error) {
 	id := uuid.New().String()
 
 	create := r.entClient.Client().AssetAssignment.Create().
 		SetID(id).
 		SetAssetID(assetID).
 		SetAssetName(assetName).
-		SetEmployeeID(employeeID).
-		SetEmployeeName(employeeName).
+		SetUserID(userID).
+		SetUserName(userName).
 		SetAction(action).
 		SetAssignedAt(time.Now())
 

@@ -91,18 +91,6 @@ menus:
       - platform:admin
       - tenant:manager
 
-  - id: asset-employees
-    parent_id: asset
-    type: MENU
-    name: Employees
-    path: employee
-    component: app/asset/employee/index.vue
-    icon: lucide:users
-    order: 7
-    authority:
-      - platform:admin
-      - tenant:manager
-
   - id: asset-locations
     parent_id: asset
     type: MENU
@@ -136,7 +124,7 @@ dashboard_widgets:
 
   - id: asset.assigned_assets
     name: Assigned Assets
-    description: Assets currently assigned to employees
+    description: Assets currently assigned to users
     icon: lucide:user-check
     widget_type: stat_card
     data_source:
@@ -186,23 +174,6 @@ dashboard_widgets:
     tags: [asset, overview]
     authority: [platform:admin, tenant:manager]
 
-  - id: asset.employees_stat
-    name: Employees
-    description: Total employees in asset management
-    icon: lucide:users
-    widget_type: stat_card
-    data_source:
-      endpoint: /admin/v1/modules/asset/v1/stats
-      method: GET
-    data_mapping:
-      value_path: totalEmployees
-      label: Employees
-    default_size:
-      width: 3
-      height: 1
-    tags: [asset, overview]
-    authority: [platform:admin, tenant:manager]
-
   - id: asset.licenses_stat
     name: Licenses
     description: Total software licenses managed
@@ -233,7 +204,7 @@ permission_groups:
         description: Create, update, and delete assets
       - name: Assign Assets
         code: asset.asset.assign
-        description: Assign and unassign assets to employees
+        description: Assign and unassign assets to users
       - name: View Consumables
         code: asset.consumable.view
         description: View consumable details and list
@@ -264,12 +235,6 @@ permission_groups:
       - name: Manage Suppliers
         code: asset.supplier.manage
         description: Create, update, and delete suppliers
-      - name: View Employees
-        code: asset.employee.view
-        description: View employee details and list
-      - name: Manage Employees
-        code: asset.employee.manage
-        description: Create, update, and delete employees
       - name: View Locations
         code: asset.location.view
         description: View location details and tree
@@ -296,8 +261,6 @@ roles:
       - asset.category.manage
       - asset.supplier.view
       - asset.supplier.manage
-      - asset.employee.view
-      - asset.employee.manage
       - asset.location.view
       - asset.location.manage
 
@@ -317,7 +280,6 @@ roles:
       - asset.insurance.manage
       - asset.category.view
       - asset.supplier.view
-      - asset.employee.view
       - asset.location.view
 
   - name: Asset Viewer
@@ -331,5 +293,4 @@ roles:
       - asset.insurance.view
       - asset.category.view
       - asset.supplier.view
-      - asset.employee.view
       - asset.location.view

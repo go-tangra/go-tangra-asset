@@ -60,9 +60,6 @@ func (s *SystemService) GetDashboardStats(ctx context.Context, req *assetV1.GetD
 	if count, err := s.statsRepo.GetSupplierCount(ctx); err == nil {
 		response.TotalSuppliers = count
 	}
-	if count, err := s.statsRepo.GetEmployeeCount(ctx); err == nil {
-		response.TotalEmployees = count
-	}
 	if count, err := s.statsRepo.GetCategoryCount(ctx); err == nil {
 		response.TotalCategories = count
 	}

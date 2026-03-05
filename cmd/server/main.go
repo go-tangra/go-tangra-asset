@@ -21,7 +21,7 @@ var (
 	moduleID    = "asset"
 	moduleName  = "Asset Management"
 	version     = "1.0.0"
-	description = "IT Asset Management service for managing assets, consumables, suppliers, employees, locations, and categories"
+	description = "IT Asset Management service for managing assets, consumables, suppliers, locations, and categories"
 )
 
 // Global references for cleanup

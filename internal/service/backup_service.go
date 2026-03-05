@@ -20,7 +20,6 @@ import (
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/assetassignment"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/category"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/consumable"
-	"github.com/go-tangra/go-tangra-asset/internal/data/ent/employee"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/insurancepolicy"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/insurancepolicyasset"
 	"github.com/go-tangra/go-tangra-asset/internal/data/ent/license"
@@ -60,7 +59,6 @@ type backupEntities struct {
 	Categories            []json.RawMessage `json:"categories,omitempty"`
 	Suppliers             []json.RawMessage `json:"suppliers,omitempty"`
 	Locations             []json.RawMessage `json:"locations,omitempty"`
-	Employees             []json.RawMessage `json:"employees,omitempty"`
 	Assets                []json.RawMessage `json:"assets,omitempty"`
 	Consumables           []json.RawMessage `json:"consumables,omitempty"`
 	Licenses              []json.RawMessage `json:"licenses,omitempty"`
@@ -142,10 +140,6 @@ func (s *BackupService) ExportBackup(ctx context.Context, req *assetV1.ExportBac
 	if err != nil {
 		return nil, fmt.Errorf("export locations: %w", err)
 	}
-	employees, err := s.exportEmployees(ctx, client, tenantID, full)
-	if err != nil {
-		return nil, fmt.Errorf("export employees: %w", err)
-	}
 	assets, err := s.exportAssets(ctx, client, tenantID, full)
 	if err != nil {
 		return nil, fmt.Errorf("export assets: %w", err)
@@ -185,7 +179,6 @@ func (s *BackupService) ExportBackup(ctx context.Context, req *assetV1.ExportBac
 			Categories:            categories,
 			Suppliers:             suppliers,
 			Locations:             locations,
-			Employees:             employees,
 			Assets:                assets,
 			Consumables:           consumables,
 			Licenses:              licenses,
@@ -205,7 +198,6 @@ func (s *BackupService) ExportBackup(ctx context.Context, req *assetV1.ExportBac
 		"categories":            int64(len(categories)),
 		"suppliers":             int64(len(suppliers)),
 		"locations":             int64(len(locations)),
-		"employees":             int64(len(employees)),
 		"assets":                int64(len(assets)),
 		"consumables":           int64(len(consumables)),
 		"licenses":              int64(len(licenses)),
@@ -269,7 +261,6 @@ func (s *BackupService) ImportBackup(ctx context.Context, req *assetV1.ImportBac
 		{"categories", backup.Data.Categories, s.importCategories},
 		{"suppliers", backup.Data.Suppliers, s.importSuppliers},
 		{"locations", backup.Data.Locations, s.importLocations},
-		{"employees", backup.Data.Employees, s.importEmployees},
 		{"assets", backup.Data.Assets, s.importAssets},
 		{"consumables", backup.Data.Consumables, s.importConsumables},
 		{"licenses", backup.Data.Licenses, s.importLicenses},
@@ -329,18 +320,6 @@ func (s *BackupService) exportLocations(ctx context.Context, client *ent.Client,
 	query := client.Location.Query()
 	if !full {
 		query = query.Where(location.TenantID(tenantID))
-	}
-	entities, err := query.All(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return marshalEntities(entities)
-}
-
-func (s *BackupService) exportEmployees(ctx context.Context, client *ent.Client, tenantID uint32, full bool) ([]json.RawMessage, error) {
-	query := client.Employee.Query()
-	if !full {
-		query = query.Where(employee.TenantID(tenantID))
 	}
 	entities, err := query.All(ctx)
 	if err != nil {
@@ -681,79 +660,6 @@ func (s *BackupService) importLocations(ctx context.Context, client *ent.Client,
 	return result, warnings
 }
 
-func (s *BackupService) importEmployees(ctx context.Context, client *ent.Client, items []json.RawMessage, tenantID uint32, full bool, mode assetV1.RestoreMode) (*assetV1.EntityImportResult, []string) {
-	result := &assetV1.EntityImportResult{EntityType: "employees", Total: int64(len(items))}
-	var warnings []string
-
-	for _, raw := range items {
-		var e ent.Employee
-		if err := json.Unmarshal(raw, &e); err != nil {
-			warnings = append(warnings, fmt.Sprintf("employees: unmarshal error: %v", err))
-			result.Failed++
-			continue
-		}
-
-		tid := tenantID
-		if full && e.TenantID != nil {
-			tid = *e.TenantID
-		}
-
-		existing, _ := client.Employee.Get(ctx, e.ID)
-		if existing != nil {
-			if mode == assetV1.RestoreMode_RESTORE_MODE_SKIP {
-				result.Skipped++
-				continue
-			}
-			_, err := client.Employee.UpdateOneID(e.ID).
-				SetFirstName(e.FirstName).
-				SetLastName(e.LastName).
-				SetEmail(e.Email).
-				SetPhone(e.Phone).
-				SetDepartment(e.Department).
-				SetJobTitle(e.JobTitle).
-				SetEmployeeNumber(e.EmployeeNumber).
-				SetNotes(e.Notes).
-				SetTags(e.Tags).
-				SetMetadata(e.Metadata).
-				SetNillableCreateBy(e.CreateBy).
-				SetNillableUpdateBy(e.UpdateBy).
-				Save(ctx)
-			if err != nil {
-				warnings = append(warnings, fmt.Sprintf("employees: update %s: %v", e.ID, err))
-				result.Failed++
-				continue
-			}
-			result.Updated++
-		} else {
-			_, err := client.Employee.Create().
-				SetID(e.ID).
-				SetNillableTenantID(&tid).
-				SetFirstName(e.FirstName).
-				SetLastName(e.LastName).
-				SetEmail(e.Email).
-				SetPhone(e.Phone).
-				SetDepartment(e.Department).
-				SetJobTitle(e.JobTitle).
-				SetEmployeeNumber(e.EmployeeNumber).
-				SetNotes(e.Notes).
-				SetTags(e.Tags).
-				SetMetadata(e.Metadata).
-				SetNillableCreateBy(e.CreateBy).
-				SetNillableUpdateBy(e.UpdateBy).
-				SetNillableCreateTime(e.CreateTime).
-				Save(ctx)
-			if err != nil {
-				warnings = append(warnings, fmt.Sprintf("employees: create %s: %v", e.ID, err))
-				result.Failed++
-				continue
-			}
-			result.Created++
-		}
-	}
-
-	return result, warnings
-}
-
 func (s *BackupService) importAssets(ctx context.Context, client *ent.Client, items []json.RawMessage, tenantID uint32, full bool, mode assetV1.RestoreMode) (*assetV1.EntityImportResult, []string) {
 	result := &assetV1.EntityImportResult{EntityType: "assets", Total: int64(len(items))}
 	var warnings []string
@@ -786,7 +692,7 @@ func (s *BackupService) importAssets(ctx context.Context, client *ent.Client, it
 				SetCategoryID(e.CategoryID).
 				SetSupplierID(e.SupplierID).
 				SetLocationID(e.LocationID).
-				SetEmployeeID(e.EmployeeID).
+				SetNillableUserID(e.UserID).
 				SetStatus(e.Status).
 				SetPhotoKey(e.PhotoKey).
 				SetNillableWarrantyMonths(e.WarrantyMonths).
@@ -820,7 +726,7 @@ func (s *BackupService) importAssets(ctx context.Context, client *ent.Client, it
 				SetCategoryID(e.CategoryID).
 				SetSupplierID(e.SupplierID).
 				SetLocationID(e.LocationID).
-				SetEmployeeID(e.EmployeeID).
+				SetNillableUserID(e.UserID).
 				SetStatus(e.Status).
 				SetPhotoKey(e.PhotoKey).
 				SetNillableWarrantyMonths(e.WarrantyMonths).
@@ -1020,8 +926,8 @@ func (s *BackupService) importAssetAssignments(ctx context.Context, client *ent.
 			_, err := client.AssetAssignment.UpdateOneID(e.ID).
 				SetAssetID(e.AssetID).
 				SetAssetName(e.AssetName).
-				SetEmployeeID(e.EmployeeID).
-				SetEmployeeName(e.EmployeeName).
+				SetUserID(e.UserID).
+				SetUserName(e.UserName).
 				SetAction(e.Action).
 				SetAssignedAt(e.AssignedAt).
 				SetNillableReturnedAt(e.ReturnedAt).
@@ -1039,8 +945,8 @@ func (s *BackupService) importAssetAssignments(ctx context.Context, client *ent.
 				SetID(e.ID).
 				SetAssetID(e.AssetID).
 				SetAssetName(e.AssetName).
-				SetEmployeeID(e.EmployeeID).
-				SetEmployeeName(e.EmployeeName).
+				SetUserID(e.UserID).
+				SetUserName(e.UserName).
 				SetAction(e.Action).
 				SetAssignedAt(e.AssignedAt).
 				SetNillableReturnedAt(e.ReturnedAt).

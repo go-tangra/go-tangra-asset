@@ -52,7 +52,7 @@ func NewGRPCServer(
 	auditLogRepo *data.AuditLogRepo,
 	systemSvc *service.SystemService,
 	supplierSvc *service.SupplierService,
-	employeeSvc *service.EmployeeService,
+	userSvc *service.UserService,
 	locationSvc *service.LocationService,
 	categorySvc *service.CategoryService,
 	assetSvc *service.AssetService,
@@ -133,7 +133,7 @@ func NewGRPCServer(
 	// Register services with redacted wrappers
 	assetV1.RegisterRedactedSystemServiceServer(srv, systemSvc, nil)
 	assetV1.RegisterRedactedSupplierServiceServer(srv, supplierSvc, nil)
-	assetV1.RegisterRedactedEmployeeServiceServer(srv, employeeSvc, nil)
+	assetV1.RegisterRedactedUserServiceServer(srv, userSvc, nil)
 	assetV1.RegisterRedactedLocationServiceServer(srv, locationSvc, nil)
 	assetV1.RegisterRedactedCategoryServiceServer(srv, categorySvc, nil)
 	assetV1.RegisterRedactedAssetServiceServer(srv, assetSvc, nil)

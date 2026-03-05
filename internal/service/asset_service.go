@@ -30,7 +30,7 @@ type AssetService struct {
 	assetRepo       *data.AssetRepo
 	assignmentRepo  *data.AssignmentRepo
 	documentRepo    *data.DocumentRepo
-	employeeRepo    *data.EmployeeRepo
+	adminClient     *data.AdminClient
 	storageClient   *data.StorageClient
 	inventoryClient *data.InventoryClient
 }
@@ -40,7 +40,7 @@ func NewAssetService(
 	assetRepo *data.AssetRepo,
 	assignmentRepo *data.AssignmentRepo,
 	documentRepo *data.DocumentRepo,
-	employeeRepo *data.EmployeeRepo,
+	adminClient *data.AdminClient,
 	storageClient *data.StorageClient,
 	inventoryClient *data.InventoryClient,
 ) *AssetService {
@@ -49,7 +49,7 @@ func NewAssetService(
 		assetRepo:       assetRepo,
 		assignmentRepo:  assignmentRepo,
 		documentRepo:    documentRepo,
-		employeeRepo:    employeeRepo,
+		adminClient:     adminClient,
 		storageClient:   storageClient,
 		inventoryClient: inventoryClient,
 	}
@@ -156,8 +156,8 @@ func (s *AssetService) ListAssets(ctx context.Context, req *assetV1.ListAssetsRe
 	if req.LocationId != nil {
 		filters["location_id"] = *req.LocationId
 	}
-	if req.EmployeeId != nil {
-		filters["employee_id"] = *req.EmployeeId
+	if req.UserId != nil {
+		filters["user_id"] = *req.UserId
 	}
 	if req.Query != nil {
 		filters["query"] = *req.Query
@@ -315,31 +315,40 @@ func (s *AssetService) AssignAsset(ctx context.Context, req *assetV1.AssignAsset
 		return nil, assetV1.ErrorAssetAlreadyAssigned("asset is not deployable (current status: %d)", a.Status)
 	}
 
-	// Verify employee exists
-	emp, err := s.employeeRepo.GetByID(ctx, req.GetEmployeeId())
-	if err != nil {
-		return nil, err
-	}
-	if emp == nil {
-		return nil, assetV1.ErrorEmployeeNotFound("employee not found")
+	// Resolve user name from admin-service
+	assignToUserID := req.GetUserId()
+	userName := fmt.Sprintf("User #%d", assignToUserID)
+
+	outCtx := forwardMetadata(ctx)
+	usersResp, err := s.adminClient.ListUsers(outCtx)
+	if err == nil {
+		for _, u := range usersResp.Items {
+			if u.Id == assignToUserID {
+				if u.Realname != "" {
+					userName = u.Realname
+				} else {
+					userName = u.Username
+				}
+				break
+			}
+		}
 	}
 
 	// Create assignment record
-	employeeName := emp.FirstName + " " + emp.LastName
-	userID := getUserID(ctx)
+	currentUserID := getUserID(ctx)
 	var assignedBy *uint32
-	if userID > 0 {
-		assignedBy = &userID
+	if currentUserID > 0 {
+		assignedBy = &currentUserID
 	}
 
-	_, err = s.assignmentRepo.Create(ctx, a.ID, a.Name, emp.ID, employeeName, 1, assignedBy, req.GetNotes())
+	_, err = s.assignmentRepo.Create(ctx, a.ID, a.Name, assignToUserID, userName, 1, assignedBy, req.GetNotes())
 	if err != nil {
 		return nil, err
 	}
 
 	// Update asset
 	updates := map[string]interface{}{
-		"employee_id":      req.GetEmployeeId(),
+		"user_id":          assignToUserID,
 		"status":           int32(2), // ASSIGNED
 		"clear_location_id": true,
 	}
@@ -375,7 +384,7 @@ func (s *AssetService) UnassignAsset(ctx context.Context, req *assetV1.UnassignA
 	// Update asset
 	updates := map[string]interface{}{
 		"status":            int32(1), // DEPLOYABLE
-		"clear_employee_id": true,
+		"clear_user_id": true,
 	}
 	if req.LocationId != nil {
 		updates["location_id"] = *req.LocationId
@@ -404,15 +413,15 @@ func (s *AssetService) GetAssignmentHistory(ctx context.Context, req *assetV1.Ge
 	for i, e := range entities {
 		action := assetV1.AssignmentAction(e.Action)
 		items[i] = &assetV1.AssetAssignment{
-			Id:           &e.ID,
-			AssetId:      ptrString(e.AssetID),
-			AssetName:    ptrString(e.AssetName),
-			EmployeeId:   ptrString(e.EmployeeID),
-			EmployeeName: ptrString(e.EmployeeName),
-			Action:       &action,
-			AssignedAt:   timestamppb.New(e.AssignedAt),
-			AssignedBy:   e.AssignedBy,
-			Notes:        ptrString(e.Notes),
+			Id:        &e.ID,
+			AssetId:   ptrString(e.AssetID),
+			AssetName: ptrString(e.AssetName),
+			UserId:    &e.UserID,
+			UserName:  ptrString(e.UserName),
+			Action:    &action,
+			AssignedAt: timestamppb.New(e.AssignedAt),
+			AssignedBy: e.AssignedBy,
+			Notes:     ptrString(e.Notes),
 		}
 		if e.ReturnedAt != nil {
 			items[i].ReturnedAt = timestamppb.New(*e.ReturnedAt)
@@ -682,7 +691,7 @@ func assetToProto(e *ent.Asset) *assetV1.Asset {
 		CategoryId:   ptrString(e.CategoryID),
 		SupplierId:   ptrString(e.SupplierID),
 		LocationId:   ptrString(e.LocationID),
-		EmployeeId:   ptrString(e.EmployeeID),
+		UserId:       e.UserID,
 		Status:       &status,
 		PhotoKey:     ptrString(e.PhotoKey),
 		WarrantyMonths: e.WarrantyMonths,

@@ -79,8 +79,8 @@ func (r *AssetRepo) List(ctx context.Context, tenantID uint32, page, pageSize in
 	if locationID, ok := filters["location_id"].(string); ok && locationID != "" {
 		query = query.Where(asset.LocationID(locationID))
 	}
-	if employeeID, ok := filters["employee_id"].(string); ok && employeeID != "" {
-		query = query.Where(asset.EmployeeID(employeeID))
+	if userID, ok := filters["user_id"].(uint32); ok && userID > 0 {
+		query = query.Where(asset.UserID(userID))
 	}
 	if q, ok := filters["query"].(string); ok && q != "" {
 		query = query.Where(
@@ -138,8 +138,8 @@ func (r *AssetRepo) Update(ctx context.Context, id string, updates map[string]in
 	if locationID, ok := updates["location_id"].(string); ok {
 		update = update.SetLocationID(locationID)
 	}
-	if employeeID, ok := updates["employee_id"].(string); ok {
-		update = update.SetEmployeeID(employeeID)
+	if userID, ok := updates["user_id"].(uint32); ok {
+		update = update.SetUserID(userID)
 	}
 	if status, ok := updates["status"].(int32); ok {
 		update = update.SetStatus(status)
@@ -179,8 +179,8 @@ func (r *AssetRepo) Update(ctx context.Context, id string, updates map[string]in
 	}
 
 	// Handle clearing nullable fields
-	if _, ok := updates["clear_employee_id"]; ok {
-		update = update.ClearEmployeeID()
+	if _, ok := updates["clear_user_id"]; ok {
+		update = update.ClearUserID()
 	}
 	if _, ok := updates["clear_location_id"]; ok {
 		update = update.ClearLocationID()

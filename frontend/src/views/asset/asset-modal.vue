@@ -39,7 +39,7 @@ import {
   CategoryService,
   SupplierService,
   LocationService,
-  EmployeeService,
+  UserService,
 } from '../../api/services';
 import { $t } from 'shell/locales';
 import { useAssetAssetStore } from '../../stores/asset-asset.state';
@@ -61,7 +61,7 @@ interface SelectOption {
 const categoryOptions = ref<SelectOption[]>([]);
 const supplierOptions = ref<SelectOption[]>([]);
 const locationOptions = ref<SelectOption[]>([]);
-const employeeOptions = ref<SelectOption[]>([]);
+const userOptions = ref<{ value: number; label: string }[]>([]);
 
 const assignmentHistory = ref<AssetAssignment[]>([]);
 
@@ -256,11 +256,11 @@ async function handleDownloadDocument(doc: AssetDocument) {
 
 async function loadOptions() {
   try {
-    const [catResp, supResp, locResp, empResp] = await Promise.all([
+    const [catResp, supResp, locResp, usrResp] = await Promise.all([
       CategoryService.list({ noPaging: true }),
       SupplierService.list({ noPaging: true }),
       LocationService.list({ noPaging: true }),
-      EmployeeService.list({ noPaging: true }),
+      UserService.list(),
     ]);
     categoryOptions.value = (catResp.items ?? []).map((c) => ({
       value: c.id,
@@ -274,9 +274,9 @@ async function loadOptions() {
       value: l.id,
       label: l.name,
     }));
-    employeeOptions.value = (empResp.items ?? []).map((e) => ({
-      value: e.id,
-      label: `${e.firstName} ${e.lastName}`,
+    userOptions.value = (usrResp.items ?? []).map((u) => ({
+      value: u.id,
+      label: u.realname || u.username,
     }));
   } catch (e) {
     console.error('Failed to load options:', e);
@@ -559,12 +559,10 @@ const assignmentColumns = [
     customRender: ({ text }: { text: string }) => actionToName(text),
   },
   {
-    title: $t('asset.page.asset.employeeId'),
-    dataIndex: 'employeeId',
-    key: 'employeeId',
+    title: $t('asset.page.asset.userId'),
+    dataIndex: 'userName',
+    key: 'userName',
     width: 150,
-    customRender: ({ text }: { text: string }) =>
-      getOptionLabel(employeeOptions.value, text),
   },
   {
     title: $t('asset.page.asset.assignedAt'),
@@ -699,8 +697,8 @@ const documentColumns = [
             <DescriptionsItem :label="$t('asset.page.asset.locationId')">
               {{ getOptionLabel(locationOptions, asset.locationId) }}
             </DescriptionsItem>
-            <DescriptionsItem :label="$t('asset.page.asset.employeeId')">
-              {{ getOptionLabel(employeeOptions, asset.employeeId) }}
+            <DescriptionsItem :label="$t('asset.page.asset.userId')">
+              {{ asset.userId ? (userOptions.find(u => u.value === asset.userId)?.label ?? `User #${asset.userId}`) : '-' }}
             </DescriptionsItem>
           </Descriptions>
 

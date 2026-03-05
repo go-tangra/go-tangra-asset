@@ -22,7 +22,7 @@ export const useAssetAssetStore = defineStore('asset-asset', () => {
       categoryId?: string;
       supplierId?: string;
       locationId?: string;
-      employeeId?: string;
+      userId?: number;
     } | null,
   ): Promise<ListAssetsResponse> {
     return await AssetService.list({
@@ -31,7 +31,7 @@ export const useAssetAssetStore = defineStore('asset-asset', () => {
       categoryId: formValues?.categoryId,
       supplierId: formValues?.supplierId,
       locationId: formValues?.locationId,
-      employeeId: formValues?.employeeId,
+      userId: formValues?.userId,
       page: paging?.page,
       pageSize: paging?.pageSize,
     });
@@ -65,10 +65,10 @@ export const useAssetAssetStore = defineStore('asset-asset', () => {
 
   async function assignAsset(
     id: string,
-    employeeId: string,
+    userId: number,
     notes?: string,
   ): Promise<{ asset: Asset }> {
-    return await AssetService.assign(id, { employeeId, notes });
+    return await AssetService.assign(id, { userId, notes });
   }
 
   async function unassignAsset(

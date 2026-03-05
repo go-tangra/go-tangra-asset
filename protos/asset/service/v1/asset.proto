@@ -56,11 +56,11 @@ message Asset {
   // Supplier ID
   optional string supplier_id = 9 [json_name = "supplierId"];
 
-  // Location ID (when not assigned to an employee)
+  // Location ID (when not assigned to a user)
   optional string location_id = 10 [json_name = "locationId"];
 
-  // Employee ID (when assigned)
-  optional string employee_id = 11 [json_name = "employeeId"];
+  // Portal user ID (when assigned)
+  optional uint32 user_id = 40 [json_name = "userId"];
 
   // Asset status
   optional AssetStatus status = 12 [json_name = "status"];
@@ -122,11 +122,11 @@ message AssetAssignment {
   // Asset name (denormalized)
   optional string asset_name = 3 [json_name = "assetName"];
 
-  // Employee ID
-  optional string employee_id = 4 [json_name = "employeeId"];
+  // Portal user ID
+  optional uint32 user_id = 11 [json_name = "userId"];
 
-  // Employee name (denormalized)
-  optional string employee_name = 5 [json_name = "employeeName"];
+  // User display name (denormalized)
+  optional string user_name = 12 [json_name = "userName"];
 
   // Assignment action
   optional AssignmentAction action = 6 [json_name = "action"];
@@ -255,8 +255,8 @@ message ListAssetsRequest {
   // Filter by location
   optional string location_id = 13 [json_name = "locationId"];
 
-  // Filter by employee
-  optional string employee_id = 14 [json_name = "employeeId"];
+  // Filter by assigned user
+  optional uint32 user_id = 14 [json_name = "userId"];
 }
 
 message ListAssetsResponse {
@@ -290,7 +290,7 @@ message DeleteAssetRequest {
   ];
 }
 
-// AssignAssetRequest assigns an asset to an employee
+// AssignAssetRequest assigns an asset to a user
 message AssignAssetRequest {
   string id = 1 [
     json_name = "id",
@@ -298,9 +298,8 @@ message AssignAssetRequest {
     (google.api.field_behavior) = REQUIRED
   ];
 
-  string employee_id = 2 [
-    json_name = "employeeId",
-    (buf.validate.field).string.min_len = 1,
+  uint32 user_id = 2 [
+    json_name = "userId",
     (google.api.field_behavior) = REQUIRED
   ];
 
@@ -311,7 +310,7 @@ message AssignAssetResponse {
   Asset asset = 1 [json_name = "asset"];
 }
 
-// UnassignAssetRequest unassigns an asset from an employee
+// UnassignAssetRequest unassigns an asset from a user
 message UnassignAssetRequest {
   string id = 1 [
     json_name = "id",
@@ -517,7 +516,7 @@ service AssetService {
     };
   }
 
-  // Assign an asset to an employee
+  // Assign an asset to a user
   rpc AssignAsset(AssignAssetRequest) returns (AssignAssetResponse) {
     option (google.api.http) = {
       post: "/v1/assets/{id}/assign"
@@ -525,7 +524,7 @@ service AssetService {
     };
   }
 
-  // Unassign an asset from an employee
+  // Unassign an asset from a user
   rpc UnassignAsset(UnassignAssetRequest) returns (UnassignAssetResponse) {
     option (google.api.http) = {
       post: "/v1/assets/{id}/unassign"

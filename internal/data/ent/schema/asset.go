@@ -65,9 +65,10 @@ func (Asset) Fields() []ent.Field {
 			Optional().
 			Comment("Location ID (when unassigned)"),
 
-		field.String("employee_id").
+		field.Uint32("user_id").
 			Optional().
-			Comment("Employee ID (when assigned)"),
+			Nillable().
+			Comment("Portal user ID (when assigned)"),
 
 		field.Int32("status").
 			Default(1).
@@ -137,9 +138,6 @@ func (Asset) Edges() []ent.Edge {
 		edge.To("location", Location.Type).
 			Field("location_id").
 			Unique(),
-		edge.To("employee", Employee.Type).
-			Field("employee_id").
-			Unique(),
 		edge.To("assignments", AssetAssignment.Type),
 	}
 }
@@ -161,7 +159,7 @@ func (Asset) Indexes() []ent.Index {
 		index.Fields("status"),
 		index.Fields("category_id"),
 		index.Fields("supplier_id"),
-		index.Fields("employee_id"),
+		index.Fields("user_id"),
 		index.Fields("location_id"),
 	}
 }

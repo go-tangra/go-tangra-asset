@@ -84,6 +84,8 @@ github.com/go-sql-driver/mysql v1.9.3 h1:U/N249h2WzJ3Ukj8SowVFjdtZKfu9vlLZxjPXV1
 github.com/go-sql-driver/mysql v1.9.3/go.mod h1:qn46aNg1333BRMNU69Lq93t8du/dwxI64Gl8i5p1WMU=
 github.com/go-tangra/go-tangra-common v0.5.0 h1:Fh01KR21hJdz67jCVPPSUuat5ai67epeg3/s8Rb+MTA=
 github.com/go-tangra/go-tangra-common v0.5.0/go.mod h1:VrbcTN+5B3/PDimsSmgE/S9CjxeaULAPehIuYGZzDl0=
+github.com/go-tangra/go-tangra-common v1.5.1-0.20260305080352-17097a8bd066 h1:lEUM2mkT3ZO7YVqpTvTBJXmnMyUNT8aQz1W0Xt6f9UA=
+github.com/go-tangra/go-tangra-common v1.5.1-0.20260305080352-17097a8bd066/go.mod h1:VrbcTN+5B3/PDimsSmgE/S9CjxeaULAPehIuYGZzDl0=
 github.com/go-tangra/go-tangra-inventory v1.0.4 h1:BvcdfLu9iU0WybWa2HBb2I983Pzth7d4yzXbRbBYbr8=
 github.com/go-tangra/go-tangra-inventory v1.0.4/go.mod h1:+IcygIlYVoxQEKqmckXeD/eOV+10R91Kc9QOILystfE=
 github.com/go-test/deep v1.0.3 h1:ZrJSEWsXzPOxaZnFteGEfooLba+ju3FYIbOrS+rQd68=

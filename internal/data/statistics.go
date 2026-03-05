@@ -58,14 +58,6 @@ func (r *StatisticsRepo) GetSupplierCount(ctx context.Context) (int64, error) {
 	return int64(count), nil
 }
 
-func (r *StatisticsRepo) GetEmployeeCount(ctx context.Context) (int64, error) {
-	count, err := r.entClient.Client().Employee.Query().Count(ctx)
-	if err != nil {
-		return 0, err
-	}
-	return int64(count), nil
-}
-
 func (r *StatisticsRepo) GetCategoryCount(ctx context.Context) (int64, error) {
 	count, err := r.entClient.Client().Category.Query().Count(ctx)
 	if err != nil {

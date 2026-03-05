@@ -60,23 +60,13 @@ export interface Supplier {
   updatedBy?: number;
 }
 
-export interface Employee {
-  id: string;
-  tenantId?: number;
-  firstName: string;
-  lastName: string;
+export interface PortalUser {
+  id: number;
+  username: string;
+  realname: string;
   email?: string;
-  phone?: string;
-  department?: string;
-  jobTitle?: string;
-  employeeNumber?: string;
-  notes?: string;
-  tags?: string;
-  metadata?: Record<string, unknown>;
-  createTime?: string;
-  updateTime?: string;
-  createdBy?: number;
-  updatedBy?: number;
+  orgUnitNames?: string[];
+  positionNames?: string[];
 }
 
 export interface Location {
@@ -143,7 +133,7 @@ export interface Asset {
   categoryId?: string;
   supplierId?: string;
   locationId?: string;
-  employeeId?: string;
+  userId?: number;
   status?: AssetStatus;
   photoKey?: string;
   warrantyMonths?: number;
@@ -165,7 +155,9 @@ export interface Asset {
 export interface AssetAssignment {
   id: string;
   assetId: string;
-  employeeId?: string;
+  assetName?: string;
+  userId?: number;
+  userName?: string;
   action?: AssignmentAction;
   assignedAt?: string;
   returnedAt?: string;
@@ -310,7 +302,6 @@ export interface DashboardStats {
   archivedAssets?: number;
   totalConsumables?: number;
   totalSuppliers?: number;
-  totalEmployees?: number;
   totalCategories?: number;
   totalLocations?: number;
   totalCost?: number;
@@ -323,8 +314,8 @@ export interface ListSuppliersResponse {
   total: number;
 }
 
-export interface ListEmployeesResponse {
-  items: Employee[];
+export interface ListUsersResponse {
+  items: PortalUser[];
   total: number;
 }
 
@@ -364,38 +355,6 @@ export interface ListAssignmentsResponse {
 export interface ListDocumentsResponse {
   items: AssetDocument[];
   total: number;
-}
-
-// ==================== LDAP Sync Types ====================
-
-export type LdapSyncAction =
-  | 'ACTION_CREATE'
-  | 'ACTION_UNSPECIFIED'
-  | 'ACTION_UPDATE';
-
-export interface LdapSyncChange {
-  action: LdapSyncAction;
-  employee?: Employee;
-  changedFields?: string[];
-  existingId?: string;
-  ldapDn?: string;
-}
-
-export interface LdapSyncPreviewResponse {
-  totalLdapEntries: number;
-  newCount: number;
-  updateCount: number;
-  unchangedCount: number;
-  changes: LdapSyncChange[];
-  warnings?: string[];
-}
-
-export interface LdapSyncExecuteResponse {
-  createdCount: number;
-  updatedCount: number;
-  skippedCount: number;
-  errorCount: number;
-  errors?: string[];
 }
 
 // ==================== Inventory Sync Types ====================
@@ -498,78 +457,13 @@ export const SupplierService = {
   },
 };
 
-// ==================== Employee Service ====================
+// ==================== User Service ====================
 
-export const EmployeeService = {
+export const UserService = {
   list: async (
-    params?: {
-      query?: string;
-      department?: string;
-      page?: number;
-      pageSize?: number;
-      noPaging?: boolean;
-    },
     options?: RequestOptions,
-  ): Promise<ListEmployeesResponse> => {
-    return assetApi.get<ListEmployeesResponse>(
-      `/employees${buildQuery(params || {})}`,
-      options,
-    );
-  },
-
-  get: async (
-    id: string,
-    options?: RequestOptions,
-  ): Promise<{ employee: Employee }> => {
-    return assetApi.get<{ employee: Employee }>(`/employees/${id}`, options);
-  },
-
-  create: async (
-    data: Partial<Employee>,
-    options?: RequestOptions,
-  ): Promise<{ employee: Employee }> => {
-    return assetApi.post<{ employee: Employee }>(
-      '/employees',
-      data,
-      options,
-    );
-  },
-
-  update: async (
-    id: string,
-    data: { id: string; data: Employee; updateMask: string },
-    options?: RequestOptions,
-  ): Promise<{ employee: Employee }> => {
-    return assetApi.put<{ employee: Employee }>(
-      `/employees/${id}`,
-      data,
-      options,
-    );
-  },
-
-  delete: async (id: string, options?: RequestOptions): Promise<void> => {
-    return assetApi.delete(`/employees/${id}`, options);
-  },
-
-  ldapSyncPreview: async (
-    options?: RequestOptions,
-  ): Promise<LdapSyncPreviewResponse> => {
-    return assetApi.post<LdapSyncPreviewResponse>(
-      '/employees/ldap-sync/preview',
-      {},
-      options,
-    );
-  },
-
-  ldapSyncExecute: async (
-    data?: { selectedDns?: string[] },
-    options?: RequestOptions,
-  ): Promise<LdapSyncExecuteResponse> => {
-    return assetApi.post<LdapSyncExecuteResponse>(
-      '/employees/ldap-sync/execute',
-      data || {},
-      options,
-    );
+  ): Promise<ListUsersResponse> => {
+    return assetApi.get<ListUsersResponse>('/users', options);
   },
 };
 
@@ -715,7 +609,7 @@ export const AssetService = {
       categoryId?: string;
       supplierId?: string;
       locationId?: string;
-      employeeId?: string;
+      userId?: number;
       page?: number;
       pageSize?: number;
       noPaging?: boolean;
@@ -756,7 +650,7 @@ export const AssetService = {
 
   assign: async (
     id: string,
-    data: { employeeId: string; notes?: string },
+    data: { userId: number; notes?: string },
     options?: RequestOptions,
   ): Promise<{ asset: Asset }> => {
     return assetApi.post<{ asset: Asset }>(

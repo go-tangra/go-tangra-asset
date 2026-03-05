@@ -14,7 +14,7 @@ import (
 var ProviderSet = wire.NewSet(
 	service.NewSystemService,
 	service.NewSupplierService,
-	service.NewEmployeeService,
+	service.NewUserService,
 	service.NewLocationService,
 	service.NewCategoryService,
 	service.NewAssetService,
