@@ -39,10 +39,6 @@ func (s *UserService) ListUsers(ctx context.Context, _ *assetV1.ListUsersRequest
 
 	items := make([]*assetV1.PortalUser, 0, len(resp.Items))
 	for _, u := range resp.Items {
-		// Skip non-normal users
-		if u.Status != nil && *u.Status != 1 {
-			continue
-		}
 		items = append(items, &assetV1.PortalUser{
 			Id:            u.Id,
 			Username:      u.Username,
