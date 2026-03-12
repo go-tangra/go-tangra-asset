@@ -31,7 +31,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	systemService := service.NewSystemService(context, statisticsRepo)
 	supplierRepo := data.NewSupplierRepo(context, entClient)
 	supplierService := service.NewSupplierService(context, supplierRepo)
-	adminClient, cleanup2, err := data.NewAdminClient(context)
+	adminClient, cleanup2, err := data.NewAdminClient(context, certManager)
 	if err != nil {
 		cleanup()
 		return nil, nil, err

@@ -2,14 +2,20 @@ package data
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 
 	adminstubpb "github.com/go-tangra/go-tangra-common/gen/go/common/admin_stub/v1"
+	"github.com/go-tangra/go-tangra-asset/internal/cert"
 	paginationV1 "github.com/tx7do/go-crud/api/gen/go/pagination/v1"
 )
 
@@ -19,8 +25,8 @@ type AdminClient struct {
 	conn *grpc.ClientConn
 }
 
-// NewAdminClient creates a new AdminClient
-func NewAdminClient(ctx *bootstrap.Context) (*AdminClient, func(), error) {
+// NewAdminClient creates a new AdminClient with mTLS when available.
+func NewAdminClient(ctx *bootstrap.Context, certManager *cert.CertManager) (*AdminClient, func(), error) {
 	l := ctx.NewLoggerHelper("asset/client/admin")
 
 	endpoint := os.Getenv("ADMIN_GRPC_ENDPOINT")
@@ -28,9 +34,24 @@ func NewAdminClient(ctx *bootstrap.Context) (*AdminClient, func(), error) {
 		endpoint = "localhost:7787"
 	}
 
+	var transportCreds grpc.DialOption
+	if certManager != nil && certManager.IsTLSEnabled() {
+		tlsCreds, err := loadAdminClientTLS(certManager, l)
+		if err != nil {
+			l.Warnf("Failed to load mTLS credentials for admin client: %v, falling back to insecure", err)
+			transportCreds = grpc.WithTransportCredentials(insecure.NewCredentials())
+		} else {
+			transportCreds = grpc.WithTransportCredentials(tlsCreds)
+			l.Info("Admin gRPC client configured with mTLS")
+		}
+	} else {
+		transportCreds = grpc.WithTransportCredentials(insecure.NewCredentials())
+		l.Info("Admin gRPC client configured (plaintext to admin-service)")
+	}
+
 	conn, err := grpc.NewClient(
 		endpoint,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		transportCreds,
 	)
 	if err != nil {
 		return nil, nil, err
@@ -48,6 +69,52 @@ func NewAdminClient(ctx *bootstrap.Context) (*AdminClient, func(), error) {
 		log:  l,
 		conn: conn,
 	}, cleanup, nil
+}
+
+// loadAdminClientTLS loads mTLS credentials for calling admin-service.
+// Uses the module's server cert (which contains the same CA-signed identity)
+// to authenticate with admin-service.
+func loadAdminClientTLS(certManager *cert.CertManager, l *log.Helper) (credentials.TransportCredentials, error) {
+	certsDir := os.Getenv("CERTS_DIR")
+	if certsDir == "" {
+		certsDir = "/app/certs"
+	}
+
+	caCertPath := filepath.Join(certsDir, "ca", "ca.crt")
+
+	// Use the asset client cert if available, otherwise use server cert
+	clientCertPath := filepath.Join(certsDir, "asset", "asset.crt")
+	clientKeyPath := filepath.Join(certsDir, "asset", "asset.key")
+
+	// Fall back to server cert if client cert not available
+	if _, err := os.Stat(clientCertPath); os.IsNotExist(err) {
+		clientCertPath = filepath.Join(certsDir, "asset-server", "server.crt")
+		clientKeyPath = filepath.Join(certsDir, "asset-server", "server.key")
+	}
+
+	caCert, err := os.ReadFile(caCertPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read CA cert: %w", err)
+	}
+	caCertPool := x509.NewCertPool()
+	if !caCertPool.AppendCertsFromPEM(caCert) {
+		return nil, fmt.Errorf("failed to parse CA certificate")
+	}
+
+	clientCert, err := tls.LoadX509KeyPair(clientCertPath, clientKeyPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load client cert: %w", err)
+	}
+
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{clientCert},
+		RootCAs:      caCertPool,
+		ServerName:   "admin-service",
+		MinVersion:   tls.VersionTLS12,
+	}
+
+	l.Infof("Loaded mTLS credentials for admin-service: CA=%s, Cert=%s", caCertPath, clientCertPath)
+	return credentials.NewTLS(tlsConfig), nil
 }
 
 // ListUsers calls admin.service.v1.UserService/List via gRPC
