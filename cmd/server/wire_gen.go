@@ -7,9 +7,13 @@
 package main
 
 import (
+	gocontext "context"
+
 	"github.com/go-kratos/kratos/v2"
+	"github.com/go-tangra/go-tangra-common/viewer"
 	"github.com/go-tangra/go-tangra-asset/internal/cert"
 	"github.com/go-tangra/go-tangra-asset/internal/data"
+	"github.com/go-tangra/go-tangra-asset/internal/metrics"
 	"github.com/go-tangra/go-tangra-asset/internal/server"
 	"github.com/go-tangra/go-tangra-asset/internal/service"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
@@ -28,6 +32,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	auditLogRepo := data.NewAuditLogRepo(context, entClient)
 	statisticsRepo := data.NewStatisticsRepo(context, entClient)
+	collector := metrics.NewCollector(context)
 	systemService := service.NewSystemService(context, statisticsRepo)
 	supplierRepo := data.NewSupplierRepo(context, entClient)
 	supplierService := service.NewSupplierService(context, supplierRepo)
@@ -65,10 +70,16 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	insurancePolicyRepo := data.NewInsurancePolicyRepo(context, entClient)
 	insurancePolicyService := service.NewInsurancePolicyService(context, insurancePolicyRepo, assetRepo)
 	backupService := service.NewBackupService(context, entClient)
-	grpcServer := server.NewGRPCServer(context, certManager, auditLogRepo, systemService, supplierService, userService, locationService, categoryService, assetService, consumableService, licenseService, insurancePolicyService, backupService)
+	grpcServer := server.NewGRPCServer(context, certManager, collector, auditLogRepo, systemService, supplierService, userService, locationService, categoryService, assetService, consumableService, licenseService, insurancePolicyService, backupService)
 	httpServer := server.NewHTTPServer(context)
+
+	// Seed Prometheus metrics from database
+	seedCtx := viewer.NewSystemViewerContext(gocontext.Background())
+	collector.Seed(seedCtx, statisticsRepo)
+
 	app := newApp(context, grpcServer, httpServer)
 	return app, func() {
+		collector.Stop(gocontext.Background())
 		cleanup4()
 		cleanup3()
 		cleanup2()

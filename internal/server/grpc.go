@@ -14,6 +14,7 @@ import (
 	"github.com/go-tangra/go-tangra-asset/internal/cert"
 	customLogging "github.com/go-tangra/go-tangra-asset/internal/middleware/logging"
 	"github.com/go-tangra/go-tangra-asset/internal/data"
+	"github.com/go-tangra/go-tangra-asset/internal/metrics"
 	"github.com/go-tangra/go-tangra-asset/internal/service"
 	assetV1 "github.com/go-tangra/go-tangra-asset/gen/go/asset/service/v1"
 
@@ -49,6 +50,7 @@ func systemViewerMiddleware() middleware.Middleware {
 func NewGRPCServer(
 	ctx *bootstrap.Context,
 	certManager *cert.CertManager,
+	collector *metrics.Collector,
 	auditLogRepo *data.AuditLogRepo,
 	systemSvc *service.SystemService,
 	supplierSvc *service.SupplierService,
@@ -91,6 +93,7 @@ func NewGRPCServer(
 	// Build middleware stack
 	var ms []middleware.Middleware
 	ms = append(ms, recovery.Recovery())
+	ms = append(ms, collector.Middleware())
 	ms = append(ms, systemViewerMiddleware())
 	ms = append(ms, customLogging.RedactedServer(logger))
 
