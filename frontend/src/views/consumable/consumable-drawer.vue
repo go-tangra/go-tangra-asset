@@ -50,15 +50,15 @@ async function loadOptions() {
       SupplierService.list({ noPaging: true }),
       LocationService.list({ noPaging: true }),
     ]);
-    categoryOptions.value = (catResp.categories ?? []).map((c) => ({
+    categoryOptions.value = ((catResp as any).categories ?? (catResp as any).items ?? []).map((c: any) => ({
       value: c.id,
       label: c.name,
     }));
-    supplierOptions.value = (supResp.suppliers ?? []).map((s) => ({
+    supplierOptions.value = ((supResp as any).suppliers ?? (supResp as any).items ?? []).map((s: any) => ({
       value: s.id,
       label: s.name,
     }));
-    locationOptions.value = (locResp.locations ?? []).map((l) => ({
+    locationOptions.value = ((locResp as any).locations ?? (locResp as any).items ?? []).map((l: any) => ({
       value: l.id,
       label: l.name,
     }));
