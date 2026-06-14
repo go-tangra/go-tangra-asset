@@ -24,4 +24,5 @@ var ProviderSet = wire.NewSet(
 	service.NewLicenseService,
 	service.NewInsurancePolicyService,
 	service.NewBackupService,
+	service.NewSqlBackupService,
 )
