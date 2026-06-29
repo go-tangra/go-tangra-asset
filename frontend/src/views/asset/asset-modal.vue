@@ -403,7 +403,7 @@ async function handleSubmit() {
         locationId: formState.value.locationId,
         status: formState.value.status as any,
         warrantyMonths: formState.value.warrantyMonths,
-        purchaseDate: formState.value.purchaseDate ? `${formState.value.purchaseDate}T00:00:00Z` : undefined,
+        purchaseDate: formState.value.purchaseDate ? `${String(formState.value.purchaseDate).slice(0, 10)}T00:00:00Z` : undefined,
         orderNumber: formState.value.orderNumber || undefined,
         purchaseCost: formState.value.purchaseCost,
         notes: formState.value.notes || undefined,
@@ -427,7 +427,7 @@ async function handleSubmit() {
           locationId: formState.value.locationId,
           status: formState.value.status as any,
           warrantyMonths: formState.value.warrantyMonths,
-          purchaseDate: formState.value.purchaseDate ? `${formState.value.purchaseDate}T00:00:00Z` : undefined,
+          purchaseDate: formState.value.purchaseDate ? `${String(formState.value.purchaseDate).slice(0, 10)}T00:00:00Z` : undefined,
           orderNumber: formState.value.orderNumber || undefined,
           purchaseCost: formState.value.purchaseCost,
           notes: formState.value.notes || undefined,
@@ -522,7 +522,9 @@ const [Modal, modalApi] = useVbenModal({
           locationId: data.value.row.locationId || undefined,
           status: data.value.row.status ?? 'ASSET_STATUS_DEPLOYABLE',
           warrantyMonths: data.value.row.warrantyMonths,
-          purchaseDate: data.value.row.purchaseDate ?? '',
+          purchaseDate: data.value.row.purchaseDate
+            ? String(data.value.row.purchaseDate).slice(0, 10)
+            : '',
           orderNumber: data.value.row.orderNumber ?? '',
           purchaseCost: data.value.row.purchaseCost,
           notes: data.value.row.notes ?? '',
