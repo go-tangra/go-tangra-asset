@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { UiPage, UiAlert, UiCard, UiInput, UiButton, UiDataTable, UiStatusChip, UiRecordDrawer, useConfirm, type Column } from '@freya/ui'
+import { zodToFields } from '@freya/ui/forms'
 import { useOrg } from '@/stores/org'
 import { describe } from '@/api/client'
-import RecordDialog from '@/components/RecordDialog.vue'
-import type { Field } from '@/components/RecordDialog.vue'
+import { supplierSchema, SUPPLIER_STATUSES } from '@/schemas'
 import type { Supplier } from '@/api/types'
 
 const org = useOrg()
+const confirm = useConfirm()
 const query = ref('')
 const dialog = ref(false)
 const editing = ref<Supplier | null>(null)
@@ -14,20 +16,19 @@ const error = ref('')
 
 onMounted(() => void org.loadSuppliers())
 
-const fields: Field[] = [
-  { key: 'name', label: 'Name', required: true },
-  { key: 'code', label: 'Code' },
-  { key: 'status', label: 'Status', type: 'select', options: ['active', 'inactive'].map((s) => ({ title: s, value: s })) },
-  { key: 'website', label: 'Website' },
-  { key: 'address', label: 'Address' },
+const fields = zodToFields(supplierSchema, {
+  status: { type: 'select', options: SUPPLIER_STATUSES.map((s) => ({ title: s, value: s })) },
+  contact_person: { label: 'Contact person (sealed)' },
+  telephone: { label: 'Telephone (sealed)' },
+  email: { label: 'E-mail (sealed)' },
+})
+const columns: Column<Supplier>[] = [
+  { key: 'name', label: 'Name', sortable: true },
+  { key: 'code', label: 'Code', hideOnStack: true },
   { key: 'city', label: 'City' },
-  { key: 'state', label: 'State' },
-  { key: 'country', label: 'Country' },
-  { key: 'postal_code', label: 'Postal code' },
-  { key: 'contact_person', label: 'Contact person (sealed)' },
-  { key: 'telephone', label: 'Telephone (sealed)' },
-  { key: 'email', label: 'E-mail (sealed)' },
-  { key: 'notes', label: 'Notes', type: 'textarea', cols: 12 },
+  { key: 'country', label: 'Country', hideOnStack: true },
+  { key: 'contact', label: 'Contact', format: (s) => s.contact_person || s.email || '(redacted)' },
+  { key: 'status', label: 'Status', width: 'sm' },
 ]
 
 function add(): void {
@@ -39,6 +40,7 @@ function edit(s: Supplier): void {
   dialog.value = true
 }
 async function remove(s: Supplier): Promise<void> {
+  if (!(await confirm.ask({ title: `Delete ${s.name}?`, text: 'Assets keep their history; the supplier record is removed.', danger: true, confirmLabel: 'Delete' }))) return
   error.value = ''
   try {
     await org.removeSupplier(s.id)
@@ -51,35 +53,24 @@ const submit = (v: Record<string, unknown>) => (editing.value ? org.updateSuppli
 </script>
 
 <template>
-  <div>
-    <div class="d-flex align-center mb-4">
-      <h1 class="text-h5">Suppliers</h1>
-      <v-spacer />
-      <v-btn color="primary" prepend-icon="mdi-plus" class="me-2" @click="add">New supplier</v-btn>
-      <v-btn variant="text" icon="mdi-refresh" @click="org.loadSuppliers(query)" />
-    </div>
-    <v-text-field v-model="query" label="Search" density="comfortable" clearable class="mb-2" @keyup.enter="org.loadSuppliers(query)" />
-    <v-alert v-if="error || org.error" type="error" variant="tonal" density="compact" class="mb-3">{{ error || org.error }}</v-alert>
-    <v-card>
-      <v-table hover>
-        <thead><tr><th>Name</th><th>Code</th><th>City</th><th>Country</th><th>Contact</th><th>Status</th><th /></tr></thead>
-        <tbody>
-          <tr v-if="org.suppliers.length === 0"><td colspan="7" class="text-medium-emphasis">No suppliers.</td></tr>
-          <tr v-for="s in org.suppliers" :key="s.id">
-            <td class="font-weight-medium">{{ s.name }}</td>
-            <td>{{ s.code || '—' }}</td>
-            <td>{{ s.city || '—' }}</td>
-            <td>{{ s.country || '—' }}</td>
-            <td>{{ s.contact_person || s.email || '(redacted)' }}</td>
-            <td><v-chip size="small" variant="tonal" :color="s.status === 'active' ? 'success' : 'grey'">{{ s.status }}</v-chip></td>
-            <td class="text-right">
-              <v-btn icon="mdi-pencil-outline" size="small" variant="text" @click="edit(s)" />
-              <v-btn icon="mdi-delete-outline" size="small" variant="text" @click="remove(s)" />
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
-    </v-card>
-    <RecordDialog v-model="dialog" :title="editing ? 'Edit supplier' : 'New supplier'" :fields="fields" :initial="editing ?? { status: 'active' }" :submit="submit" @saved="org.loadSuppliers(query)" />
-  </div>
+  <UiPage title="Suppliers">
+    <template #actions>
+      <UiButton icon="mdi-plus" @click="add">New supplier</UiButton>
+      <UiButton variant="text" icon="mdi-refresh" icon-only label="Refresh" @click="org.loadSuppliers(query)" />
+    </template>
+    <template #filters>
+      <UiInput id="supplier-search" v-model="query" label="Search" sr-only-label placeholder="Search suppliers" type="search" class="w-full md:max-w-sm" @enter="org.loadSuppliers(query)" />
+    </template>
+    <UiAlert v-if="error || org.error" kind="error" class="mb-3">{{ error || org.error }}</UiAlert>
+    <UiCard :padded="false">
+      <UiDataTable :items="org.suppliers" :columns="columns" caption="Suppliers" empty-title="No suppliers">
+        <template #cell-status="{ row }"><UiStatusChip :status="row.status" /></template>
+        <template #actions="{ row }">
+          <UiButton size="xs" variant="text" icon="mdi-pencil-outline" icon-only label="Edit" @click="edit(row)" />
+          <UiButton size="xs" variant="text" icon="mdi-delete-outline" icon-only label="Delete" @click="remove(row)" />
+        </template>
+      </UiDataTable>
+    </UiCard>
+    <UiRecordDrawer v-model="dialog" close-on-save :title="editing ? 'Edit supplier' : 'New supplier'" :schema="supplierSchema" :fields="fields" :initial="editing ?? { status: 'active' }" :submit="submit" size="lg" @saved="org.loadSuppliers(query)" />
+  </UiPage>
 </template>

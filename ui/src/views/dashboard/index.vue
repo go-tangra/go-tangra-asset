@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { UiPage, UiAlert, UiCard, UiButton, UiStatGrid, UiStatTile, UiBarList, UiLiveIndicator, UiForm, UiFilePicker, UiSelect, UiBadge, UiEmptyState, type BarItem } from '@freya/ui'
+import { useZodForm } from '@freya/ui/forms'
 import { useStats } from '@/stores/stats'
 import { useLive } from '@/stores/live'
 import { describe } from '@/api/client'
-import StatsCard from '@/components/StatsCard.vue'
+import { backupImportSchema, BACKUP_MODES } from '@/schemas'
 
 const stats = useStats()
 const live = useLive()
-const importFile = ref<File | null>(null)
-const importMode = ref<'skip' | 'overwrite'>('skip')
 const importResult = ref('')
 const error = ref('')
 
@@ -20,9 +20,8 @@ onMounted(() => {
 onUnmounted(() => release?.())
 
 const s = computed(() => stats.snapshot)
-const byStatus = computed<[string, number][]>(() => Object.entries(s.value?.assets_by_status ?? {}).sort((a, b) => b[1] - a[1]))
-const statusMax = computed(() => Math.max(1, ...byStatus.value.map(([, n]) => n)))
-const statusColor: Record<string, string> = { deployable: 'success', assigned: 'info', broken: 'error', archived: 'grey' }
+const barColor: Record<string, BarItem['color']> = { deployable: 'success', assigned: 'info', broken: 'error', archived: 'neutral' }
+const byStatus = computed<BarItem[]>(() => Object.entries(s.value?.assets_by_status ?? {}).sort((a, b) => b[1] - a[1]).map(([label, value]) => ({ label, value, color: barColor[label] ?? 'primary' })))
 
 function money(v?: number): string {
   return (v ?? 0).toLocaleString(undefined, { maximumFractionDigits: 2 })
@@ -42,79 +41,68 @@ async function exportBackup(): Promise<void> {
     error.value = describe(e)
   }
 }
-async function importBackup(): Promise<void> {
-  if (!importFile.value) return
-  error.value = ''
-  importResult.value = ''
-  try {
-    const text = await importFile.value.text()
-    const res = await stats.importBackup(JSON.parse(text), importMode.value)
+const importForm = useZodForm(backupImportSchema, {
+  initial: { mode: 'skip' },
+  onSubmit: async ({ file, mode }) => {
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(await file.text())
+    } catch {
+      importForm.setFieldError('file', 'The file is not valid JSON.')
+      throw new Error('invalid json')
+    }
+    const res = await stats.importBackup(parsed as Record<string, unknown>, mode)
     importResult.value = 'Imported ' + JSON.stringify(res.imported) + ', skipped ' + JSON.stringify(res.skipped)
-    importFile.value = null
+  },
+  onSuccess: async () => {
+    importForm.reset({ mode: 'skip' })
     await stats.load()
-  } catch (e) {
-    error.value = e instanceof SyntaxError ? 'The file is not valid JSON.' : describe(e)
-  }
-}
+  },
+})
 </script>
 
 <template>
-  <div>
-    <div class="d-flex align-center mb-4">
-      <h1 class="text-h5">Asset dashboard</h1>
-      <v-chip v-if="live.connected" size="x-small" color="success" variant="tonal" class="ms-3">live</v-chip>
-      <v-spacer />
-      <v-btn variant="text" icon="mdi-refresh" @click="stats.load()" />
-    </div>
-    <v-alert v-if="stats.error || error" type="error" variant="tonal" density="compact" class="mb-3">{{ stats.error || error }}</v-alert>
-    <v-row dense class="mb-2">
-      <v-col cols="6" md="3"><StatsCard title="Assets" :value="s?.total_assets ?? 0" icon="mdi-laptop" color="primary" :subtitle="(s?.assigned_assets ?? 0) + ' assigned'" /></v-col>
-      <v-col cols="6" md="3"><StatsCard title="Total purchase cost" :value="money(s?.total_cost)" icon="mdi-cash" color="secondary" /></v-col>
-      <v-col cols="6" md="3"><StatsCard title="Depreciated value" :value="money(s?.total_depreciated_value)" icon="mdi-trending-down" color="info" subtitle="double-declining balance" /></v-col>
-      <v-col cols="6" md="3"><StatsCard title="Expiring soon" :value="s?.expiring_soon ?? 0" icon="mdi-calendar-alert" color="warning" :subtitle="`warranty ${s?.warranty_expiring_soon ?? 0} · licenses ${s?.licenses_expiring_soon ?? 0} · insurance ${s?.insurance_expiring_soon ?? 0}`" /></v-col>
-    </v-row>
-    <v-row dense class="mb-4">
-      <v-col cols="6" md="2"><StatsCard title="Low stock" :value="s?.low_stock ?? 0" icon="mdi-package-down" color="error" /></v-col>
-      <v-col cols="6" md="2"><StatsCard title="Consumables" :value="s?.total_consumables ?? 0" icon="mdi-package-variant" /></v-col>
-      <v-col cols="6" md="2"><StatsCard title="Licenses" :value="s?.total_licenses ?? 0" icon="mdi-license" /></v-col>
-      <v-col cols="6" md="2"><StatsCard title="Policies" :value="s?.total_insurance_policies ?? 0" icon="mdi-shield-check-outline" /></v-col>
-      <v-col cols="6" md="2"><StatsCard title="Suppliers" :value="s?.total_suppliers ?? 0" icon="mdi-truck-outline" /></v-col>
-      <v-col cols="6" md="2"><StatsCard title="Locations" :value="s?.total_locations ?? 0" icon="mdi-map-marker-outline" /></v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12" md="5">
-        <v-card variant="outlined">
-          <v-card-title class="text-subtitle-1">Assets by status</v-card-title>
-          <v-card-text>
-            <div v-if="byStatus.length === 0" class="text-medium-emphasis">No assets yet.</div>
-            <div v-for="[st, n] in byStatus" :key="st" class="mb-2">
-              <div class="d-flex justify-space-between text-body-2"><span>{{ st }}</span><span>{{ n }}</span></div>
-              <v-progress-linear :model-value="(n / statusMax) * 100" :color="statusColor[st] ?? 'primary'" height="8" rounded />
+  <UiPage title="Asset dashboard">
+    <template #badges><UiLiveIndicator :connected="live.connected" /></template>
+    <template #actions><UiButton variant="text" icon="mdi-refresh" icon-only label="Refresh" @click="stats.load()" /></template>
+    <UiAlert v-if="stats.error || error" kind="error" class="mb-3">{{ stats.error || error }}</UiAlert>
+    <UiStatGrid class="mb-3" :cols="4">
+      <UiStatTile title="Assets" :value="s?.total_assets ?? 0" icon="mdi-laptop" color="primary" :subtitle="(s?.assigned_assets ?? 0) + ' assigned'" />
+      <UiStatTile title="Total purchase cost" :value="money(s?.total_cost)" icon="mdi-cash" color="secondary" />
+      <UiStatTile title="Depreciated value" :value="money(s?.total_depreciated_value)" icon="mdi-trending-down" color="info" subtitle="double-declining balance" />
+      <UiStatTile title="Expiring soon" :value="s?.expiring_soon ?? 0" icon="mdi-calendar-alert" color="warning" :subtitle="`warranty ${s?.warranty_expiring_soon ?? 0} · licenses ${s?.licenses_expiring_soon ?? 0} · insurance ${s?.insurance_expiring_soon ?? 0}`" />
+    </UiStatGrid>
+    <UiStatGrid class="mb-4" :cols="6">
+      <UiStatTile title="Low stock" :value="s?.low_stock ?? 0" icon="mdi-package-down" color="error" />
+      <UiStatTile title="Consumables" :value="s?.total_consumables ?? 0" icon="mdi-package-variant" />
+      <UiStatTile title="Licenses" :value="s?.total_licenses ?? 0" icon="mdi-license" />
+      <UiStatTile title="Policies" :value="s?.total_insurance_policies ?? 0" icon="mdi-shield-check-outline" />
+      <UiStatTile title="Suppliers" :value="s?.total_suppliers ?? 0" icon="mdi-truck-outline" />
+      <UiStatTile title="Locations" :value="s?.total_locations ?? 0" icon="mdi-map-marker-outline" />
+    </UiStatGrid>
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
+      <UiCard title="Assets by status" class="lg:col-span-5">
+        <UiBarList :items="byStatus" empty-title="No assets yet" />
+      </UiCard>
+      <div class="flex flex-col gap-4 lg:col-span-7">
+        <UiCard title="Backup">
+          <UiButton variant="soft" icon="mdi-download" class="mb-3" @click="exportBackup">Export tenant data</UiButton>
+          <UiForm :form="importForm">
+            <div class="grid grid-cols-1 gap-2 md:grid-cols-12 md:items-end">
+              <div class="md:col-span-6"><UiFilePicker v-bind="importForm.field('file')" label="Backup file (.json)" accept="application/json" /></div>
+              <div class="md:col-span-3"><UiSelect v-bind="importForm.field('mode')" label="On conflict" :options="BACKUP_MODES.map((m) => ({ title: m, value: m }))" :clearable="false" /></div>
+              <div class="md:col-span-3"><UiButton type="submit" block :loading="importForm.submitting.value">Import</UiButton></div>
             </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="12" md="7">
-        <v-card variant="outlined" class="mb-4">
-          <v-card-title class="text-subtitle-1">Backup</v-card-title>
-          <v-card-text>
-            <v-btn variant="tonal" prepend-icon="mdi-download" class="mb-3" @click="exportBackup">Export tenant data</v-btn>
-            <v-row dense align="center">
-              <v-col cols="12" md="6"><v-file-input v-model="importFile" label="Backup file (.json)" accept="application/json" density="comfortable" /></v-col>
-              <v-col cols="6" md="3"><v-select v-model="importMode" :items="['skip', 'overwrite']" label="On conflict" density="comfortable" /></v-col>
-              <v-col cols="6" md="3"><v-btn block color="primary" :disabled="!importFile" @click="importBackup">Import</v-btn></v-col>
-            </v-row>
-            <div v-if="importResult" class="text-body-2 mt-2">{{ importResult }}</div>
-          </v-card-text>
-        </v-card>
-        <v-card variant="outlined">
-          <v-card-title class="text-subtitle-1">Recent lifecycle events</v-card-title>
-          <v-card-text>
-            <div v-if="live.recent.length === 0" class="text-medium-emphasis">No events yet.</div>
-            <div v-for="(e, i) in live.recent" :key="i" class="text-body-2"><v-chip size="x-small" variant="tonal" class="me-2">{{ e.type }}</v-chip>{{ new Date(e.at).toLocaleTimeString() }} — {{ JSON.stringify(e.data) }}</div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </div>
+          </UiForm>
+          <p v-if="importResult" class="mt-2 text-sm">{{ importResult }}</p>
+        </UiCard>
+        <UiCard title="Recent lifecycle events">
+          <UiEmptyState v-if="live.recent.length === 0" title="No events yet" />
+          <ul v-else class="flex flex-col gap-1 text-sm">
+            <li v-for="(e, i) in live.recent" :key="i" class="break-all"><UiBadge size="xs" class="me-2">{{ e.type }}</UiBadge>{{ new Date(e.at).toLocaleTimeString() }} — {{ JSON.stringify(e.data) }}</li>
+          </ul>
+        </UiCard>
+      </div>
+    </div>
+  </UiPage>
 </template>

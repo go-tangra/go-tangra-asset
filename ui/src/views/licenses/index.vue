@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { UiPage, UiAlert, UiCard, UiInput, UiButton, UiDataTable, UiStatusChip, UiDocumentList, UiRecordDrawer, useConfirm, type Column } from '@freya/ui'
+import { zodToFields } from '@freya/ui/forms'
 import { useInventories } from '@/stores/inventories'
 import { useOrg } from '@/stores/org'
-import { describe } from '@/api/client'
-import RecordDialog from '@/components/RecordDialog.vue'
-import EntityDocuments from '@/components/EntityDocuments.vue'
-import type { Field } from '@/components/RecordDialog.vue'
+import { api, describe } from '@/api/client'
+import { licenseSchema, LICENSE_STATUSES } from '@/schemas'
 import type { License } from '@/api/types'
 
 const inv = useInventories()
 const org = useOrg()
+const confirm = useConfirm()
 const query = ref('')
 const dialog = ref(false)
 const editing = ref<License | null>(null)
@@ -21,18 +22,21 @@ onMounted(() => {
   void org.loadSuppliers()
 })
 
-const fields = computed<Field[]>(() => [
-  { key: 'name', label: 'Name', required: true },
-  { key: 'supplier_id', label: 'Supplier', type: 'select', options: org.suppliers.map((s) => ({ title: s.name, value: s.id })) },
-  { key: 'status', label: 'Status', type: 'select', options: ['active', 'expired', 'suspended'].map((s) => ({ title: s, value: s })) },
-  { key: 'valid_from', label: 'Valid from', type: 'date' },
-  { key: 'valid_to', label: 'Valid to', type: 'date', hint: 'Auto-expires after this date' },
-  { key: 'purchase_date', label: 'Purchase date', type: 'date' },
-  { key: 'purchase_cost', label: 'Purchase cost', type: 'number' },
-  { key: 'order_number', label: 'Order number' },
-  { key: 'notes', label: 'Notes', type: 'textarea', cols: 12 },
-])
-const statusColor: Record<string, string> = { active: 'success', expired: 'error', suspended: 'warning' }
+const fields = computed(() =>
+  zodToFields(licenseSchema, {
+    supplier_id: { type: 'select', options: org.suppliers.map((s) => ({ title: s.name, value: s.id })) },
+    status: { type: 'select', options: LICENSE_STATUSES.map((s) => ({ title: s, value: s })) },
+    valid_to: { hint: 'Auto-expires after this date' },
+  }),
+)
+const d = (ts?: string): string => (ts ? new Date(ts).toLocaleDateString() : '')
+const columns: Column<License>[] = [
+  { key: 'name', label: 'Name', sortable: true },
+  { key: 'supplier_id', label: 'Supplier', format: (l) => org.supplierName(l.supplier_id) ?? '' },
+  { key: 'valid_from', label: 'Valid from', format: (l) => d(l.valid_from), hideOnStack: true },
+  { key: 'valid_to', label: 'Valid to', format: (l) => d(l.valid_to), sortable: true },
+  { key: 'status', label: 'Status', width: 'sm' },
+]
 
 function add(): void {
   editing.value = null
@@ -43,6 +47,7 @@ function edit(l: License): void {
   dialog.value = true
 }
 async function remove(l: License): Promise<void> {
+  if (!(await confirm.ask({ title: `Delete ${l.name}?`, danger: true, confirmLabel: 'Delete' }))) return
   error.value = ''
   try {
     await inv.removeLicense(l.id)
@@ -52,42 +57,29 @@ async function remove(l: License): Promise<void> {
     error.value = describe(e)
   }
 }
-function d(ts?: string): string {
-  return ts ? new Date(ts).toLocaleDateString() : '—'
-}
 const submit = (v: Record<string, unknown>) => (editing.value ? inv.updateLicense(editing.value.id, v) : inv.createLicense(v))
 </script>
 
 <template>
-  <div>
-    <div class="d-flex align-center mb-4">
-      <h1 class="text-h5">Licenses</h1>
-      <v-spacer />
-      <v-btn color="primary" prepend-icon="mdi-plus" class="me-2" @click="add">New license</v-btn>
-      <v-btn variant="text" icon="mdi-refresh" @click="inv.loadLicenses(query)" />
-    </div>
-    <v-text-field v-model="query" label="Search" density="comfortable" clearable class="mb-2" @keyup.enter="inv.loadLicenses(query)" />
-    <v-alert v-if="error || inv.error" type="error" variant="tonal" density="compact" class="mb-3">{{ error || inv.error }}</v-alert>
-    <v-card class="mb-4">
-      <v-table hover>
-        <thead><tr><th>Name</th><th>Supplier</th><th>Valid from</th><th>Valid to</th><th>Status</th><th /></tr></thead>
-        <tbody>
-          <tr v-if="inv.licenses.length === 0"><td colspan="6" class="text-medium-emphasis">No licenses.</td></tr>
-          <tr v-for="l in inv.licenses" :key="l.id" style="cursor: pointer" @click="selected = l">
-            <td class="font-weight-medium">{{ l.name }}</td>
-            <td>{{ org.supplierName(l.supplier_id) || '—' }}</td>
-            <td>{{ d(l.valid_from) }}</td>
-            <td>{{ d(l.valid_to) }}</td>
-            <td><v-chip size="small" variant="tonal" :color="statusColor[l.status]">{{ l.status }}</v-chip></td>
-            <td class="text-right">
-              <v-btn icon="mdi-pencil-outline" size="small" variant="text" @click.stop="edit(l)" />
-              <v-btn icon="mdi-delete-outline" size="small" variant="text" @click.stop="remove(l)" />
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
-    </v-card>
-    <EntityDocuments v-if="selected" entity-type="license" :entity-id="selected.id" />
-    <RecordDialog v-model="dialog" :title="editing ? 'Edit license' : 'New license'" :fields="fields" :initial="editing ?? { status: 'active' }" :submit="submit" @saved="inv.loadLicenses(query)" />
-  </div>
+  <UiPage title="Licenses">
+    <template #actions>
+      <UiButton icon="mdi-plus" @click="add">New license</UiButton>
+      <UiButton variant="text" icon="mdi-refresh" icon-only label="Refresh" @click="inv.loadLicenses(query)" />
+    </template>
+    <template #filters>
+      <UiInput id="license-search" v-model="query" label="Search" sr-only-label placeholder="Search licenses" type="search" class="w-full md:max-w-sm" @enter="inv.loadLicenses(query)" />
+    </template>
+    <UiAlert v-if="error || inv.error" kind="error" class="mb-3">{{ error || inv.error }}</UiAlert>
+    <UiCard :padded="false" class="mb-4">
+      <UiDataTable :items="inv.licenses" :columns="columns" caption="Licenses" empty-title="No licenses" clickable @row-click="selected = $event">
+        <template #cell-status="{ row }"><UiStatusChip :status="row.status" /></template>
+        <template #actions="{ row }">
+          <UiButton size="xs" variant="text" icon="mdi-pencil-outline" icon-only label="Edit" @click="edit(row)" />
+          <UiButton size="xs" variant="text" icon="mdi-delete-outline" icon-only label="Delete" @click="remove(row)" />
+        </template>
+      </UiDataTable>
+    </UiCard>
+    <UiCard v-if="selected"><UiDocumentList :api="api" :base="'licenses/' + selected.id + '/documents'" :title="'Documents — ' + selected.name" /></UiCard>
+    <UiRecordDrawer v-model="dialog" close-on-save :title="editing ? 'Edit license' : 'New license'" :schema="licenseSchema" :fields="fields" :initial="editing ?? { status: 'active' }" :submit="submit" size="lg" @saved="inv.loadLicenses(query)" />
+  </UiPage>
 </template>

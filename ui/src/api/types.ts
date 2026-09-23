@@ -31,26 +31,7 @@ export interface Asset {
   updated_at: string
 }
 
-export interface AssetInput {
-  asset_tag?: string
-  name: string
-  serial?: string
-  model_name?: string
-  model_number?: string
-  category_id?: string
-  supplier_id?: string
-  location_id?: string
-  status?: string
-  warranty_months?: number
-  purchase_date?: string | null
-  order_number?: string
-  purchase_cost?: number
-  notes?: string
-  salvage_value?: number
-  useful_life_years?: number
-  depreciation_rate?: number
-  tags?: Record<string, string>
-}
+// Write payloads are the schema outputs in src/schemas/*.ts (z.output).
 
 export interface Assignment {
   id: string

@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { api, describe } from '@/api/client'
-import type { Asset, AssetInput, Assignment, User } from '@/api/types'
+import type { Asset, Assignment, User } from '@/api/types'
+import type { AssetInput } from '@/schemas/asset'
 
 export interface AssetFilter {
   query?: string | undefined

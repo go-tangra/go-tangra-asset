@@ -1,50 +1,51 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { UiPage, UiAlert, UiCard, UiButton, UiTree, UiEmptyState, UiToolbar, UiBadge, UiStatusChip, UiKeyValueTable, UiRecordDrawer, useConfirm, type TreeNode } from '@freya/ui'
+import { zodToFields } from '@freya/ui/forms'
 import { useOrg } from '@/stores/org'
 import { describe } from '@/api/client'
-import RecordDialog from '@/components/RecordDialog.vue'
-import TreeNodes from '@/components/TreeNodes.vue'
-import type { TreeItem } from '@/components/TreeNodes.vue'
-import type { Field } from '@/components/RecordDialog.vue'
+import { locationSchema, LOCATION_STATUSES } from '@/schemas'
 import type { Location } from '@/api/types'
 
 const org = useOrg()
+const confirm = useConfirm()
 const dialog = ref(false)
 const editing = ref<Location | null>(null)
 const parentFor = ref('')
+const selectedId = ref('')
 const error = ref('')
 
 onMounted(() => void org.loadLocations())
 
-const fields = computed<Field[]>(() => [
-  { key: 'name', label: 'Name', required: true },
-  { key: 'code', label: 'Code' },
-  { key: 'parent_id', label: 'Parent', type: 'select', options: org.locations.filter((l) => l.id !== editing.value?.id).map((l) => ({ title: l.path || l.name, value: l.id })) },
-  { key: 'status', label: 'Status', type: 'select', options: ['active', 'planned', 'decommissioned'].map((s) => ({ title: s, value: s })) },
-  { key: 'address', label: 'Address' },
-  { key: 'city', label: 'City' },
-  { key: 'state', label: 'State' },
-  { key: 'country', label: 'Country' },
-  { key: 'postal_code', label: 'Postal code' },
-  { key: 'contact', label: 'Contact (sealed)' },
-  { key: 'phone', label: 'Phone (sealed)' },
-  { key: 'email', label: 'E-mail (sealed)' },
-  { key: 'description', label: 'Description', type: 'textarea', cols: 12 },
-])
+const toNode = (l: Location): TreeNode => ({ id: l.id, label: l.name, icon: l.children?.length ? 'mdi-map-marker-multiple-outline' : 'mdi-map-marker-outline', badge: String(l.asset_count), children: (l.children ?? []).map(toNode) })
+const tree = computed<TreeNode[]>(() => org.locationTree.map(toNode))
+const selected = computed(() => org.locations.find((l) => l.id === selectedId.value) ?? null)
 
-function add(parent?: TreeItem): void {
+const fields = computed(() =>
+  zodToFields(locationSchema, {
+    parent_id: { type: 'select', options: org.locations.filter((l) => l.id !== editing.value?.id).map((l) => ({ title: l.path || l.name, value: l.id })) },
+    status: { type: 'select', options: LOCATION_STATUSES.map((s) => ({ title: s, value: s })) },
+    contact: { label: 'Contact (sealed)' },
+    phone: { label: 'Phone (sealed)' },
+    email: { label: 'E-mail (sealed)' },
+  }),
+)
+
+function add(parent?: Location | null): void {
   editing.value = null
   parentFor.value = parent?.id ?? ''
   dialog.value = true
 }
-function edit(item: TreeItem): void {
-  editing.value = org.locations.find((l) => l.id === item.id) ?? null
+function edit(l: Location): void {
+  editing.value = l
   dialog.value = true
 }
-async function remove(item: TreeItem): Promise<void> {
+async function remove(l: Location): Promise<void> {
+  if (!(await confirm.ask({ title: `Delete ${l.name}?`, danger: true, confirmLabel: 'Delete' }))) return
   error.value = ''
   try {
-    await org.removeLocation(item.id)
+    await org.removeLocation(l.id)
+    selectedId.value = ''
     await org.loadLocations()
   } catch (e) {
     error.value = describe(e)
@@ -55,20 +56,30 @@ const submit = (v: Record<string, unknown>) => (editing.value ? org.updateLocati
 </script>
 
 <template>
-  <div>
-    <div class="d-flex align-center mb-4">
-      <h1 class="text-h5">Locations</h1>
-      <v-spacer />
-      <v-btn color="primary" prepend-icon="mdi-plus" class="me-2" @click="add()">New location</v-btn>
-      <v-btn variant="text" icon="mdi-refresh" @click="org.loadLocations()" />
+  <UiPage title="Locations">
+    <template #actions>
+      <UiButton icon="mdi-plus" @click="add()">New location</UiButton>
+      <UiButton variant="text" icon="mdi-refresh" icon-only label="Refresh" @click="org.loadLocations()" />
+    </template>
+    <UiAlert v-if="error || org.error" kind="error" class="mb-3">{{ error || org.error }}</UiAlert>
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <UiCard class="lg:col-span-2">
+        <UiEmptyState v-if="tree.length === 0" title="No locations yet" />
+        <UiTree v-else v-model:selected="selectedId" :items="tree" />
+      </UiCard>
+      <UiCard :title="selected ? selected.name : 'Location'">
+        <p v-if="!selected" class="text-sm text-base-content/70">Select a location to edit it or add a child.</p>
+        <template v-else>
+          <UiToolbar class="mb-3"><UiStatusChip :status="selected.status" /><UiBadge>{{ selected.asset_count }} assets</UiBadge><UiBadge>{{ selected.child_count }} children</UiBadge></UiToolbar>
+          <UiKeyValueTable class="mb-3" :items="[{ label: 'Path', value: selected.path }, { label: 'Code', value: selected.code }, { label: 'Address', value: [selected.address, selected.postal_code, selected.city, selected.country].filter(Boolean).join(', ') }, { label: 'Contact', value: selected.contact || selected.email || '(redacted)' }]" />
+          <UiToolbar>
+            <UiButton size="sm" variant="soft" icon="mdi-plus" @click="add(selected)">Add child</UiButton>
+            <UiButton size="sm" variant="soft" icon="mdi-pencil-outline" @click="edit(selected)">Edit</UiButton>
+            <UiButton size="sm" variant="text" color="error" icon="mdi-delete-outline" :disabled="selected.child_count > 0 || selected.asset_count > 0" @click="remove(selected)">Delete</UiButton>
+          </UiToolbar>
+        </template>
+      </UiCard>
     </div>
-    <v-alert v-if="error || org.error" type="error" variant="tonal" density="compact" class="mb-3">{{ error || org.error }}</v-alert>
-    <v-card>
-      <v-card-text>
-        <div v-if="org.locationTree.length === 0" class="text-medium-emphasis">No locations yet.</div>
-        <TreeNodes :items="org.locationTree as TreeItem[]" @edit="edit" @remove="remove" @add-child="add" />
-      </v-card-text>
-    </v-card>
-    <RecordDialog v-model="dialog" :title="editing ? 'Edit location' : 'New location'" :fields="fields" :initial="initial" :submit="submit" @saved="org.loadLocations()" />
-  </div>
+    <UiRecordDrawer v-model="dialog" close-on-save :title="editing ? 'Edit location' : 'New location'" :schema="locationSchema" :fields="fields" :initial="initial" :submit="submit" size="lg" @saved="org.loadLocations()" />
+  </UiPage>
 </template>

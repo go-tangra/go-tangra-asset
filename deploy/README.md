@@ -103,3 +103,11 @@ mint (`asset-token`) and the `asset` service (`configs/asset.yaml`, sharing the
 RustFS dev credentials with its own `asset` bucket). The UI remote is served
 under `/m/asset/` with nav entries Assets, Categories, Suppliers, Locations,
 Consumables, Licenses, Insurance, Inventory Sync, Dashboard.
+
+## UI
+
+The remote under `services/asset/ui` is built on the shared kit `@freya/ui` (FlyonUI + Zod,
+see `docs/frontend.md`): forms validate through Zod schemas in `src/schemas/`, the
+shell provides the theme and shared singletons, and `npm run lint` runs
+`check-no-legacy`. Rebuild the image after UI changes; the Dockerfile builds `ui/kit`
+first.

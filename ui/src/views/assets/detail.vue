@@ -1,20 +1,21 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { UiPage, UiAlert, UiCard, UiButton, UiStatusChip, UiKeyValueTable, UiDataTable, UiDocumentList, UiForm, UiCombobox, UiSelect, UiInput, UiFilePicker, UiBadge, UiDrawer, UiRecordDrawer, useConfirm, type Column } from '@freya/ui'
+import { zodToFields, useZodForm } from '@freya/ui/forms'
 import { useAssets } from '@/stores/assets'
 import { useOrg } from '@/stores/org'
 import { useDocuments } from '@/stores/documents'
-import { describe } from '@/api/client'
-import RecordDialog from '@/components/RecordDialog.vue'
-import EntityDocuments from '@/components/EntityDocuments.vue'
-import type { Field } from '@/components/RecordDialog.vue'
-import type { Asset, AssetInput, Assignment } from '@/api/types'
+import { api, describe } from '@/api/client'
+import { assetSchema, assignSchema, unassignSchema, ASSET_STATUSES, type AssetInput } from '@/schemas'
+import type { Asset, Assignment } from '@/api/types'
 
 const route = useRoute()
 const router = useRouter()
 const store = useAssets()
 const org = useOrg()
 const docs = useDocuments()
+const confirm = useConfirm()
 
 const id = String(route.params.id)
 const asset = ref<Asset | null>(null)
@@ -23,9 +24,6 @@ const error = ref('')
 const edit = ref(false)
 const assignDialog = ref(false)
 const unassignDialog = ref(false)
-const assignee = ref<string | null>(null)
-const returnLocation = ref<string | null>(null)
-const notes = ref('')
 const photoFile = ref<File | null>(null)
 const photoBust = ref(String(Date.now()))
 
@@ -46,50 +44,45 @@ onMounted(() => {
   void store.loadUsers()
 })
 
-const fields = computed<Field[]>(() => [
-  { key: 'name', label: 'Name', required: true },
-  { key: 'asset_tag', label: 'Asset tag' },
-  { key: 'serial', label: 'Serial' },
-  { key: 'model_name', label: 'Model' },
-  { key: 'model_number', label: 'Model number' },
-  { key: 'category_id', label: 'Category', type: 'select', options: org.categories.map((c) => ({ title: c.name, value: c.id })) },
-  { key: 'supplier_id', label: 'Supplier', type: 'select', options: org.suppliers.map((s) => ({ title: s.name, value: s.id })) },
-  { key: 'location_id', label: 'Location', type: 'select', options: org.locations.map((l) => ({ title: l.path || l.name, value: l.id })) },
-  { key: 'status', label: 'Status', type: 'select', options: ['deployable', 'broken', 'archived'].map((s) => ({ title: s, value: s })), hint: 'Assigned is set through Assign' },
-  { key: 'purchase_date', label: 'Purchase date', type: 'date' },
-  { key: 'purchase_cost', label: 'Purchase cost', type: 'number' },
-  { key: 'order_number', label: 'Order number' },
-  { key: 'warranty_months', label: 'Warranty (months)', type: 'number' },
-  { key: 'useful_life_years', label: 'Useful life (years)', type: 'number' },
-  { key: 'salvage_value', label: 'Salvage value', type: 'number' },
-  { key: 'depreciation_rate', label: 'Depreciation rate (0–1)', type: 'number' },
-  { key: 'notes', label: 'Notes', type: 'textarea', cols: 12 },
-])
+const fields = computed(() =>
+  zodToFields(assetSchema, {
+    model_name: { label: 'Model' },
+    category_id: { type: 'select', options: org.categories.map((c) => ({ title: c.name, value: c.id })) },
+    supplier_id: { type: 'select', options: org.suppliers.map((s) => ({ title: s.name, value: s.id })) },
+    location_id: { type: 'select', options: org.locations.map((l) => ({ title: l.path || l.name, value: l.id })) },
+    status: { type: 'select', options: ASSET_STATUSES.map((s) => ({ title: s, value: s })), hint: 'Assigned is set through Assign' },
+    warranty_months: { label: 'Warranty (months)' },
+    useful_life_years: { label: 'Useful life (years)' },
+    depreciation_rate: { label: 'Depreciation rate (0–1)' },
+  }),
+)
+const locationOptions = computed(() => org.locations.map((l) => ({ title: l.path || l.name, value: l.id })))
+const userOptions = computed(() => store.users.map((u) => ({ title: u.display_name, value: u.id })))
 
-const statusColor: Record<string, string> = { deployable: 'success', assigned: 'info', broken: 'error', archived: 'grey' }
-
-async function doAssign(): Promise<void> {
-  if (!assignee.value) return
-  try {
-    asset.value = await store.assign(id, assignee.value, notes.value)
+const assignForm = useZodForm(assignSchema, {
+  initial: { user_id: '', notes: '' },
+  onSubmit: async (v) => {
+    asset.value = await store.assign(id, v.user_id, v.notes ?? '')
+  },
+  onSuccess: async () => {
     assignDialog.value = false
-    notes.value = ''
+    assignForm.reset({ user_id: '', notes: '' })
     history.value = await store.history(id)
-  } catch (e) {
-    error.value = describe(e)
-  }
-}
-async function doUnassign(): Promise<void> {
-  try {
-    asset.value = await store.unassign(id, returnLocation.value ?? '', notes.value)
+  },
+})
+const unassignForm = useZodForm(unassignSchema, {
+  initial: { location_id: '', notes: '' },
+  onSubmit: async (v) => {
+    asset.value = await store.unassign(id, v.location_id ?? '', v.notes ?? '')
+  },
+  onSuccess: async () => {
     unassignDialog.value = false
-    notes.value = ''
+    unassignForm.reset({ location_id: '', notes: '' })
     history.value = await store.history(id)
-  } catch (e) {
-    error.value = describe(e)
-  }
-}
+  },
+})
 async function remove(): Promise<void> {
+  if (!(await confirm.ask({ title: `Delete ${asset.value?.asset_tag ?? 'this asset'}?`, text: 'Documents and history are removed with it.', danger: true, confirmLabel: 'Delete' }))) return
   try {
     await store.remove(id)
     void router.push({ name: 'asset-assets' })
@@ -121,7 +114,7 @@ function money(v?: number): string {
   return v === undefined ? '—' : v.toLocaleString(undefined, { maximumFractionDigits: 2 })
 }
 function fmt(ts?: string): string {
-  return ts ? new Date(ts).toLocaleString() : '—'
+  return ts ? new Date(ts).toLocaleString() : ''
 }
 const warrantyEnd = computed(() => {
   const a = asset.value
@@ -130,110 +123,105 @@ const warrantyEnd = computed(() => {
   d.setMonth(d.getMonth() + a.warranty_months)
   return d.toLocaleDateString()
 })
+const details = computed(() => {
+  const a = asset.value
+  if (!a) return []
+  return [
+    { label: 'Serial', value: a.serial },
+    { label: 'Model', value: [a.model_name, a.model_number].filter(Boolean).join(' ') },
+    { label: 'Category', value: org.categoryName(a.category_id) },
+    { label: 'Supplier', value: org.supplierName(a.supplier_id) },
+    { label: 'Location', value: org.locationName(a.location_id) },
+    { label: 'Assignee', value: a.assignee_name || a.user_id },
+    { label: 'Purchased', value: a.purchase_date ? new Date(a.purchase_date).toLocaleDateString() : '' },
+    { label: 'Order', value: a.order_number },
+    { label: 'Updated', value: fmt(a.updated_at) },
+    { label: 'Notes', value: a.notes },
+  ]
+})
+const depreciation = computed(() => {
+  const a = asset.value
+  if (!a) return []
+  return [
+    { label: 'Purchase cost', value: money(a.purchase_cost) },
+    { label: 'Current book value', value: money(a.book_value) },
+    { label: 'Salvage value', value: money(a.salvage_value) },
+    { label: 'Useful life', value: a.useful_life_years ? a.useful_life_years + ' y' : '' },
+    { label: 'Rate (DDB)', value: a.depreciation_rate ?? 0.4 },
+    { label: 'Warranty until', value: warrantyEnd.value },
+  ]
+})
+const historyColumns: Column<Assignment>[] = [
+  { key: 'action', label: 'Action', width: 'sm' },
+  { key: 'user_name', label: 'User', format: (h) => h.user_name || h.user_id || '' },
+  { key: 'assigned_at', label: 'At', format: (h) => fmt(h.assigned_at) },
+  { key: 'returned_at', label: 'Returned', format: (h) => fmt(h.returned_at), hideOnStack: true },
+  { key: 'assigned_by', label: 'By', hideOnStack: true },
+  { key: 'notes', label: 'Notes' },
+]
 </script>
 
 <template>
-  <div>
-    <div class="d-flex align-center mb-4">
-      <v-btn variant="text" icon="mdi-arrow-left" class="me-2" @click="router.push({ name: 'asset-assets' })" />
-      <h1 class="text-h5">{{ asset?.asset_tag ?? 'Asset' }} <span class="text-medium-emphasis">— {{ asset?.name }}</span></h1>
-      <v-chip v-if="asset" size="small" :color="statusColor[asset.status]" variant="tonal" class="ms-3">{{ asset.status }}</v-chip>
-      <v-spacer />
-      <v-btn v-if="asset?.status === 'deployable'" color="primary" prepend-icon="mdi-account-arrow-right" class="me-2" @click="assignDialog = true">Assign</v-btn>
-      <v-btn v-if="asset?.status === 'assigned'" color="warning" prepend-icon="mdi-account-arrow-left" class="me-2" @click="unassignDialog = true">Unassign</v-btn>
-      <v-btn variant="tonal" prepend-icon="mdi-pencil-outline" class="me-2" @click="edit = true">Edit</v-btn>
-      <v-btn variant="text" color="error" icon="mdi-delete-outline" @click="remove" />
+  <UiPage :title="asset?.asset_tag ?? 'Asset'" :subtitle="asset?.name">
+    <template #before-title><UiButton variant="text" icon="mdi-arrow-left" icon-only label="Back to assets" @click="router.push({ name: 'asset-assets' })" /></template>
+    <template #badges><UiStatusChip v-if="asset" :status="asset.status" /></template>
+    <template #actions>
+      <UiButton v-if="asset?.status === 'deployable'" icon="mdi-account-arrow-right" @click="assignDialog = true">Assign</UiButton>
+      <UiButton v-if="asset?.status === 'assigned'" color="warning" icon="mdi-account-arrow-left" @click="unassignDialog = true">Unassign</UiButton>
+      <UiButton variant="soft" icon="mdi-pencil-outline" @click="edit = true">Edit</UiButton>
+      <UiButton variant="text" color="error" icon="mdi-delete-outline" icon-only label="Delete asset" @click="remove" />
+    </template>
+    <UiAlert v-if="error" kind="error" class="mb-3">{{ error }}</UiAlert>
+    <div v-if="asset" class="grid grid-cols-1 gap-4 lg:grid-cols-12">
+      <div class="flex flex-col gap-4 lg:col-span-4">
+        <UiCard title="Photo">
+          <img v-if="asset.has_photo" :src="docs.photoUrl(id, photoBust)" :alt="'Photo of ' + asset.asset_tag" class="mb-2 max-h-60 w-full rounded-box object-contain">
+          <p v-else class="mb-2 text-sm text-base-content/70">No photo.</p>
+          <UiFilePicker id="asset-photo" v-model="photoFile" label="Upload photo" accept="image/png,image/jpeg,image/gif,image/webp" />
+          <div class="mt-2 flex gap-2">
+            <UiButton size="sm" :disabled="!photoFile" @click="uploadPhoto">Upload</UiButton>
+            <UiButton v-if="asset.has_photo" size="sm" variant="text" color="error" @click="deletePhoto">Remove</UiButton>
+          </div>
+        </UiCard>
+        <UiCard title="Depreciation"><UiKeyValueTable :items="depreciation" /></UiCard>
+      </div>
+      <div class="flex flex-col gap-4 lg:col-span-8">
+        <UiCard title="Details">
+          <UiKeyValueTable :items="details" :columns="2" />
+          <div v-if="asset.tags && Object.keys(asset.tags).length" class="mt-3 flex flex-wrap gap-1">
+            <UiBadge v-for="(v, k) in asset.tags" :key="k">{{ k }}={{ v }}</UiBadge>
+          </div>
+        </UiCard>
+        <UiCard title="Assignment history" :padded="false">
+          <UiDataTable :items="history" :columns="historyColumns" caption="Assignment history" empty-title="Never assigned">
+            <template #cell-action="{ row }"><UiStatusChip :status="row.action" :colors="{ assigned: 'info', unassigned: 'neutral', transferred: 'info' }" /></template>
+          </UiDataTable>
+        </UiCard>
+        <UiCard><UiDocumentList :api="api" :base="'assets/' + id + '/documents'" /></UiCard>
+      </div>
     </div>
-    <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-3">{{ error }}</v-alert>
-    <v-row v-if="asset">
-      <v-col cols="12" md="4">
-        <v-card variant="outlined" class="mb-4">
-          <v-card-title class="text-subtitle-1">Photo</v-card-title>
-          <v-card-text>
-            <v-img v-if="asset.has_photo" :src="docs.photoUrl(id, photoBust)" max-height="240" class="mb-2 rounded" />
-            <div v-else class="text-medium-emphasis mb-2">No photo.</div>
-            <v-file-input v-model="photoFile" label="Upload photo" accept="image/png,image/jpeg,image/gif,image/webp" density="compact" prepend-icon="mdi-camera" />
-            <div class="d-flex">
-              <v-btn size="small" color="primary" :disabled="!photoFile" @click="uploadPhoto">Upload</v-btn>
-              <v-btn v-if="asset.has_photo" size="small" variant="text" color="error" class="ms-2" @click="deletePhoto">Remove</v-btn>
-            </div>
-          </v-card-text>
-        </v-card>
-        <v-card variant="outlined">
-          <v-card-title class="text-subtitle-1">Depreciation</v-card-title>
-          <v-card-text>
-            <div class="d-flex justify-space-between"><span>Purchase cost</span><b>{{ money(asset.purchase_cost) }}</b></div>
-            <div class="d-flex justify-space-between"><span>Current book value</span><b>{{ money(asset.book_value) }}</b></div>
-            <div class="d-flex justify-space-between"><span>Salvage value</span><span>{{ money(asset.salvage_value) }}</span></div>
-            <div class="d-flex justify-space-between"><span>Useful life</span><span>{{ asset.useful_life_years ? asset.useful_life_years + ' y' : '—' }}</span></div>
-            <div class="d-flex justify-space-between"><span>Rate (DDB)</span><span>{{ asset.depreciation_rate ?? 0.4 }}</span></div>
-            <div class="d-flex justify-space-between"><span>Warranty until</span><span>{{ warrantyEnd || '—' }}</span></div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="12" md="8">
-        <v-card variant="outlined" class="mb-4">
-          <v-card-title class="text-subtitle-1">Details</v-card-title>
-          <v-card-text>
-            <v-row dense>
-              <v-col cols="6" md="4"><div class="text-caption text-medium-emphasis">Serial</div>{{ asset.serial || '—' }}</v-col>
-              <v-col cols="6" md="4"><div class="text-caption text-medium-emphasis">Model</div>{{ asset.model_name || '—' }} {{ asset.model_number }}</v-col>
-              <v-col cols="6" md="4"><div class="text-caption text-medium-emphasis">Category</div>{{ org.categoryName(asset.category_id) || '—' }}</v-col>
-              <v-col cols="6" md="4"><div class="text-caption text-medium-emphasis">Supplier</div>{{ org.supplierName(asset.supplier_id) || '—' }}</v-col>
-              <v-col cols="6" md="4"><div class="text-caption text-medium-emphasis">Location</div>{{ org.locationName(asset.location_id) || '—' }}</v-col>
-              <v-col cols="6" md="4"><div class="text-caption text-medium-emphasis">Assignee</div>{{ asset.assignee_name || asset.user_id || '—' }}</v-col>
-              <v-col cols="6" md="4"><div class="text-caption text-medium-emphasis">Purchased</div>{{ asset.purchase_date ? new Date(asset.purchase_date).toLocaleDateString() : '—' }}</v-col>
-              <v-col cols="6" md="4"><div class="text-caption text-medium-emphasis">Order</div>{{ asset.order_number || '—' }}</v-col>
-              <v-col cols="6" md="4"><div class="text-caption text-medium-emphasis">Updated</div>{{ fmt(asset.updated_at) }}</v-col>
-              <v-col cols="12"><div class="text-caption text-medium-emphasis">Notes</div>{{ asset.notes || '—' }}</v-col>
-              <v-col v-if="asset.tags && Object.keys(asset.tags).length" cols="12">
-                <v-chip v-for="(v, k) in asset.tags" :key="k" size="small" class="me-1 mb-1" variant="tonal">{{ k }}={{ v }}</v-chip>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-        <v-card variant="outlined" class="mb-4">
-          <v-card-title class="text-subtitle-1">Assignment history</v-card-title>
-          <v-table density="compact">
-            <thead><tr><th>Action</th><th>User</th><th>At</th><th>Returned</th><th>By</th><th>Notes</th></tr></thead>
-            <tbody>
-              <tr v-if="history.length === 0"><td colspan="6" class="text-medium-emphasis">Never assigned.</td></tr>
-              <tr v-for="h in history" :key="h.id">
-                <td><v-chip size="x-small" variant="tonal" :color="h.action === 'assigned' ? 'info' : 'grey'">{{ h.action }}</v-chip></td>
-                <td>{{ h.user_name || h.user_id || '—' }}</td>
-                <td>{{ fmt(h.assigned_at) }}</td>
-                <td>{{ fmt(h.returned_at) }}</td>
-                <td>{{ h.assigned_by || '—' }}</td>
-                <td>{{ h.notes || '—' }}</td>
-              </tr>
-            </tbody>
-          </v-table>
-        </v-card>
-        <EntityDocuments entity-type="asset" :entity-id="id" />
-      </v-col>
-    </v-row>
 
-    <RecordDialog v-model="edit" title="Edit asset" :fields="fields" :initial="asset ?? undefined" :submit="(v) => store.update(id, v as unknown as AssetInput)" @saved="reload" />
+    <UiRecordDrawer v-model="edit" close-on-save title="Edit asset" :schema="assetSchema" :fields="fields" :initial="asset ?? undefined" :submit="(v) => store.update(id, v as AssetInput)" size="xl" @saved="reload" />
 
-    <v-dialog v-model="assignDialog" max-width="480">
-      <v-card>
-        <v-card-title>Assign asset</v-card-title>
-        <v-card-text>
-          <v-autocomplete v-model="assignee" :items="store.users.map((u) => ({ title: u.display_name, value: u.id }))" label="User" density="comfortable" />
-          <v-text-field v-model="notes" label="Notes" density="comfortable" />
-        </v-card-text>
-        <v-card-actions><v-spacer /><v-btn variant="text" @click="assignDialog = false">Cancel</v-btn><v-btn color="primary" :disabled="!assignee" @click="doAssign">Assign</v-btn></v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog v-model="unassignDialog" max-width="480">
-      <v-card>
-        <v-card-title>Unassign asset</v-card-title>
-        <v-card-text>
-          <v-select v-model="returnLocation" :items="org.locations.map((l) => ({ title: l.path || l.name, value: l.id }))" label="Return to location (optional)" clearable density="comfortable" />
-          <v-text-field v-model="notes" label="Notes" density="comfortable" />
-        </v-card-text>
-        <v-card-actions><v-spacer /><v-btn variant="text" @click="unassignDialog = false">Cancel</v-btn><v-btn color="warning" @click="doUnassign">Unassign</v-btn></v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
+    <UiDrawer v-model="assignDialog" title="Assign asset" size="md">
+      <UiForm :form="assignForm">
+        <UiCombobox v-bind="assignForm.field('user_id')" label="User" :options="userOptions" required />
+        <UiInput v-bind="assignForm.field('notes')" label="Notes" class="mt-2" />
+      </UiForm>
+      <template #actions>
+        <UiButton variant="text" @click="assignDialog = false">Cancel</UiButton>
+        <UiButton :loading="assignForm.submitting.value" @click="assignForm.submit()">Assign</UiButton>
+      </template>
+    </UiDrawer>
+    <UiDrawer v-model="unassignDialog" title="Unassign asset" size="md">
+      <UiForm :form="unassignForm">
+        <UiSelect v-bind="unassignForm.field('location_id')" label="Return to location (optional)" :options="locationOptions" />
+        <UiInput v-bind="unassignForm.field('notes')" label="Notes" class="mt-2" />
+      </UiForm>
+      <template #actions>
+        <UiButton variant="text" @click="unassignDialog = false">Cancel</UiButton>
+        <UiButton color="warning" :loading="unassignForm.submitting.value" @click="unassignForm.submit()">Unassign</UiButton>
+      </template>
+    </UiDrawer>
+  </UiPage>
 </template>

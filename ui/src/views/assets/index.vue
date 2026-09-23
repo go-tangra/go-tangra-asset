@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { UiPage, UiAlert, UiCard, UiInput, UiSelect, UiButton, UiDataTable, UiStatusChip, UiLiveIndicator, UiRecordDrawer, type Column, type SelectOption } from '@freya/ui'
+import { zodToFields } from '@freya/ui/forms'
 import { useAssets } from '@/stores/assets'
 import { useOrg } from '@/stores/org'
 import { useLive } from '@/stores/live'
-import RecordDialog from '@/components/RecordDialog.vue'
-import type { Field } from '@/components/RecordDialog.vue'
-import type { AssetInput } from '@/api/types'
+import { assetSchema, ASSET_STATUSES, type AssetInput } from '@/schemas'
+import type { Asset } from '@/api/types'
 
 const router = useRouter()
 const store = useAssets()
@@ -14,12 +15,12 @@ const org = useOrg()
 const live = useLive()
 
 const query = ref('')
-const status = ref<string | null>(null)
-const category = ref<string | null>(null)
+const status = ref<string | undefined>()
+const category = ref<string | undefined>()
 const dialog = ref(false)
 
-const STATUSES = ['deployable', 'assigned', 'broken', 'archived']
-const statusColor: Record<string, string> = { deployable: 'success', assigned: 'info', broken: 'error', archived: 'grey' }
+const statusOptions: SelectOption[] = ['deployable', 'assigned', 'broken', 'archived'].map((s) => ({ title: s, value: s }))
+const categoryOptions = computed<SelectOption[]>(() => org.categories.map((c) => ({ title: c.name, value: c.id })))
 
 let release: (() => void) | null = null
 let off: (() => void) | null = null
@@ -39,72 +40,62 @@ onUnmounted(() => {
 })
 
 function reload(): void {
-  void store.list({ query: query.value.trim() || undefined, status: status.value ?? undefined, category_id: category.value ?? undefined })
+  void store.list({ query: query.value.trim() || undefined, status: status.value || undefined, category_id: category.value || undefined })
 }
 
-const fields = computed<Field[]>(() => [
-  { key: 'name', label: 'Name', required: true },
-  { key: 'asset_tag', label: 'Asset tag', hint: 'Blank → generated (AST-xxxxxx)' },
-  { key: 'serial', label: 'Serial' },
-  { key: 'model_name', label: 'Model' },
-  { key: 'category_id', label: 'Category', type: 'select', options: org.categories.map((c) => ({ title: c.name, value: c.id })) },
-  { key: 'supplier_id', label: 'Supplier', type: 'select', options: org.suppliers.map((s) => ({ title: s.name, value: s.id })) },
-  { key: 'location_id', label: 'Location', type: 'select', options: org.locations.map((l) => ({ title: l.path || l.name, value: l.id })) },
-  { key: 'status', label: 'Status', type: 'select', options: ['deployable', 'broken', 'archived'].map((s) => ({ title: s, value: s })) },
-  { key: 'purchase_date', label: 'Purchase date', type: 'date' },
-  { key: 'purchase_cost', label: 'Purchase cost', type: 'number' },
-  { key: 'warranty_months', label: 'Warranty (months)', type: 'number' },
-  { key: 'useful_life_years', label: 'Useful life (years)', type: 'number' },
-  { key: 'salvage_value', label: 'Salvage value', type: 'number' },
-  { key: 'depreciation_rate', label: 'Depreciation rate (0–1)', type: 'number', hint: 'Blank/0 → 0.40' },
-  { key: 'notes', label: 'Notes', type: 'textarea', cols: 12 },
-])
+const fields = computed(() =>
+  zodToFields(assetSchema, {
+    asset_tag: { hint: 'Blank → generated (AST-xxxxxx)' },
+    model_name: { label: 'Model' },
+    category_id: { type: 'select', options: categoryOptions.value },
+    supplier_id: { type: 'select', options: org.suppliers.map((s) => ({ title: s.name, value: s.id })) },
+    location_id: { type: 'select', options: org.locations.map((l) => ({ title: l.path || l.name, value: l.id })) },
+    status: { type: 'select', options: ASSET_STATUSES.map((s) => ({ title: s, value: s })) },
+    warranty_months: { label: 'Warranty (months)' },
+    useful_life_years: { label: 'Useful life (years)' },
+    depreciation_rate: { label: 'Depreciation rate (0–1)', hint: 'Blank/0 → 0.40' },
+  }),
+)
+const columns: Column<Asset>[] = [
+  { key: 'asset_tag', label: 'Tag', sortable: true, width: 'sm' },
+  { key: 'name', label: 'Name', sortable: true },
+  { key: 'serial', label: 'Serial', hideOnStack: true },
+  { key: 'category_id', label: 'Category', format: (a) => org.categoryName(a.category_id) ?? '' },
+  { key: 'status', label: 'Status', width: 'sm' },
+  { key: 'assignee_name', label: 'Assignee', format: (a) => a.assignee_name || a.user_id || '' },
+  { key: 'location_id', label: 'Location', format: (a) => org.locationName(a.location_id) ?? '', hideOnStack: true },
+  { key: 'book_value', label: 'Book value', align: 'end', format: (a) => money(a.book_value) },
+]
 
-function open(id: string): void {
-  void router.push({ name: 'asset-detail', params: { id } })
+function open(a: Asset): void {
+  void router.push({ name: 'asset-detail', params: { id: a.id } })
 }
-
 function money(v?: number): string {
-  return v === undefined ? '—' : v.toLocaleString(undefined, { maximumFractionDigits: 2 })
+  return v === undefined ? '' : v.toLocaleString(undefined, { maximumFractionDigits: 2 })
 }
 </script>
 
 <template>
-  <div>
-    <div class="d-flex align-center mb-4">
-      <h1 class="text-h5">Assets</h1>
-      <v-chip v-if="live.connected" size="x-small" color="success" variant="tonal" class="ms-3">live</v-chip>
-      <v-spacer />
-      <v-btn color="primary" prepend-icon="mdi-plus" class="me-2" @click="dialog = true">New asset</v-btn>
-      <v-btn variant="text" icon="mdi-refresh" @click="reload" />
-    </div>
-    <v-row dense class="mb-2">
-      <v-col cols="12" md="5"><v-text-field v-model="query" label="Search (name, tag, serial, model)" density="comfortable" clearable @keyup.enter="reload" /></v-col>
-      <v-col cols="6" md="3"><v-select v-model="status" :items="STATUSES" label="Status" density="comfortable" clearable @update:model-value="reload" /></v-col>
-      <v-col cols="6" md="3"><v-select v-model="category" :items="org.categories.map((c) => ({ title: c.name, value: c.id }))" label="Category" density="comfortable" clearable @update:model-value="reload" /></v-col>
-      <v-col cols="12" md="1"><v-btn block variant="tonal" @click="reload">Filter</v-btn></v-col>
-    </v-row>
-    <v-alert v-if="store.error" type="error" variant="tonal" density="compact" class="mb-3">{{ store.error }}</v-alert>
-    <v-card>
-      <v-table hover>
-        <thead>
-          <tr><th>Tag</th><th>Name</th><th>Serial</th><th>Category</th><th>Status</th><th>Assignee</th><th>Location</th><th class="text-right">Book value</th></tr>
-        </thead>
-        <tbody>
-          <tr v-if="!store.loading && store.items.length === 0"><td colspan="8" class="text-medium-emphasis">No assets.</td></tr>
-          <tr v-for="a in store.items" :key="a.id" style="cursor: pointer" @click="open(a.id)">
-            <td class="font-weight-medium">{{ a.asset_tag }}</td>
-            <td>{{ a.name }}</td>
-            <td>{{ a.serial || '—' }}</td>
-            <td>{{ org.categoryName(a.category_id) || '—' }}</td>
-            <td><v-chip size="small" :color="statusColor[a.status]" variant="tonal">{{ a.status }}</v-chip></td>
-            <td>{{ a.assignee_name || (a.user_id ? a.user_id : '—') }}</td>
-            <td>{{ org.locationName(a.location_id) || '—' }}</td>
-            <td class="text-right">{{ money(a.book_value) }}</td>
-          </tr>
-        </tbody>
-      </v-table>
-    </v-card>
-    <RecordDialog v-model="dialog" title="New asset" :fields="fields" :submit="(v) => store.create(v as unknown as AssetInput)" @saved="reload" />
-  </div>
+  <UiPage title="Assets">
+    <template #badges><UiLiveIndicator :connected="live.connected" /></template>
+    <template #actions>
+      <UiButton icon="mdi-plus" @click="dialog = true">New asset</UiButton>
+      <UiButton variant="text" icon="mdi-refresh" icon-only label="Refresh" @click="reload" />
+    </template>
+    <template #filters>
+      <div class="grid w-full grid-cols-2 gap-2 md:grid-cols-12 md:items-end">
+        <div class="col-span-2 md:col-span-5"><UiInput id="asset-search" v-model="query" label="Search (name, tag, serial, model)" type="search" size="sm" @enter="reload" /></div>
+        <div class="md:col-span-3"><UiSelect id="asset-status" v-model="status" label="Status" :options="statusOptions" size="sm" @update:model-value="reload" /></div>
+        <div class="md:col-span-3"><UiSelect id="asset-category" v-model="category" label="Category" :options="categoryOptions" size="sm" @update:model-value="reload" /></div>
+        <div class="col-span-2 md:col-span-1"><UiButton block variant="soft" size="sm" @click="reload">Filter</UiButton></div>
+      </div>
+    </template>
+    <UiAlert v-if="store.error" kind="error" class="mb-3">{{ store.error }}</UiAlert>
+    <UiCard :padded="false">
+      <UiDataTable :items="store.items" :columns="columns" :loading="store.loading" caption="Assets" empty-title="No assets" clickable @row-click="open">
+        <template #cell-status="{ row }"><UiStatusChip :status="row.status" /></template>
+      </UiDataTable>
+    </UiCard>
+    <UiRecordDrawer v-model="dialog" close-on-save title="New asset" :schema="assetSchema" :fields="fields" :submit="(v) => store.create(v as AssetInput)" size="xl" @saved="reload" />
+  </UiPage>
 </template>
