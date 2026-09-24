@@ -1,0 +1,474 @@
+syntax = "proto3";
+
+// asset.v1 is the module-to-module API of the asset (ITAM) module. It is NOT
+// proxied by the gateway: callers are authenticated platform services on the
+// Freya SPIFFE mTLS channel, acting for the tenant named in each request
+// (tenant_id). The actor identity comes from the verified SPIFFE peer.
+//
+// Redaction: no message ever carries object-store credentials; supplier and
+// location contact fields (sealed at rest) are returned only to callers the
+// module treats as admins and are otherwise blank. Document bytes are streamed
+// or delivered through a short-lived presigned link, never embedded in a
+// listing. A full/cross-tenant backup restore is not exposed here.
+package asset.v1;
+
+option go_package = "github.com/go-tangra/go-tangra-asset/v4/api/proto/asset/v1;assetv1";
+
+// ---- Common
+
+message Timestamp { int64 unix = 1; } // seconds since epoch; 0 = unset
+
+message Document {
+  string id = 1;
+  string entity_type = 2; // asset | consumable | license
+  string entity_id = 3;
+  string file_name = 4;
+  int64 file_size = 5;
+  string mime_type = 6;
+  string checksum = 7;
+  string description = 8;
+  string uploaded_by = 9;
+  Timestamp created_at = 10;
+}
+
+message ListDocumentsRequest { string tenant_id = 1; string entity_id = 2; }
+message ListDocumentsResponse { repeated Document documents = 1; }
+message UploadDocumentRequest {
+  string tenant_id = 1;
+  string entity_id = 2;
+  string file_name = 3;
+  string mime_type = 4;
+  string description = 5;
+  bytes content = 6; // bounded by the server's upload limit
+}
+message DeleteDocumentRequest { string tenant_id = 1; string entity_id = 2; string document_id = 3; }
+message DownloadDocumentRequest { string tenant_id = 1; string entity_id = 2; string document_id = 3; }
+message DownloadDocumentResponse { Document document = 1; string url = 2; } // short-lived presigned link
+message Empty {}
+
+// ---- Assets
+
+message Asset {
+  string id = 1;
+  string tenant_id = 2;
+  string asset_tag = 3;
+  string name = 4;
+  string serial = 5;
+  string model_name = 6;
+  string model_number = 7;
+  string category_id = 8;
+  string supplier_id = 9;
+  string location_id = 10;
+  string user_id = 11;
+  string assignee_name = 12;
+  string status = 13; // deployable | assigned | broken | archived
+  bool has_photo = 14;
+  int32 warranty_months = 15;
+  Timestamp purchase_date = 16;
+  string order_number = 17;
+  double purchase_cost = 18;
+  string notes = 19;
+  double salvage_value = 20;
+  int32 useful_life_years = 21;
+  double depreciation_rate = 22;
+  map<string, string> tags = 23;
+  double book_value = 24;
+  string created_by = 25;
+  string updated_by = 26;
+  Timestamp created_at = 27;
+  Timestamp updated_at = 28;
+}
+
+message AssetInput {
+  string asset_tag = 1;
+  string name = 2;
+  string serial = 3;
+  string model_name = 4;
+  string model_number = 5;
+  string category_id = 6;
+  string supplier_id = 7;
+  string location_id = 8;
+  string status = 9;
+  int32 warranty_months = 10;
+  Timestamp purchase_date = 11;
+  string order_number = 12;
+  double purchase_cost = 13;
+  string notes = 14;
+  double salvage_value = 15;
+  int32 useful_life_years = 16;
+  double depreciation_rate = 17;
+  map<string, string> tags = 18;
+}
+
+message Assignment {
+  string id = 1;
+  string asset_id = 2;
+  string asset_name = 3;
+  string user_id = 4;
+  string user_name = 5;
+  string action = 6; // assigned | unassigned | transferred
+  Timestamp assigned_at = 7;
+  Timestamp returned_at = 8;
+  string assigned_by = 9;
+  string notes = 10;
+}
+
+message CreateAssetRequest { string tenant_id = 1; AssetInput asset = 2; }
+message GetAssetRequest { string tenant_id = 1; string id = 2; }
+message ListAssetsRequest {
+  string tenant_id = 1;
+  string status = 2;
+  string category_id = 3;
+  string supplier_id = 4;
+  string location_id = 5;
+  string user_id = 6;
+  string query = 7;
+  int32 limit = 8;
+  string cursor_id = 9;
+}
+message ListAssetsResponse { repeated Asset assets = 1; }
+message UpdateAssetRequest { string tenant_id = 1; string id = 2; AssetInput asset = 3; }
+message DeleteAssetRequest { string tenant_id = 1; string id = 2; }
+message AssignAssetRequest { string tenant_id = 1; string id = 2; string user_id = 3; string notes = 4; }
+message UnassignAssetRequest { string tenant_id = 1; string id = 2; string location_id = 3; string notes = 4; }
+message GetAssignmentHistoryRequest { string tenant_id = 1; string id = 2; int32 limit = 3; }
+message GetAssignmentHistoryResponse { repeated Assignment assignments = 1; }
+message UploadPhotoRequest { string tenant_id = 1; string id = 2; string mime_type = 3; bytes content = 4; }
+message DeletePhotoRequest { string tenant_id = 1; string id = 2; }
+
+message SyncChange {
+  string host_id = 1;
+  string hostname = 2;
+  string serial = 3;
+  string action = 4; // create | update | unchanged
+  string asset_id = 5;
+  string asset_tag = 6;
+  map<string, string> changes = 7; // field → "old → new"
+}
+message InventorySyncPreviewRequest { string tenant_id = 1; }
+message InventorySyncPreviewResponse { int32 hosts = 1; int32 create = 2; int32 update = 3; int32 unchanged = 4; repeated SyncChange changes = 5; }
+message InventorySyncExecuteRequest { string tenant_id = 1; repeated string hostnames = 2; }
+message InventorySyncExecuteResponse { int32 created = 1; int32 updated = 2; int32 skipped = 3; repeated string errors = 4; repeated SyncChange changes = 5; }
+
+service AssetService {
+  rpc CreateAsset(CreateAssetRequest) returns (Asset);
+  rpc GetAsset(GetAssetRequest) returns (Asset);
+  rpc ListAssets(ListAssetsRequest) returns (ListAssetsResponse);
+  rpc UpdateAsset(UpdateAssetRequest) returns (Asset);
+  rpc DeleteAsset(DeleteAssetRequest) returns (Empty);
+  rpc AssignAsset(AssignAssetRequest) returns (Asset);
+  rpc UnassignAsset(UnassignAssetRequest) returns (Asset);
+  rpc GetAssignmentHistory(GetAssignmentHistoryRequest) returns (GetAssignmentHistoryResponse);
+  rpc UploadPhoto(UploadPhotoRequest) returns (Asset);
+  rpc DeletePhoto(DeletePhotoRequest) returns (Empty);
+  rpc ListDocuments(ListDocumentsRequest) returns (ListDocumentsResponse);
+  rpc UploadDocument(UploadDocumentRequest) returns (Document);
+  rpc DeleteDocument(DeleteDocumentRequest) returns (Empty);
+  rpc DownloadDocument(DownloadDocumentRequest) returns (DownloadDocumentResponse);
+  rpc InventorySyncPreview(InventorySyncPreviewRequest) returns (InventorySyncPreviewResponse);
+  rpc InventorySyncExecute(InventorySyncExecuteRequest) returns (InventorySyncExecuteResponse);
+}
+
+// ---- Categories
+
+message Category {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string parent_id = 4;
+  string icon = 5;
+  map<string, string> tags = 6;
+  int64 asset_count = 7;
+  int64 child_count = 8;
+  Timestamp created_at = 9;
+  Timestamp updated_at = 10;
+  repeated Category children = 11; // GetTree only
+}
+message CategoryInput { string name = 1; string description = 2; string parent_id = 3; string icon = 4; map<string, string> tags = 5; }
+message CreateCategoryRequest { string tenant_id = 1; CategoryInput category = 2; }
+message GetCategoryRequest { string tenant_id = 1; string id = 2; }
+message ListCategoriesRequest { string tenant_id = 1; }
+message ListCategoriesResponse { repeated Category categories = 1; }
+message UpdateCategoryRequest { string tenant_id = 1; string id = 2; CategoryInput category = 3; }
+message DeleteCategoryRequest { string tenant_id = 1; string id = 2; }
+message GetCategoryTreeRequest { string tenant_id = 1; }
+message GetCategoryTreeResponse { repeated Category roots = 1; }
+
+service CategoryService {
+  rpc CreateCategory(CreateCategoryRequest) returns (Category);
+  rpc GetCategory(GetCategoryRequest) returns (Category);
+  rpc ListCategories(ListCategoriesRequest) returns (ListCategoriesResponse);
+  rpc UpdateCategory(UpdateCategoryRequest) returns (Category);
+  rpc DeleteCategory(DeleteCategoryRequest) returns (Empty);
+  rpc GetCategoryTree(GetCategoryTreeRequest) returns (GetCategoryTreeResponse);
+}
+
+// ---- Suppliers
+
+message Supplier {
+  string id = 1;
+  string name = 2;
+  string code = 3;
+  string address = 4;
+  string city = 5;
+  string state = 6;
+  string country = 7;
+  string postal_code = 8;
+  string contact_person = 9; // blank unless the caller is an admin
+  string telephone = 10;     // blank unless the caller is an admin
+  string email = 11;         // blank unless the caller is an admin
+  string website = 12;
+  string notes = 13;
+  string status = 14; // active | inactive
+  map<string, string> tags = 15;
+  Timestamp created_at = 16;
+  Timestamp updated_at = 17;
+}
+message SupplierInput {
+  string name = 1; string code = 2; string address = 3; string city = 4; string state = 5; string country = 6; string postal_code = 7;
+  string contact_person = 8; string telephone = 9; string email = 10; string website = 11; string notes = 12; string status = 13;
+  map<string, string> tags = 14;
+}
+message CreateSupplierRequest { string tenant_id = 1; SupplierInput supplier = 2; }
+message GetSupplierRequest { string tenant_id = 1; string id = 2; }
+message ListSuppliersRequest { string tenant_id = 1; string query = 2; int32 limit = 3; string cursor_id = 4; }
+message ListSuppliersResponse { repeated Supplier suppliers = 1; }
+message UpdateSupplierRequest { string tenant_id = 1; string id = 2; SupplierInput supplier = 3; }
+message DeleteSupplierRequest { string tenant_id = 1; string id = 2; }
+
+service SupplierService {
+  rpc CreateSupplier(CreateSupplierRequest) returns (Supplier);
+  rpc GetSupplier(GetSupplierRequest) returns (Supplier);
+  rpc ListSuppliers(ListSuppliersRequest) returns (ListSuppliersResponse);
+  rpc UpdateSupplier(UpdateSupplierRequest) returns (Supplier);
+  rpc DeleteSupplier(DeleteSupplierRequest) returns (Empty);
+}
+
+// ---- Locations
+
+message Location {
+  string id = 1;
+  string name = 2;
+  string code = 3;
+  string description = 4;
+  string parent_id = 5;
+  string path = 6;
+  string address = 7;
+  string city = 8;
+  string state = 9;
+  string country = 10;
+  string postal_code = 11;
+  string contact = 12; // blank unless the caller is an admin
+  string phone = 13;   // blank unless the caller is an admin
+  string email = 14;   // blank unless the caller is an admin
+  string status = 15;  // active | planned | decommissioned
+  map<string, string> tags = 16;
+  int64 child_count = 17;
+  int64 asset_count = 18;
+  Timestamp created_at = 19;
+  Timestamp updated_at = 20;
+  repeated Location children = 21; // GetTree only
+}
+message LocationInput {
+  string name = 1; string code = 2; string description = 3; string parent_id = 4; string address = 5; string city = 6; string state = 7;
+  string country = 8; string postal_code = 9; string contact = 10; string phone = 11; string email = 12; string status = 13;
+  map<string, string> tags = 14;
+}
+message CreateLocationRequest { string tenant_id = 1; LocationInput location = 2; }
+message GetLocationRequest { string tenant_id = 1; string id = 2; }
+message ListLocationsRequest { string tenant_id = 1; }
+message ListLocationsResponse { repeated Location locations = 1; }
+message UpdateLocationRequest { string tenant_id = 1; string id = 2; LocationInput location = 3; }
+message DeleteLocationRequest { string tenant_id = 1; string id = 2; }
+message GetLocationTreeRequest { string tenant_id = 1; }
+message GetLocationTreeResponse { repeated Location roots = 1; }
+
+service LocationService {
+  rpc CreateLocation(CreateLocationRequest) returns (Location);
+  rpc GetLocation(GetLocationRequest) returns (Location);
+  rpc ListLocations(ListLocationsRequest) returns (ListLocationsResponse);
+  rpc UpdateLocation(UpdateLocationRequest) returns (Location);
+  rpc DeleteLocation(DeleteLocationRequest) returns (Empty);
+  rpc GetLocationTree(GetLocationTreeRequest) returns (GetLocationTreeResponse);
+}
+
+// ---- Consumables
+
+message Consumable {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string category_id = 4;
+  string supplier_id = 5;
+  string location_id = 6;
+  string model_name = 7;
+  string model_number = 8;
+  int32 amount = 9;
+  int32 min_amount = 10;
+  Timestamp purchase_date = 11;
+  double purchase_cost = 12;
+  string order_number = 13;
+  string notes = 14;
+  map<string, string> tags = 15;
+  bool low_stock = 16;
+  Timestamp created_at = 17;
+  Timestamp updated_at = 18;
+}
+message ConsumableInput {
+  string name = 1; string description = 2; string category_id = 3; string supplier_id = 4; string location_id = 5; string model_name = 6;
+  string model_number = 7; int32 amount = 8; int32 min_amount = 9; Timestamp purchase_date = 10; double purchase_cost = 11;
+  string order_number = 12; string notes = 13; map<string, string> tags = 14;
+}
+message CreateConsumableRequest { string tenant_id = 1; ConsumableInput consumable = 2; }
+message GetConsumableRequest { string tenant_id = 1; string id = 2; }
+message ListConsumablesRequest { string tenant_id = 1; string query = 2; int32 limit = 3; string cursor_id = 4; }
+message ListConsumablesResponse { repeated Consumable consumables = 1; }
+message UpdateConsumableRequest { string tenant_id = 1; string id = 2; ConsumableInput consumable = 3; }
+message DeleteConsumableRequest { string tenant_id = 1; string id = 2; }
+
+service ConsumableService {
+  rpc CreateConsumable(CreateConsumableRequest) returns (Consumable);
+  rpc GetConsumable(GetConsumableRequest) returns (Consumable);
+  rpc ListConsumables(ListConsumablesRequest) returns (ListConsumablesResponse);
+  rpc UpdateConsumable(UpdateConsumableRequest) returns (Consumable);
+  rpc DeleteConsumable(DeleteConsumableRequest) returns (Empty);
+  rpc ListDocuments(ListDocumentsRequest) returns (ListDocumentsResponse);
+  rpc UploadDocument(UploadDocumentRequest) returns (Document);
+  rpc DeleteDocument(DeleteDocumentRequest) returns (Empty);
+  rpc DownloadDocument(DownloadDocumentRequest) returns (DownloadDocumentResponse);
+}
+
+// ---- Licenses
+
+message License {
+  string id = 1;
+  string name = 2;
+  string supplier_id = 3;
+  Timestamp purchase_date = 4;
+  double purchase_cost = 5;
+  string order_number = 6;
+  Timestamp valid_from = 7;
+  Timestamp valid_to = 8;
+  string notes = 9;
+  string status = 10; // active | expired | suspended
+  map<string, string> metadata = 11;
+  Timestamp created_at = 12;
+  Timestamp updated_at = 13;
+}
+message LicenseInput {
+  string name = 1; string supplier_id = 2; Timestamp purchase_date = 3; double purchase_cost = 4; string order_number = 5;
+  Timestamp valid_from = 6; Timestamp valid_to = 7; string notes = 8; string status = 9; map<string, string> metadata = 10;
+}
+message CreateLicenseRequest { string tenant_id = 1; LicenseInput license = 2; }
+message GetLicenseRequest { string tenant_id = 1; string id = 2; }
+message ListLicensesRequest { string tenant_id = 1; string query = 2; int32 limit = 3; string cursor_id = 4; }
+message ListLicensesResponse { repeated License licenses = 1; }
+message UpdateLicenseRequest { string tenant_id = 1; string id = 2; LicenseInput license = 3; }
+message DeleteLicenseRequest { string tenant_id = 1; string id = 2; }
+
+service LicenseService {
+  rpc CreateLicense(CreateLicenseRequest) returns (License);
+  rpc GetLicense(GetLicenseRequest) returns (License);
+  rpc ListLicenses(ListLicensesRequest) returns (ListLicensesResponse);
+  rpc UpdateLicense(UpdateLicenseRequest) returns (License);
+  rpc DeleteLicense(DeleteLicenseRequest) returns (Empty);
+  rpc ListDocuments(ListDocumentsRequest) returns (ListDocumentsResponse);
+  rpc UploadDocument(UploadDocumentRequest) returns (Document);
+  rpc DeleteDocument(DeleteDocumentRequest) returns (Empty);
+  rpc DownloadDocument(DownloadDocumentRequest) returns (DownloadDocumentResponse);
+}
+
+// ---- Insurance
+
+message InsurancePolicy {
+  string id = 1;
+  string name = 2;
+  string policy_number = 3;
+  string provider = 4;
+  string coverage_type = 5; // all_risk | fire_theft | liability | equipment_breakdown | cyber
+  double premium_amount = 6;
+  double deductible = 7;
+  double coverage_limit = 8;
+  Timestamp valid_from = 9;
+  Timestamp valid_to = 10;
+  string status = 11; // active | expired | cancelled
+  string notes = 12;
+  map<string, string> metadata = 13;
+  int64 asset_count = 14;
+  Timestamp created_at = 15;
+  Timestamp updated_at = 16;
+}
+message InsurancePolicyInput {
+  string name = 1; string policy_number = 2; string provider = 3; string coverage_type = 4; double premium_amount = 5; double deductible = 6;
+  double coverage_limit = 7; Timestamp valid_from = 8; Timestamp valid_to = 9; string status = 10; string notes = 11; map<string, string> metadata = 12;
+}
+message PolicyAsset {
+  string id = 1;
+  string policy_id = 2;
+  string asset_id = 3;
+  double covered_value = 4;
+  string notes = 5;
+  string asset_tag = 6;
+  string asset_name = 7;
+  string model_name = 8;
+  string created_by = 9;
+  Timestamp created_at = 10;
+}
+message CreateInsurancePolicyRequest { string tenant_id = 1; InsurancePolicyInput policy = 2; }
+message GetInsurancePolicyRequest { string tenant_id = 1; string id = 2; }
+message ListInsurancePoliciesRequest { string tenant_id = 1; string query = 2; int32 limit = 3; string cursor_id = 4; }
+message ListInsurancePoliciesResponse { repeated InsurancePolicy policies = 1; }
+message UpdateInsurancePolicyRequest { string tenant_id = 1; string id = 2; InsurancePolicyInput policy = 3; }
+message DeleteInsurancePolicyRequest { string tenant_id = 1; string id = 2; }
+message ListPolicyAssetsRequest { string tenant_id = 1; string policy_id = 2; }
+message ListPolicyAssetsResponse { repeated PolicyAsset assets = 1; }
+message AddAssetToPolicyRequest { string tenant_id = 1; string policy_id = 2; string asset_id = 3; double covered_value = 4; string notes = 5; }
+message RemoveAssetFromPolicyRequest { string tenant_id = 1; string policy_id = 2; string asset_id = 3; }
+
+service InsurancePolicyService {
+  rpc CreateInsurancePolicy(CreateInsurancePolicyRequest) returns (InsurancePolicy);
+  rpc GetInsurancePolicy(GetInsurancePolicyRequest) returns (InsurancePolicy);
+  rpc ListInsurancePolicies(ListInsurancePoliciesRequest) returns (ListInsurancePoliciesResponse);
+  rpc UpdateInsurancePolicy(UpdateInsurancePolicyRequest) returns (InsurancePolicy);
+  rpc DeleteInsurancePolicy(DeleteInsurancePolicyRequest) returns (Empty);
+  rpc ListPolicyAssets(ListPolicyAssetsRequest) returns (ListPolicyAssetsResponse);
+  rpc AddAssetToPolicy(AddAssetToPolicyRequest) returns (PolicyAsset);
+  rpc RemoveAssetFromPolicy(RemoveAssetFromPolicyRequest) returns (Empty);
+}
+
+// ---- Users + system
+
+message User { string id = 1; string display_name = 2; string avatar_url = 3; }
+message ListUsersRequest { string tenant_id = 1; string query = 2; }
+message ListUsersResponse { repeated User users = 1; }
+
+service UserService {
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+}
+
+message HealthRequest {}
+message HealthResponse { string status = 1; map<string, string> components = 2; }
+message GetDashboardStatsRequest { string tenant_id = 1; }
+message DashboardStats {
+  int64 total_assets = 1;
+  map<string, int64> assets_by_status = 2;
+  int64 total_consumables = 3;
+  int64 total_suppliers = 4;
+  int64 total_categories = 5;
+  int64 total_locations = 6;
+  int64 total_licenses = 7;
+  int64 total_insurance_policies = 8;
+  double total_cost = 9;
+  double total_depreciated_value = 10;
+  int64 expiring_soon = 11;
+  int64 low_stock = 12;
+  int64 warranty_expiring_soon = 13;
+  int64 licenses_expiring_soon = 14;
+  int64 insurance_expiring_soon = 15;
+  int64 assigned_assets = 16;
+}
+
+service SystemService {
+  rpc Health(HealthRequest) returns (HealthResponse);
+  rpc GetDashboardStats(GetDashboardStatsRequest) returns (DashboardStats);
+}

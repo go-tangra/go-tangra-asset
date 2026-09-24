@@ -1,111 +1,48 @@
-# Makefile for Asset Service
+GO        ?= go
+PKGS      := $(shell $(GO) list ./... | grep -v /ui/)
+COVER_OUT := coverage.out
 
--include ../../../app.mk
+.PHONY: lint vuln test test-integration cover generate ui-build build build-ui image
 
-# Asset-specific variables
-ASSET_IMAGE_NAME ?= menta2l/asset-service
-ASSET_IMAGE_TAG ?= $(VERSION)
-DOCKER_REGISTRY ?=
+lint:
+	$(GO) vet ./...
+	staticcheck ./...
+	gosec -quiet -exclude-generated -exclude-dir=ui ./...
 
-# Build the server binary
-.PHONY: build-server
-build-server:
-	@echo "Building Asset server..."
-	@go build $(GOFLAGS) -ldflags "$(LDFLAGS)" -o ./bin/asset-server ./cmd/server
+vuln:
+	../../scripts/vulncheck.sh
 
-# Build Docker image for Asset service
-.PHONY: docker
-docker:
-	@echo "Building Docker image $(ASSET_IMAGE_NAME):$(ASSET_IMAGE_TAG)..."
-	@docker build \
-		-t $(ASSET_IMAGE_NAME):$(ASSET_IMAGE_TAG) \
-		-t $(ASSET_IMAGE_NAME):latest \
-		--build-arg APP_VERSION=$(VERSION) \
-		-f ./Dockerfile \
-		../../../
-
-# Build Docker image with custom registry
-.PHONY: docker-tag
-docker-tag: docker
-ifdef DOCKER_REGISTRY
-	@echo "Tagging image for registry $(DOCKER_REGISTRY)..."
-	@docker tag $(ASSET_IMAGE_NAME):$(ASSET_IMAGE_TAG) $(DOCKER_REGISTRY)/$(ASSET_IMAGE_NAME):$(ASSET_IMAGE_TAG)
-	@docker tag $(ASSET_IMAGE_NAME):latest $(DOCKER_REGISTRY)/$(ASSET_IMAGE_NAME):latest
-endif
-
-# Push Docker image to registry
-.PHONY: docker-push
-docker-push: docker-tag
-ifdef DOCKER_REGISTRY
-	@echo "Pushing image to $(DOCKER_REGISTRY)..."
-	@docker push $(DOCKER_REGISTRY)/$(ASSET_IMAGE_NAME):$(ASSET_IMAGE_TAG)
-	@docker push $(DOCKER_REGISTRY)/$(ASSET_IMAGE_NAME):latest
-else
-	@echo "Pushing image to Docker Hub..."
-	@docker push $(ASSET_IMAGE_NAME):$(ASSET_IMAGE_TAG)
-	@docker push $(ASSET_IMAGE_NAME):latest
-endif
-
-# Build multi-platform Docker image
-.PHONY: docker-buildx
-docker-buildx:
-	@echo "Building multi-platform Docker image..."
-	@docker buildx build \
-		--platform linux/amd64,linux/arm64 \
-		-t $(ASSET_IMAGE_NAME):$(ASSET_IMAGE_TAG) \
-		-t $(ASSET_IMAGE_NAME):latest \
-		--build-arg APP_VERSION=$(VERSION) \
-		-f ./Dockerfile \
-		../../../
-
-# Run the server locally
-.PHONY: run-server
-run-server:
-	@go run ./cmd/server -c ./configs
-
-# Generate ent schema
-.PHONY: ent
-ent:
-ifneq ("$(wildcard ./internal/data/ent)","")
-	@ent generate \
-		--feature sql/modifier \
-		--feature sql/upsert \
-		--feature sql/lock \
-		./internal/data/ent/schema
-endif
-
-# Generate proto descriptor for dynamic routing
-.PHONY: descriptor
-descriptor:
-	@echo "Generating proto descriptor..."
-	@buf build -o cmd/server/assets/descriptor.bin --exclude-source-info
-	@echo "Proto descriptor generated: cmd/server/assets/descriptor.bin"
-
-# Generate wire dependencies
-.PHONY: wire
-wire:
-	@cd ./cmd/server && wire
-
-# Run tests
-.PHONY: test
 test:
-	@go test -v ./...
+	$(GO) test -race -count=1 ./...
 
-# Run tests with coverage
-.PHONY: test-cover
-test-cover:
-	@go test -v -coverprofile=coverage.out ./...
-	@go tool cover -html=coverage.out -o coverage.html
-	@echo "Coverage report generated: coverage.html"
+test-integration:
+	$(GO) test -race -count=1 -tags integration ./internal/repo/repodb/ ./tests/integration/...
 
-# Clean build artifacts
-.PHONY: clean
-clean:
-	@rm -rf ./bin
-	@rm -f coverage.out coverage.html
-	@echo "Clean complete!"
+# Generated protobuf, SQL bindings (internal/store, */*db), wiring (internal/app,
+# cmd) and test packages are exercised by the tagged integration suite and are
+# excluded from the unit gate on purpose.
+COVERPKG := $(shell $(GO) list ./... | grep -v -E '/api/|/internal/store$$|db$$|/internal/app$$|/valkeykv$$|/cmd/|/tests/|/ui|/internal/stream' | paste -sd, -)
 
-# Generate all (ent + wire + proto)
-.PHONY: generate
-generate: ent wire
-	@echo "Generation complete!"
+cover:
+	$(GO) test -count=1 -coverprofile=$(COVER_OUT) -coverpkg=$(COVERPKG) $(PKGS)
+	./scripts/coverage-gate.sh $(COVER_OUT)
+
+generate:
+	buf generate
+
+# Build the federated UI remote (produces ui/dist consumed by the -tags ui build).
+ui-build:
+	cd ui && npm ci && npm run build
+
+# Build the service binary without the embedded UI.
+build:
+	$(GO) build -o bin/assetsvc ./cmd/assetsvc
+
+# Build the service binary with the embedded UI remote (requires ui-build first).
+build-ui: ui-build
+	$(GO) build -tags "ui" -o bin/assetsvc ./cmd/assetsvc
+
+# Build the container image (context is the repo root so replace directives resolve).
+image:
+	docker build -f Dockerfile -t assetsvc ../..
+
