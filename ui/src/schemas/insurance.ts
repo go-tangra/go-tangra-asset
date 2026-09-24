@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { nonEmpty, optionalString, isoDate, money, dateRange } from '@freya/ui/forms'
+import { nonEmpty, optionalString, isoDate, money, dateRange } from '@go-tangra/ui/forms'
 import { optionalEnum } from './common'
 
 export const POLICY_STATUSES = ['active', 'expired', 'cancelled'] as const

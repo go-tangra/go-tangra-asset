@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { UiPage, UiAlert, UiCard, UiInput, UiButton, UiDataTable, UiStatusChip, UiRecordDrawer, useConfirm, type Column } from '@freya/ui'
-import { zodToFields } from '@freya/ui/forms'
+import { UiPage, UiAlert, UiCard, UiInput, UiButton, UiDataTable, UiStatusChip, UiRecordDrawer, useConfirm, type Column } from '@go-tangra/ui'
+import { zodToFields } from '@go-tangra/ui/forms'
 import { useOrg } from '@/stores/org'
 import { describe } from '@/api/client'
 import { supplierSchema, SUPPLIER_STATUSES } from '@/schemas'

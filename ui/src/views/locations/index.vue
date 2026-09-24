@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { UiPage, UiAlert, UiCard, UiButton, UiTree, UiEmptyState, UiToolbar, UiBadge, UiStatusChip, UiKeyValueTable, UiRecordDrawer, useConfirm, type TreeNode } from '@freya/ui'
-import { zodToFields } from '@freya/ui/forms'
+import { UiPage, UiAlert, UiCard, UiButton, UiTree, UiEmptyState, UiToolbar, UiBadge, UiStatusChip, UiKeyValueTable, UiRecordDrawer, useConfirm, type TreeNode } from '@go-tangra/ui'
+import { zodToFields } from '@go-tangra/ui/forms'
 import { useOrg } from '@/stores/org'
 import { describe } from '@/api/client'
 import { locationSchema, LOCATION_STATUSES } from '@/schemas'

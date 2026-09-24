@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { UiPage, UiAlert, UiCard, UiButton, UiStatusChip, UiKeyValueTable, UiDataTable, UiDocumentList, UiForm, UiCombobox, UiSelect, UiInput, UiFilePicker, UiBadge, UiDrawer, UiRecordDrawer, useConfirm, type Column } from '@freya/ui'
-import { zodToFields, useZodForm } from '@freya/ui/forms'
+import { UiPage, UiAlert, UiCard, UiButton, UiStatusChip, UiKeyValueTable, UiDataTable, UiDocumentList, UiForm, UiCombobox, UiSelect, UiInput, UiFilePicker, UiBadge, UiDrawer, UiRecordDrawer, useConfirm, type Column } from '@go-tangra/ui'
+import { zodToFields, useZodForm } from '@go-tangra/ui/forms'
 import { useAssets } from '@/stores/assets'
 import { useOrg } from '@/stores/org'
 import { useDocuments } from '@/stores/documents'

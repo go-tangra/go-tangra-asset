@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { nonEmpty, optionalString, money } from '@freya/ui/forms'
+import { nonEmpty, optionalString, money } from '@go-tangra/ui/forms'
 
 export const policyAssetSchema = z.object({
   asset_id: nonEmpty(64),

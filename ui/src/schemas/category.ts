@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { nonEmpty, optionalString, tagMap } from '@freya/ui/forms'
+import { nonEmpty, optionalString, tagMap } from '@go-tangra/ui/forms'
 import { ref } from './common'
 
 export const categorySchema = z.object({

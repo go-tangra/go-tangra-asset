@@ -1,6 +1,6 @@
 // Field primitives shared by the asset schemas (on top of the kit's).
 import { z } from 'zod'
-import { optionalString } from '@freya/ui/forms'
+import { optionalString } from '@go-tangra/ui/forms'
 
 /** Optional reference to another record (select fields); blank → undefined. */
 export const ref = optionalString(64)

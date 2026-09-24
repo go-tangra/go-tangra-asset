@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { UiPage, UiAlert, UiCard, UiButton, UiDataTable, UiStatGrid, UiStatTile, UiStatusChip, UiEmptyState, type Column } from '@freya/ui'
+import { UiPage, UiAlert, UiCard, UiButton, UiDataTable, UiStatGrid, UiStatTile, UiStatusChip, UiEmptyState, type Column } from '@go-tangra/ui'
 import { useSync } from '@/stores/sync'
 import type { SyncChange } from '@/api/types'
 

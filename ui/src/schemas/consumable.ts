@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { nonEmpty, optionalString, isoDate, money, positiveInt } from '@freya/ui/forms'
+import { nonEmpty, optionalString, isoDate, money, positiveInt } from '@go-tangra/ui/forms'
 import { ref } from './common'
 
 export const consumableSchema = z.object({

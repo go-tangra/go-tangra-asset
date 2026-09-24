@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { nonEmpty, optionalString, isoDate, money, positiveInt, tagMap } from '@freya/ui/forms'
+import { nonEmpty, optionalString, isoDate, money, positiveInt, tagMap } from '@go-tangra/ui/forms'
 import { ref, optionalEnum } from './common'
 
 export const ASSET_STATUSES = ['deployable', 'broken', 'archived'] as const

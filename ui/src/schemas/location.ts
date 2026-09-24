@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { nonEmpty, optionalString, email } from '@freya/ui/forms'
+import { nonEmpty, optionalString, email } from '@go-tangra/ui/forms'
 import { ref, optionalEnum } from './common'
 
 export const LOCATION_STATUSES = ['active', 'planned', 'decommissioned'] as const

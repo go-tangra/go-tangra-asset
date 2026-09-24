@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { nonEmpty, optionalString, isoDate, money, dateRange } from '@freya/ui/forms'
+import { nonEmpty, optionalString, isoDate, money, dateRange } from '@go-tangra/ui/forms'
 import { ref, optionalEnum } from './common'
 
 export const LICENSE_STATUSES = ['active', 'expired', 'suspended'] as const
