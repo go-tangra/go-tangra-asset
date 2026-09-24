@@ -15,8 +15,10 @@ vuln:
 test:
 	$(GO) test -race -count=1 ./...
 
+# Docker-backed suites (testcontainers) carry the integration build tag next to
+# the code they exercise.
 test-integration:
-	$(GO) test -race -count=1 -tags integration ./internal/repo/repodb/ ./tests/integration/...
+	$(GO) test -race -count=1 -tags integration ./...
 
 # Generated protobuf, SQL bindings (internal/store, */*db), wiring (internal/app,
 # cmd) and test packages are exercised by the tagged integration suite and are
@@ -42,7 +44,7 @@ build:
 build-ui: ui-build
 	$(GO) build -tags "ui" -o bin/assetsvc ./cmd/assetsvc
 
-# Build the container image (context is the repo root so replace directives resolve).
+# Build the container image; NODE_AUTH_TOKEN (read:packages) installs @go-tangra/ui.
 image:
-	docker build -f Dockerfile -t assetsvc ../..
+	DOCKER_BUILDKIT=1 docker buildx build --secret id=npm_token,env=NODE_AUTH_TOKEN -t go-tangra-asset:dev .
 
