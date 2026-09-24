@@ -97,7 +97,7 @@ A cross-tenant restore gets fresh ids with the foreign keys rewritten.
 
 ## Dev stack
 
-`deploy/stack` adds the `asset` database/role, Valkey user, gateway allow-list
+`deploy/stack` in go-tangra/go-tangra adds the `asset` database/role, Valkey user, gateway allow-list
 entry (`spiffe://example.org/svc/asset=/api/asset;asset`), the enrollment-token
 mint (`asset-token`) and the `asset` service (`configs/asset.yaml`, sharing the
 RustFS dev credentials with its own `asset` bucket). The UI remote is served
@@ -106,8 +106,8 @@ Consumables, Licenses, Insurance, Inventory Sync, Dashboard.
 
 ## UI
 
-The remote under `services/asset/ui` is built on the shared kit `@freya/ui` (FlyonUI + Zod,
-see `docs/frontend.md`): forms validate through Zod schemas in `src/schemas/`, the
+The remote under `ui/` is built on the shared kit `@go-tangra/ui` (FlyonUI + Zod),
+installed from GitHub Packages: forms validate through Zod schemas in `src/schemas/`, the
 shell provides the theme and shared singletons, and `npm run lint` runs
-`check-no-legacy`. Rebuild the image after UI changes; the Dockerfile builds `ui/kit`
-first.
+`go-tangra-ui-check-no-legacy`. Rebuild the image after UI changes; the Dockerfile builds
+the remote and embeds it into `assetsvc` (`-tags ui`).
