@@ -12,7 +12,7 @@ syntax = "proto3";
 // listing. A full/cross-tenant backup restore is not exposed here.
 package asset.v1;
 
-option go_package = "github.com/go-freya/freya/services/asset/api/proto/asset/v1;assetv1";
+option go_package = "github.com/go-tangra/go-tangra-asset/v4/api/proto/asset/v1;assetv1";
 
 // ---- Common
 

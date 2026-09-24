@@ -14,11 +14,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-freya/freya/services/asset/internal/audit"
-	"github.com/go-freya/freya/services/asset/internal/config"
-	"github.com/go-freya/freya/services/asset/internal/events"
-	"github.com/go-freya/freya/services/asset/internal/repo"
-	"github.com/go-freya/freya/services/asset/internal/store"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/audit"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/config"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/events"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/repo"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
 )
 
 // Notify states.

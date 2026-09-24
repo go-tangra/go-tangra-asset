@@ -23,9 +23,9 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 
-	"github.com/go-freya/freya/services/asset/internal/repo"
-	"github.com/go-freya/freya/services/asset/internal/repo/repodb"
-	"github.com/go-freya/freya/services/asset/internal/store"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/repo"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/repo/repodb"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
 )
 
 const (

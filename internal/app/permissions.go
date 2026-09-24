@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/go-freya/freya/services/asset/pkg/assetmanifest"
+	"github.com/go-tangra/go-tangra-asset/v4/pkg/assetmanifest"
 )
 
 // SeedPermissions registers the module's permissions + built-in role grants with

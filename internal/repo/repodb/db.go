@@ -16,8 +16,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 
-	"github.com/go-freya/freya/services/asset/internal/repo"
-	"github.com/go-freya/freya/services/asset/internal/store"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/repo"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
 )
 
 // DB implements repo.Store over *store.Store.

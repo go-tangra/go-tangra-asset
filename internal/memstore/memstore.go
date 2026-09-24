@@ -17,9 +17,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-freya/freya/services/asset/internal/deprec"
-	"github.com/go-freya/freya/services/asset/internal/repo"
-	"github.com/go-freya/freya/services/asset/internal/store"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/deprec"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/repo"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
 )
 
 // injectedErr is the error FailNext arms for a given method.

@@ -3,17 +3,17 @@ package grpcapi
 import (
 	"time"
 
-	assetv1 "github.com/go-freya/freya/services/asset/api/proto/asset/v1"
-	"github.com/go-freya/freya/services/asset/internal/assets"
-	"github.com/go-freya/freya/services/asset/internal/categories"
-	"github.com/go-freya/freya/services/asset/internal/consumables"
-	"github.com/go-freya/freya/services/asset/internal/insurance"
-	"github.com/go-freya/freya/services/asset/internal/invsync"
-	"github.com/go-freya/freya/services/asset/internal/licenses"
-	"github.com/go-freya/freya/services/asset/internal/locations"
-	"github.com/go-freya/freya/services/asset/internal/stats"
-	"github.com/go-freya/freya/services/asset/internal/store"
-	"github.com/go-freya/freya/services/asset/internal/suppliers"
+	assetv1 "github.com/go-tangra/go-tangra-asset/v4/api/proto/asset/v1"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/assets"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/categories"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/consumables"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/insurance"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/invsync"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/licenses"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/locations"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/stats"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/suppliers"
 )
 
 func ts(t time.Time) *assetv1.Timestamp {

@@ -13,13 +13,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-freya/freya/services/asset/internal/assets"
-	"github.com/go-freya/freya/services/asset/internal/audit"
-	"github.com/go-freya/freya/services/asset/internal/authz"
-	"github.com/go-freya/freya/services/asset/internal/deprec"
-	"github.com/go-freya/freya/services/asset/internal/invclient"
-	"github.com/go-freya/freya/services/asset/internal/repo"
-	"github.com/go-freya/freya/services/asset/internal/store"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/assets"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/audit"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/authz"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/deprec"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/invclient"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/repo"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
 )
 
 // ErrUnavailable is returned when the inventory module cannot be reached.

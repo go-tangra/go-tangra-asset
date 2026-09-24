@@ -5,7 +5,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 
-	"github.com/go-freya/freya/services/asset/api/openapi"
+	"github.com/go-tangra/go-tangra-asset/v4/api/openapi"
 )
 
 // TestOpenAPIParsesAndValidates confirms the embedded document loads and passes

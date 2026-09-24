@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/go-freya/freya/services/asset/internal/repo"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/repo"
 )
 
 // Error is a refusal with a stable reason from the OpenAPI closed vocabulary.

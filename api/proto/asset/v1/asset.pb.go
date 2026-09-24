@@ -7609,7 +7609,7 @@ const file_asset_v1_asset_proto_rawDesc = "" +
 	"\tListUsers\x12\x1a.asset.v1.ListUsersRequest\x1a\x1b.asset.v1.ListUsersResponse2\x9f\x01\n" +
 	"\rSystemService\x12;\n" +
 	"\x06Health\x12\x17.asset.v1.HealthRequest\x1a\x18.asset.v1.HealthResponse\x12Q\n" +
-	"\x11GetDashboardStats\x12\".asset.v1.GetDashboardStatsRequest\x1a\x18.asset.v1.DashboardStatsBEZCgithub.com/go-freya/freya/services/asset/api/proto/asset/v1;assetv1b\x06proto3"
+	"\x11GetDashboardStats\x12\".asset.v1.GetDashboardStatsRequest\x1a\x18.asset.v1.DashboardStatsBDZBgithub.com/go-tangra/go-tangra-asset/v4/api/proto/asset/v1;assetv1b\x06proto3"
 
 var (
 	file_asset_v1_asset_proto_rawDescOnce sync.Once

@@ -8,11 +8,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/go-freya/freya/services/asset/internal/authz"
-	"github.com/go-freya/freya/services/asset/internal/config"
-	"github.com/go-freya/freya/services/asset/internal/deprec"
-	"github.com/go-freya/freya/services/asset/internal/repo"
-	"github.com/go-freya/freya/services/asset/internal/store"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/authz"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/config"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/deprec"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/repo"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
 )
 
 // Service computes statistics.

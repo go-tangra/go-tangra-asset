@@ -3,7 +3,7 @@ package httpapi
 import (
 	"strings"
 
-	"github.com/go-freya/freya/services/asset/internal/authz"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/authz"
 )
 
 // subjectsT is the caller subject handlers receive.

@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-freya/freya/services/asset/internal/audit"
-	"github.com/go-freya/freya/services/asset/internal/authz"
-	"github.com/go-freya/freya/services/asset/internal/repo"
-	"github.com/go-freya/freya/services/asset/internal/store"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/audit"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/authz"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/repo"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
 )
 
 // ErrNotFound is returned when a license does not exist within the caller's tenant.

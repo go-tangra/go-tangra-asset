@@ -25,14 +25,14 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 
-	"github.com/go-freya/freya"
-	"github.com/go-freya/freya/services/auth/pkg/authclient"
+	"github.com/go-tangra/go-tangra-auth/sdk/v4/pkg/authclient"
+	"github.com/go-tangra/go-tangra/v4"
 
-	"github.com/go-freya/freya/services/asset/internal/app"
-	"github.com/go-freya/freya/services/asset/internal/blob"
-	"github.com/go-freya/freya/services/asset/internal/config"
-	"github.com/go-freya/freya/services/asset/internal/invclient"
-	"github.com/go-freya/freya/services/asset/internal/userdir"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/app"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/blob"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/config"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/invclient"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/userdir"
 )
 
 const appTenant = "11111111-1111-7111-8111-111111111111"

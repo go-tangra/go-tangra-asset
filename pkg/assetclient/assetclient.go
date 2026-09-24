@@ -15,7 +15,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	assetv1 "github.com/go-freya/freya/services/asset/api/proto/asset/v1"
+	assetv1 "github.com/go-tangra/go-tangra-asset/v4/api/proto/asset/v1"
 )
 
 // Client calls the asset.v1 API over a caller-provided gRPC connection.

@@ -4,7 +4,7 @@
 # sealed envelopes, and the pure depreciation library).
 set -euo pipefail
 PROFILE="${1:-coverage.out}"
-MODULE="github.com/go-freya/freya/services/asset"
+MODULE="github.com/go-tangra/go-tangra-asset/v4"
 SECURITY_PKGS=("internal/authz" "internal/sealed" "internal/deprec")
 total=$(go tool cover -func="$PROFILE" | awk '/^total:/ {gsub("%","",$3); print $3}')
 echo "coverage: total ${total}%"

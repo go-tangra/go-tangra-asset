@@ -12,8 +12,8 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
 
-	assetv1 "github.com/go-freya/freya/services/asset/api/proto/asset/v1"
-	"github.com/go-freya/freya/services/asset/pkg/assetclient"
+	assetv1 "github.com/go-tangra/go-tangra-asset/v4/api/proto/asset/v1"
+	"github.com/go-tangra/go-tangra-asset/v4/pkg/assetclient"
 )
 
 type stubAssets struct {

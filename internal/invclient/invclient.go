@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-freya/freya/services/inventory/pkg/inventoryclient"
+	"github.com/go-tangra/go-tangra-inventory/sdk/v4/pkg/inventoryclient"
 	"google.golang.org/grpc"
 )
 

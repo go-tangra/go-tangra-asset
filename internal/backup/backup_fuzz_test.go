@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/go-freya/freya/services/asset/internal/authz"
-	"github.com/go-freya/freya/services/asset/internal/memstore"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/authz"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/memstore"
 )
 
 // FuzzImportParser: arbitrary JSON documents never panic the validator or the

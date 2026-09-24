@@ -1,4 +1,4 @@
-module github.com/go-freya/freya/services/asset
+module github.com/go-tangra/go-tangra-asset/v4
 
 go 1.26.3
 
@@ -6,10 +6,11 @@ toolchain go1.26.8
 
 require (
 	github.com/getkin/kin-openapi v0.149.0
-	github.com/go-freya/freya v0.0.0-00010101000000-000000000000
-	github.com/go-freya/freya/services/auth v0.0.0-00010101000000-000000000000
-	github.com/go-freya/freya/services/gateway v0.0.0-00010101000000-000000000000
-	github.com/go-freya/freya/services/lcm v0.0.0-00010101000000-000000000000
+	github.com/go-tangra/go-tangra-auth/sdk/v4 v4.0.0
+	github.com/go-tangra/go-tangra-inventory/sdk/v4 v4.0.0
+	github.com/go-tangra/go-tangra-lcm/sdk/v4 v4.0.0
+	github.com/go-tangra/go-tangra-portal/sdk/v4 v4.0.0
+	github.com/go-tangra/go-tangra/v4 v4.0.0
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/pressly/goose/v3 v3.28.0
 	github.com/testcontainers/testcontainers-go v0.44.0
@@ -50,6 +51,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
+	github.com/rogpeppe/go-internal v1.16.0 // indirect
 	github.com/shirou/gopsutil/v4 v4.26.8 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/stretchr/testify v1.12.1 // indirect
@@ -63,7 +65,6 @@ require (
 require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/go-freya/freya/services/inventory v0.0.0-00010101000000-000000000000
 	github.com/go-kratos/kratos/v3 v3.0.0 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -109,13 +110,3 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260831171406-18b4a7587f8a // indirect
 	gopkg.in/ini.v1 v1.67.3 // indirect
 )
-
-replace github.com/go-freya/freya => ../..
-
-replace github.com/go-freya/freya/services/auth => ../auth
-
-replace github.com/go-freya/freya/services/gateway => ../gateway
-
-replace github.com/go-freya/freya/services/lcm => ../lcm
-
-replace github.com/go-freya/freya/services/inventory => ../inventory

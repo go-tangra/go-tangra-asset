@@ -5,9 +5,9 @@ import (
 	"context"
 	"strings"
 
-	assetv1 "github.com/go-freya/freya/services/asset/api/proto/asset/v1"
-	"github.com/go-freya/freya/services/asset/internal/documents"
-	"github.com/go-freya/freya/services/asset/internal/store"
+	assetv1 "github.com/go-tangra/go-tangra-asset/v4/api/proto/asset/v1"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/documents"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
 )
 
 // ---- documents (shared by Asset/Consumable/License services)

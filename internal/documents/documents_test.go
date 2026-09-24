@@ -8,10 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-freya/freya/services/asset/internal/authz"
-	"github.com/go-freya/freya/services/asset/internal/blob"
-	"github.com/go-freya/freya/services/asset/internal/memstore"
-	"github.com/go-freya/freya/services/asset/internal/store"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/authz"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/blob"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/memstore"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
 )
 
 const (

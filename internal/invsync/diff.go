@@ -4,8 +4,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/go-freya/freya/services/asset/internal/invclient"
-	"github.com/go-freya/freya/services/asset/internal/store"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/invclient"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
 )
 
 // Change actions.

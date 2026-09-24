@@ -3,8 +3,8 @@ package invsync
 import (
 	"testing"
 
-	"github.com/go-freya/freya/services/asset/internal/invclient"
-	"github.com/go-freya/freya/services/asset/internal/store"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/invclient"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
 )
 
 // FuzzDiff asserts the host↔asset diff never panics and yields exactly one

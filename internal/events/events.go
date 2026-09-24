@@ -8,7 +8,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/go-freya/freya/services/asset/internal/stream"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/stream"
 )
 
 // Event types published to platform:events:<tenant>.
