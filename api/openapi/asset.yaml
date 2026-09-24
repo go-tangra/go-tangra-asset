@@ -1,0 +1,177 @@
+openapi: 3.1.0
+info:
+  title: Asset API
+  version: 0.1.0
+  description: >
+    IT asset management: assets with an assign/unassign lifecycle, photos and
+    documents in object storage, categories and locations (trees), suppliers,
+    consumables, licenses, insurance policies with per-asset coverage, inventory
+    sync against the platform inventory module, server-side depreciation,
+    dashboard statistics and tenant backup. Gateway-proxied under /api/asset.
+    Every route declares an x-freya-permission (or x-freya-public). No response
+    carries object-store credentials or sealed supplier/location contact PII.
+servers:
+  - url: /
+components:
+  parameters:
+    csrf:
+      name: X-CSRF-Token
+      in: header
+      required: true
+      schema: { type: string, maxLength: 128 }
+    id:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, maxLength: 64 }
+      example: '018f3a2b-0000-7000-8000-000000000001'
+    docId:
+      name: doc_id
+      in: path
+      required: true
+      schema: { type: string, maxLength: 64 }
+      example: '018f3a2b-0000-7000-8000-000000000002'
+    assetId:
+      name: asset_id
+      in: path
+      required: true
+      schema: { type: string, maxLength: 64 }
+      example: '018f3a2b-0000-7000-8000-000000000003'
+    cursor:
+      name: cursor
+      in: query
+      required: false
+      schema: { type: string, maxLength: 64 }
+    limit:
+      name: limit
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, maximum: 500 }
+    query:
+      name: query
+      in: query
+      required: false
+      schema: { type: string, maxLength: 200 }
+  schemas:
+    Error:
+      type: object
+      properties:
+        reason: { type: string }
+        detail: { type: object }
+      example:
+        reason: not_found
+        detail: {}
+paths:
+  # ---- Assets
+  /api/asset/v1/assets:
+    get: { operationId: listAssets, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/query' }, { name: status, in: query, schema: { type: string, maxLength: 32 } }, { name: category_id, in: query, schema: { type: string, maxLength: 64 } }, { name: supplier_id, in: query, schema: { type: string, maxLength: 64 } }, { name: location_id, in: query, schema: { type: string, maxLength: 64 } }, { name: user_id, in: query, schema: { type: string, maxLength: 64 } }], responses: { '200': { description: list } } }
+    post: { operationId: createAsset, x-freya-permission: 'assets:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '201': { description: created }, '409': { description: conflict } } }
+  /api/asset/v1/assets/inventory-sync/preview:
+    post: { operationId: inventorySyncPreview, x-freya-permission: 'inventory:sync', x-freya-timeout-seconds: 60, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '200': { description: 'sync preview (create/update/unchanged)' }, '503': { description: 'inventory unavailable' } } }
+  /api/asset/v1/assets/inventory-sync/execute:
+    post: { operationId: inventorySyncExecute, x-freya-permission: 'inventory:sync', x-freya-max-body-bytes: 1048576, x-freya-timeout-seconds: 120, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '200': { description: 'sync result' }, '503': { description: 'inventory unavailable' } } }
+  /api/asset/v1/assets/{id}:
+    get: { operationId: getAsset, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: 'asset (with computed book value)' }, '404': { description: not_found } } }
+    put: { operationId: updateAsset, x-freya-permission: 'assets:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: updated }, '404': { description: not_found }, '409': { description: conflict } } }
+    delete: { operationId: deleteAsset, x-freya-permission: 'assets:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '204': { description: deleted } } }
+  /api/asset/v1/assets/{id}/assign:
+    post: { operationId: assignAsset, x-freya-permission: 'assets:assign', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: assigned }, '409': { description: 'not deployable' } } }
+  /api/asset/v1/assets/{id}/unassign:
+    post: { operationId: unassignAsset, x-freya-permission: 'assets:assign', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: unassigned }, '409': { description: 'not assigned' } } }
+  /api/asset/v1/assets/{id}/assignments:
+    get: { operationId: listAssetAssignments, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }, { $ref: '#/components/parameters/limit' }], responses: { '200': { description: 'assignment history (newest first)' } } }
+  /api/asset/v1/assets/{id}/photo:
+    get: { operationId: getAssetPhoto, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: 'photo bytes' }, '404': { description: not_found } } }
+    post: { operationId: uploadAssetPhoto, x-freya-permission: 'documents:manage', x-freya-max-body-bytes: 20971520, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: 'photo stored' } } }
+    delete: { operationId: deleteAssetPhoto, x-freya-permission: 'documents:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '204': { description: deleted } } }
+  /api/asset/v1/assets/{id}/documents:
+    get: { operationId: listAssetDocuments, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: documents } } }
+    post: { operationId: uploadAssetDocument, x-freya-permission: 'documents:manage', x-freya-max-body-bytes: 20971520, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '201': { description: uploaded } } }
+  /api/asset/v1/assets/{id}/documents/{doc_id}:
+    delete: { operationId: deleteAssetDocument, x-freya-permission: 'documents:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }, { $ref: '#/components/parameters/docId' }], responses: { '204': { description: deleted } } }
+  /api/asset/v1/assets/{id}/documents/{doc_id}/download:
+    get: { operationId: downloadAssetDocument, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }, { $ref: '#/components/parameters/docId' }], responses: { '200': { description: 'document bytes' }, '404': { description: not_found } } }
+  # ---- Categories
+  /api/asset/v1/categories:
+    get: { operationId: listCategories, x-freya-permission: 'assets:read', responses: { '200': { description: list } } }
+    post: { operationId: createCategory, x-freya-permission: 'categories:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '201': { description: created }, '409': { description: conflict } } }
+  /api/asset/v1/categories/tree:
+    get: { operationId: getCategoryTree, x-freya-permission: 'assets:read', responses: { '200': { description: 'nested tree with counts' } } }
+  /api/asset/v1/categories/{id}:
+    get: { operationId: getCategory, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: category }, '404': { description: not_found } } }
+    put: { operationId: updateCategory, x-freya-permission: 'categories:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: updated } } }
+    delete: { operationId: deleteCategory, x-freya-permission: 'categories:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '204': { description: deleted }, '409': { description: 'in use' } } }
+  # ---- Suppliers
+  /api/asset/v1/suppliers:
+    get: { operationId: listSuppliers, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/query' }], responses: { '200': { description: list } } }
+    post: { operationId: createSupplier, x-freya-permission: 'suppliers:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '201': { description: created }, '409': { description: conflict } } }
+  /api/asset/v1/suppliers/{id}:
+    get: { operationId: getSupplier, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: 'supplier (contact PII redacted unless admin)' }, '404': { description: not_found } } }
+    put: { operationId: updateSupplier, x-freya-permission: 'suppliers:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: updated } } }
+    delete: { operationId: deleteSupplier, x-freya-permission: 'suppliers:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '204': { description: deleted }, '409': { description: 'in use' } } }
+  # ---- Locations
+  /api/asset/v1/locations:
+    get: { operationId: listLocations, x-freya-permission: 'assets:read', responses: { '200': { description: list } } }
+    post: { operationId: createLocation, x-freya-permission: 'locations:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '201': { description: created }, '409': { description: conflict } } }
+  /api/asset/v1/locations/tree:
+    get: { operationId: getLocationTree, x-freya-permission: 'assets:read', responses: { '200': { description: 'nested tree with counts' } } }
+  /api/asset/v1/locations/{id}:
+    get: { operationId: getLocation, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: 'location (contact PII redacted unless admin)' }, '404': { description: not_found } } }
+    put: { operationId: updateLocation, x-freya-permission: 'locations:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: updated } } }
+    delete: { operationId: deleteLocation, x-freya-permission: 'locations:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '204': { description: deleted }, '409': { description: 'in use' } } }
+  # ---- Consumables
+  /api/asset/v1/consumables:
+    get: { operationId: listConsumables, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/query' }], responses: { '200': { description: list } } }
+    post: { operationId: createConsumable, x-freya-permission: 'consumables:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '201': { description: created } } }
+  /api/asset/v1/consumables/{id}:
+    get: { operationId: getConsumable, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: consumable }, '404': { description: not_found } } }
+    put: { operationId: updateConsumable, x-freya-permission: 'consumables:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: updated } } }
+    delete: { operationId: deleteConsumable, x-freya-permission: 'consumables:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '204': { description: deleted } } }
+  /api/asset/v1/consumables/{id}/documents:
+    get: { operationId: listConsumableDocuments, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: documents } } }
+    post: { operationId: uploadConsumableDocument, x-freya-permission: 'documents:manage', x-freya-max-body-bytes: 20971520, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '201': { description: uploaded } } }
+  /api/asset/v1/consumables/{id}/documents/{doc_id}:
+    delete: { operationId: deleteConsumableDocument, x-freya-permission: 'documents:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }, { $ref: '#/components/parameters/docId' }], responses: { '204': { description: deleted } } }
+  /api/asset/v1/consumables/{id}/documents/{doc_id}/download:
+    get: { operationId: downloadConsumableDocument, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }, { $ref: '#/components/parameters/docId' }], responses: { '200': { description: 'document bytes' } } }
+  # ---- Licenses
+  /api/asset/v1/licenses:
+    get: { operationId: listLicenses, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/query' }], responses: { '200': { description: list } } }
+    post: { operationId: createLicense, x-freya-permission: 'licenses:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '201': { description: created } } }
+  /api/asset/v1/licenses/{id}:
+    get: { operationId: getLicense, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: license }, '404': { description: not_found } } }
+    put: { operationId: updateLicense, x-freya-permission: 'licenses:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: updated } } }
+    delete: { operationId: deleteLicense, x-freya-permission: 'licenses:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '204': { description: deleted } } }
+  /api/asset/v1/licenses/{id}/documents:
+    get: { operationId: listLicenseDocuments, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: documents } } }
+    post: { operationId: uploadLicenseDocument, x-freya-permission: 'documents:manage', x-freya-max-body-bytes: 20971520, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '201': { description: uploaded } } }
+  /api/asset/v1/licenses/{id}/documents/{doc_id}:
+    delete: { operationId: deleteLicenseDocument, x-freya-permission: 'documents:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }, { $ref: '#/components/parameters/docId' }], responses: { '204': { description: deleted } } }
+  /api/asset/v1/licenses/{id}/documents/{doc_id}/download:
+    get: { operationId: downloadLicenseDocument, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }, { $ref: '#/components/parameters/docId' }], responses: { '200': { description: 'document bytes' } } }
+  # ---- Insurance policies
+  /api/asset/v1/insurance-policies:
+    get: { operationId: listInsurancePolicies, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/query' }], responses: { '200': { description: list } } }
+    post: { operationId: createInsurancePolicy, x-freya-permission: 'insurance:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '201': { description: created }, '409': { description: conflict } } }
+  /api/asset/v1/insurance-policies/{id}:
+    get: { operationId: getInsurancePolicy, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: policy }, '404': { description: not_found } } }
+    put: { operationId: updateInsurancePolicy, x-freya-permission: 'insurance:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: updated } } }
+    delete: { operationId: deleteInsurancePolicy, x-freya-permission: 'insurance:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '204': { description: deleted } } }
+  /api/asset/v1/insurance-policies/{id}/assets:
+    get: { operationId: listPolicyAssets, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: 'covered assets' } } }
+    post: { operationId: addAssetToPolicy, x-freya-permission: 'insurance:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '201': { description: added }, '409': { description: 'already covered' } } }
+  /api/asset/v1/insurance-policies/{id}/assets/{asset_id}:
+    delete: { operationId: removeAssetFromPolicy, x-freya-permission: 'insurance:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }, { $ref: '#/components/parameters/assetId' }], responses: { '204': { description: removed } } }
+  # ---- Users (assignee directory), system, backup, realtime
+  /api/asset/v1/users:
+    get: { operationId: listUsers, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/query' }], responses: { '200': { description: 'tenant users (id + display name)' } } }
+  /api/asset/v1/health:
+    get: { operationId: health, x-freya-public: true, responses: { '200': { description: healthy } } }
+  /api/asset/v1/stats:
+    get: { operationId: getDashboardStats, x-freya-permission: 'stats:read', responses: { '200': { description: 'dashboard statistics' } } }
+  /api/asset/v1/backup/export:
+    post: { operationId: exportBackup, x-freya-permission: 'backup:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '200': { description: export } } }
+  /api/asset/v1/backup/import:
+    post: { operationId: importBackup, x-freya-permission: 'backup:manage', x-freya-max-body-bytes: 33554432, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '200': { description: imported }, '403': { description: 'full restore requires platform-admin' } } }
+  /api/asset/v1/stream:
+    get: { operationId: streamEvents, x-freya-permission: 'assets:read', responses: { '200': { description: 'SSE event stream (assigned/unassigned/expiring/low-stock)' } } }
