@@ -5,17 +5,15 @@
 package assetmanifest
 
 import (
-	"context"
 	"fmt"
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"google.golang.org/grpc"
 
 	"github.com/go-tangra/go-tangra-asset/v4/api/openapi"
-	authv1 "github.com/go-tangra/go-tangra-auth/sdk/v4/api/proto/auth/v1"
+	"github.com/go-tangra/go-tangra-auth/sdk/v4/pkg/authclient"
 	"github.com/go-tangra/go-tangra-portal/sdk/v4/pkg/gatewayclient"
 )
 
@@ -173,26 +171,22 @@ func Manifest() (gatewayclient.Manifest, error) {
 	}, nil
 }
 
-// SeedRequest builds the auth registration request: every module permission plus
-// the built-in role grants.
-func SeedRequest() *authv1.RegisterPermissionsRequest {
-	req := &authv1.RegisterPermissionsRequest{}
-	for _, p := range Permissions {
-		req.Permissions = append(req.Permissions, &authv1.PermissionDef{Resource: p.Resource, Action: p.Action, Description: p.Description})
-	}
-	for _, slug := range []string{"owner", "admin", "member", "auditor", "operator"} {
-		req.BuiltinGrants = append(req.BuiltinGrants, &authv1.BuiltinGrant{Role: slug, Permissions: Grants[slug]})
-	}
-	return req
+// Roles are the module roles provided in every tenant (feature 019); auth
+// keeps them locked, administrators assign or clone them.
+var Roles = []authclient.ModuleRole{
+	{Slug: "administrator", DisplayName: DisplayName + " administrator", Description: "Full access to assets, catalogues, inventory sync, statistics and backup", Permissions: PermissionRefs()},
+	{Slug: "editor", DisplayName: DisplayName + " editor", Description: "Read, create, change and assign assets; read statistics", Permissions: []string{"assets:read", "assets:manage", "assets:assign", "stats:read"}},
+	{Slug: "viewer", DisplayName: DisplayName + " viewer", Description: "Read assets and statistics", Permissions: []string{"assets:read", "stats:read"}},
 }
 
-// SeedPermissions registers the module's permissions with the auth service and
-// grants them to the built-in roles (idempotent). The gateway registers the
-// permissions from the manifest for routing; only the asset module knows the
-// role grants, so it pushes them to auth here.
-func SeedPermissions(ctx context.Context, cc grpc.ClientConnInterface) error {
-	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
-	defer cancel()
-	_, err := authv1.NewAuthorizationClient(cc).RegisterPermissions(ctx, SeedRequest())
-	return err
+// Registration is what the module registers with auth at start and every
+// five minutes: its permissions, its complete role set and the built-in role
+// grants. The gateway registers the permissions from the manifest for
+// routing; only the module knows its roles and grants.
+func Registration() authclient.Registration {
+	r := authclient.Registration{Module: Module, DisplayName: DisplayName, Roles: Roles, BuiltinGrants: Grants}
+	for _, p := range Permissions {
+		r.Permissions = append(r.Permissions, authclient.Permission{Resource: p.Resource, Action: p.Action, Description: p.Description})
+	}
+	return r
 }
