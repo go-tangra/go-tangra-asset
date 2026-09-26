@@ -65,7 +65,7 @@ Other services call it through `pkg/assetclient` and the `asset.v1` protos
 | `internal/backup`, `internal/stats`, `internal/audit`, `internal/userdir` | backup export/import, statistics, audit, user lookups |
 | `internal/httpapi`, `internal/grpcapi` | browser and service APIs |
 | `internal/app`, `cmd/assetsvc` | wiring and the service binary (serve, `bootstrap`, `version`) |
-| `pkg/assetmanifest` | gateway manifest and built-in role grants |
+| `pkg/assetmanifest` | gateway manifest, module roles and built-in role grants |
 | `pkg/assetclient` | Go client other services use |
 | `deploy` | service policy and operations notes |
 | `ui/` | Vue 3 + FlyonUI federated remote on `@go-tangra/ui` |
@@ -132,7 +132,18 @@ start when missing.
 `locations:manage`, `consumables:manage`, `licenses:manage`, `insurance:manage`,
 `documents:manage`, `inventory:sync`, `stats:read`, `backup:manage`. The gateway
 enforces the per-route permission from the manifest; the module checks it again.
-Built-in role grants are seeded by the module (`pkg/assetmanifest`).
+
+The module registers its permissions, its module roles and the built-in role
+grants (`pkg/assetmanifest.Grants`, scoped to asset by auth) with auth at start
+and every five minutes (`pkg/assetmanifest.Registration`). Module roles are
+provided in every tenant; administrators assign them or clone them into custom
+roles:
+
+| Role | Display name | Permissions |
+|---|---|---|
+| `administrator` | Assets administrator | all asset permissions |
+| `editor` | Assets editor | `assets:read`, `assets:manage`, `assets:assign`, `stats:read` |
+| `viewer` | Assets viewer | `assets:read`, `stats:read` |
 
 ## Versioning
 
