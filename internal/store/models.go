@@ -76,6 +76,30 @@ type Document struct {
 	Description string    `json:"description,omitempty"`
 	UploadedBy  string    `json:"uploaded_by,omitempty"`
 	CreatedAt   time.Time `json:"created_at"`
+	// PaperlessDocumentID is set when the bytes live in the paperless module
+	// (feature 030); StorageKey is then "paperless:<id>".
+	PaperlessDocumentID string `json:"paperless_document_id,omitempty"`
+}
+
+// PaperlessKeyPrefix prefixes the storage key of a document held by paperless.
+const PaperlessKeyPrefix = "paperless:"
+
+// InvSyncSettings are a tenant's persisted inventory-sync filters (feature
+// 030): hosts they exclude are neither created nor updated as assets.
+// Patterns are case-insensitive globs (path.Match syntax, e.g. "*.lab.*");
+// an empty include list includes everything.
+type InvSyncSettings struct {
+	TenantID          string    `json:"tenant_id"`
+	ExcludeVMs        bool      `json:"exclude_vms"`
+	ExcludeContainers bool      `json:"exclude_containers"`
+	SkipStale         bool      `json:"skip_stale"`
+	SkipRetired       bool      `json:"skip_retired"`
+	HostnameInclude   []string  `json:"hostname_include"`
+	HostnameExclude   []string  `json:"hostname_exclude"`
+	OSInclude         []string  `json:"os_include"`
+	OSExclude         []string  `json:"os_exclude"`
+	UpdatedBy         string    `json:"updated_by,omitempty"`
+	UpdatedAt         time.Time `json:"updated_at"`
 }
 
 // Category is a self-referential tree. Unique (tenant_id,name,parent_id).

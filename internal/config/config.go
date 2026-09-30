@@ -37,11 +37,17 @@ type Config struct {
 	ObjectStore ObjectStore `yaml:"object_store"`
 	Inventory   Inventory   `yaml:"inventory"`
 	Scheduler   Scheduler   `yaml:"scheduler"`
-	Uploads     Uploads     `yaml:"uploads"`
-	Events      Events      `yaml:"events"`
-	Gateway     Gateway     `yaml:"gateway"`
-	MeshEnroll  MeshEnroll  `yaml:"mesh_enroll"`
-	Limits      Limits      `yaml:"limits_asset"`
+	// TaskScheduler registers the asset task types with the platform
+	// scheduler module (feature 030: asset:inventory-sync).
+	TaskScheduler TaskScheduler `yaml:"task_scheduler"`
+	// Paperless stores asset documents in the paperless module (feature
+	// 030; full-text search). Photos stay in the object store.
+	Paperless  Paperless  `yaml:"paperless"`
+	Uploads    Uploads    `yaml:"uploads"`
+	Events     Events     `yaml:"events"`
+	Gateway    Gateway    `yaml:"gateway"`
+	MeshEnroll MeshEnroll `yaml:"mesh_enroll"`
+	Limits     Limits     `yaml:"limits_asset"`
 }
 
 // DB configures the PostgreSQL/TimescaleDB store.
@@ -96,6 +102,21 @@ type Scheduler struct {
 	InsuranceSoonDays int `yaml:"insurance_soon_days"`
 }
 
+// Paperless: Enabled files new documents in the paperless service Service
+// and migrates the documents still held in the object store.
+type Paperless struct {
+	Enabled bool   `yaml:"enabled"`
+	Service string `yaml:"service"`
+}
+
+// TaskScheduler: Enabled keeps the asset task types registered with the
+// scheduler service Service (the TaskExecutor endpoint is always served;
+// only the scheduler may call it).
+type TaskScheduler struct {
+	Enabled bool   `yaml:"enabled"`
+	Service string `yaml:"service"`
+}
+
 // Uploads bounds inbound photo/document uploads.
 type Uploads struct {
 	MaxSizeBytes int64 `yaml:"max_size_bytes"`
@@ -142,16 +163,18 @@ type SoonWindows struct {
 // Default returns secure defaults on top of the Freya defaults.
 func Default() Config {
 	return Config{
-		Config:      fconfig.Default(),
-		DB:          DB{MaxConns: 16},
-		KEK:         KEK{Source: "file"},
-		ObjectStore: ObjectStore{Region: "us-east-1", PresignTTL: 300},
-		Inventory:   Inventory{Service: "inventory"},
-		Scheduler:   Scheduler{IntervalSeconds: 3600, WarrantySoonDays: 30, LicenseSoonDays: 30, InsuranceSoonDays: 30},
-		Uploads:     Uploads{MaxSizeBytes: 20 << 20},
-		Events:      Events{Enabled: true},
-		Gateway:     Gateway{Service: "gateway"},
-		Limits:      Limits{MaxRequestBytes: 1 << 20, MaxBackupBytes: 32 << 20},
+		Config:        fconfig.Default(),
+		DB:            DB{MaxConns: 16},
+		KEK:           KEK{Source: "file"},
+		ObjectStore:   ObjectStore{Region: "us-east-1", PresignTTL: 300},
+		Inventory:     Inventory{Service: "inventory"},
+		TaskScheduler: TaskScheduler{Service: "scheduler"},
+		Paperless:     Paperless{Enabled: true, Service: "paperless"},
+		Scheduler:     Scheduler{IntervalSeconds: 3600, WarrantySoonDays: 30, LicenseSoonDays: 30, InsuranceSoonDays: 30},
+		Uploads:       Uploads{MaxSizeBytes: 20 << 20},
+		Events:        Events{Enabled: true},
+		Gateway:       Gateway{Service: "gateway"},
+		Limits:        Limits{MaxRequestBytes: 1 << 20, MaxBackupBytes: 32 << 20},
 	}
 }
 

@@ -62,6 +62,9 @@ const (
 
 	InventorySyncPreviewed EventType = "inventory_sync_previewed"
 	InventorySyncExecuted  EventType = "inventory_sync_executed"
+	// Feature 030.
+	InventorySyncSettingsUpdated EventType = "inventory_sync_settings_updated"
+	DocumentsMigrated            EventType = "documents_migrated"
 
 	LicenseExpired   EventType = "license_expired"
 	InsuranceExpired EventType = "insurance_expired"
@@ -118,7 +121,7 @@ func init() {
 		PhotoUploaded, PhotoDeleted,
 		DocumentUploaded, DocumentDeleted,
 		PolicyAssetAdded, PolicyAssetRemoved,
-		InventorySyncPreviewed, InventorySyncExecuted,
+		InventorySyncPreviewed, InventorySyncExecuted, InventorySyncSettingsUpdated, DocumentsMigrated,
 		LicenseExpired, InsuranceExpired,
 		BackupExported, BackupImported,
 		AccessRefused,

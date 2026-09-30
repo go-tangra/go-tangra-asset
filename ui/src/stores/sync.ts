@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { api, describe } from '@/api/client'
-import type { SyncPreview, SyncResult } from '@/api/types'
+import type { SyncPreview, SyncResult, SyncSettings } from '@/api/types'
 
 // Inventory sync: preview the host↔asset diff, then apply a selection.
 export const useSync = defineStore('asset-sync', () => {
@@ -36,5 +36,17 @@ export const useSync = defineStore('asset-sync', () => {
     }
   }
 
-  return { preview, result, loading, error, runPreview, execute }
+  // Persisted filter settings (feature 030).
+  const settings = ref<SyncSettings | null>(null)
+  async function loadSettings(): Promise<void> {
+    settings.value = await api<SyncSettings>('GET', 'assets/inventory-sync/settings')
+  }
+  async function saveSettings(s: SyncSettings): Promise<void> {
+    settings.value = await api<SyncSettings>('PUT', 'assets/inventory-sync/settings', {
+      exclude_vms: s.exclude_vms, exclude_containers: s.exclude_containers, skip_stale: s.skip_stale, skip_retired: s.skip_retired,
+      hostname_include: s.hostname_include, hostname_exclude: s.hostname_exclude, os_include: s.os_include, os_exclude: s.os_exclude,
+    })
+  }
+
+  return { preview, result, loading, error, runPreview, execute, settings, loadSettings, saveSettings }
 })

@@ -6,8 +6,11 @@
 package app
 
 import (
+	"google.golang.org/grpc"
+
 	"context"
 	"fmt"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/paper"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -213,6 +216,15 @@ func Build(ctx context.Context, cfg config.Config, o Options) (a *App, err error
 	licSvc := licenses.New(a.Repo, a.Audit)
 	insSvc := insurance.New(a.Repo, a.Audit)
 	docSvc := documents.New(a.Repo, a.Blob, a.Audit, cfg.Uploads.MaxSizeBytes, cfg.PresignTTL())
+	assetsSvc.SetDocumentPurger(docSvc)
+	if cfg.Paperless.Enabled {
+		// Documents live in paperless (feature 030); the ones still in the
+		// object store are moved there in the background.
+		docSvc.SetPaperless(paper.New(func(ctx context.Context) (grpc.ClientConnInterface, error) {
+			return a.Freya.Client(ctx, cfg.Paperless.Service)
+		}))
+		a.workers = append(a.workers, func(c context.Context) { migrateDocuments(c, docSvc, a.Log) })
+	}
 	syncSvc := invsync.New(a.Repo, inv, a.Audit)
 	statsSvc := stats.New(a.Repo, cfg.SoonWindows())
 	backupSvc := backup.New(a.Repo, a.Audit)
@@ -237,6 +249,9 @@ func Build(ctx context.Context, cfg config.Config, o Options) (a *App, err error
 		Assets: assetsSvc, Categories: catSvc, Suppliers: supSvc, Locations: locSvc, Consumables: conSvc, Licenses: licSvc, Insurance: insSvc,
 		Documents: docSvc, Sync: syncSvc, Stats: statsSvc, Users: users, Health: a.health,
 	})
+
+	// Platform scheduler task types (feature 030).
+	a.wireScheduler(syncSvc)
 
 	// Lifecycle scheduler worker.
 	a.workers = append(a.workers, func(c context.Context) { a.Sched.Run(c, cfg.SchedulerInterval()) })
@@ -263,7 +278,7 @@ type lazyInventory struct {
 	c   invclient.Client
 }
 
-func (l *lazyInventory) ListHosts(ctx context.Context, tenantID string) ([]invclient.Host, error) {
+func (l *lazyInventory) client(ctx context.Context) (invclient.Client, error) {
 	if l.c == nil {
 		conn, err := l.app.Freya.Client(ctx, l.app.Cfg.Inventory.Service)
 		if err != nil {
@@ -271,7 +286,23 @@ func (l *lazyInventory) ListHosts(ctx context.Context, tenantID string) ([]invcl
 		}
 		l.c = invclient.New(conn)
 	}
-	return l.c.ListHosts(ctx, tenantID)
+	return l.c, nil
+}
+
+func (l *lazyInventory) ListHosts(ctx context.Context, tenantID string) ([]invclient.Host, error) {
+	c, err := l.client(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return c.ListHosts(ctx, tenantID)
+}
+
+func (l *lazyInventory) Roles(ctx context.Context, tenantID string) (map[string]string, error) {
+	c, err := l.client(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return c.Roles(ctx, tenantID)
 }
 
 // Run starts the verifier, gateway registration, workers, and the Freya runtime.

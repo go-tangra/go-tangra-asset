@@ -46,6 +46,7 @@ type Service struct {
 	pub   events.Publisher
 	aud   audit.Recorder
 	blobs blob.Store // optional: photo/document objects removed on delete
+	docs  DocumentPurger
 	now   func() time.Time
 }
 
@@ -64,6 +65,15 @@ func (s *Service) SetClock(now func() time.Time) { s.now = now }
 // SetBlobStore attaches the object store so deleting an asset removes its photo
 // and document objects.
 func (s *Service) SetBlobStore(b blob.Store) { s.blobs = b }
+
+// DocumentPurger removes documents with their bytes (documents.Service).
+type DocumentPurger interface {
+	PurgeRows(ctx context.Context, tenantID string, rows []store.Document)
+}
+
+// SetDocumentPurger lets Delete remove the asset's documents wherever their
+// bytes live (object store or paperless, feature 030).
+func (s *Service) SetDocumentPurger(p DocumentPurger) { s.docs = p }
 
 // View is the JSON projection of an asset with the computed fields.
 type View struct {
@@ -336,11 +346,14 @@ func (s *Service) Delete(ctx context.Context, subj authz.Subjects, id string) er
 	if err != nil {
 		return mapErr(err)
 	}
-	if s.blobs != nil {
-		if a.PhotoKey != "" {
-			_ = s.blobs.Delete(ctx, a.PhotoKey)
-		}
-		if docs, derr := s.st.ListDocuments(ctx, subj.TenantID, store.EntityAsset, id); derr == nil {
+	if s.blobs != nil && a.PhotoKey != "" {
+		_ = s.blobs.Delete(ctx, a.PhotoKey)
+	}
+	if docs, derr := s.st.ListDocuments(ctx, subj.TenantID, store.EntityAsset, id); derr == nil {
+		switch {
+		case s.docs != nil:
+			s.docs.PurgeRows(ctx, subj.TenantID, docs)
+		case s.blobs != nil:
 			for _, d := range docs {
 				_ = s.blobs.Delete(ctx, d.StorageKey)
 			}

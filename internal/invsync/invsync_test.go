@@ -150,6 +150,10 @@ func (errClient) ListHosts(context.Context, string) ([]invclient.Host, error) {
 	return nil, errors.New("rpc: connection refused")
 }
 
+func (errClient) Roles(context.Context, string) (map[string]string, error) {
+	return nil, errors.New("rpc: connection refused")
+}
+
 func TestDiffEdgeCases(t *testing.T) {
 	// Two hosts resolving to one asset: the second creates.
 	hosts := []invclient.Host{{ID: "h1", Hostname: "a", SystemSerial: "S"}, {ID: "h2", Hostname: "b", SystemSerial: "s"}}

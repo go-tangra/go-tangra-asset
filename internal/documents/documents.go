@@ -46,6 +46,7 @@ type Service struct {
 	maxSize    int64
 	presignTTL time.Duration
 	now        func() time.Time
+	paper      Paper // feature 030: documents live in paperless when set
 }
 
 // New builds the service. maxSize bounds uploads (bytes); presignTTL is the
@@ -232,12 +233,20 @@ func (s *Service) Upload(ctx context.Context, subj authz.Subjects, entityType, e
 	if err := s.entityExists(ctx, subj.TenantID, entityType, entityID); err != nil {
 		return store.Document{}, err
 	}
-	id := store.NewID()
-	key := DocumentKey(subj.TenantID, id)
 	mime := strings.TrimSpace(in.MimeType)
 	if mime == "" {
 		mime = "application/octet-stream"
 	}
+	if s.paper != nil {
+		d, err := s.uploadToPaperless(ctx, subj, entityType, entityID, in, path.Base(strings.TrimSpace(in.FileName)), mime)
+		if err != nil {
+			return store.Document{}, err
+		}
+		s.emit(ctx, subj, audit.DocumentUploaded, d.ID, map[string]any{"entity_type": entityType, "entity_id": entityID, "file_size": d.FileSize, "storage": "paperless"})
+		return d, nil
+	}
+	id := store.NewID()
+	key := DocumentKey(subj.TenantID, id)
 	sum, err := s.blobs.Put(ctx, key, io.LimitReader(in.Reader, s.maxSize+1), in.Size, mime)
 	if err != nil {
 		return store.Document{}, err
@@ -279,6 +288,9 @@ func (s *Service) get(ctx context.Context, subj authz.Subjects, entityType, enti
 	if d.EntityType != entityType || d.EntityID != entityID {
 		return store.Document{}, ErrNotFound
 	}
+	if d.PaperlessDocumentID != "" {
+		return d, nil
+	}
 	if err := checkKey(subj.TenantID, d.StorageKey); err != nil {
 		return store.Document{}, err
 	}
@@ -293,6 +305,19 @@ func (s *Service) Download(ctx context.Context, subj authz.Subjects, entityType,
 	d, err := s.get(ctx, subj, entityType, entityID, docID)
 	if err != nil {
 		return nil, store.Document{}, err
+	}
+	if d.PaperlessDocumentID != "" {
+		if s.paper == nil {
+			return nil, store.Document{}, ErrSearchUnavailable
+		}
+		b, err := s.paper.Download(ctx, subj.TenantID, d.PaperlessDocumentID)
+		if errors.Is(err, ErrPaperNotFound) {
+			return nil, store.Document{}, ErrNotFound
+		}
+		if err != nil {
+			return nil, store.Document{}, err
+		}
+		return paperReader(b), d, nil
 	}
 	rc, err := s.blobs.Get(ctx, d.StorageKey)
 	if err != nil {
@@ -310,6 +335,9 @@ func (s *Service) DownloadURL(ctx context.Context, subj authz.Subjects, entityTy
 	if err != nil {
 		return "", err
 	}
+	if d.PaperlessDocumentID != "" {
+		return "", ErrNotFound // served through Download only
+	}
 	return s.blobs.PresignGet(ctx, d.StorageKey, s.presignTTL)
 }
 
@@ -322,7 +350,7 @@ func (s *Service) Delete(ctx context.Context, subj authz.Subjects, entityType, e
 	if err != nil {
 		return err
 	}
-	if err := s.blobs.Delete(ctx, d.StorageKey); err != nil {
+	if err := s.removeObject(ctx, subj.TenantID, d); err != nil {
 		return err
 	}
 	if err := s.st.DeleteDocument(ctx, subj.TenantID, docID); err != nil {
@@ -351,9 +379,7 @@ func (s *Service) PurgeRows(ctx context.Context, tenantID string, rows []store.D
 		if d.TenantID != tenantID {
 			continue
 		}
-		if checkKey(tenantID, d.StorageKey) == nil {
-			_ = s.blobs.Delete(ctx, d.StorageKey)
-		}
+		_ = s.removeObject(ctx, tenantID, d)
 		_ = s.st.DeleteDocument(ctx, tenantID, d.ID)
 	}
 }

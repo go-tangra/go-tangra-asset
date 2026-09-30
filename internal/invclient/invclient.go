@@ -37,6 +37,10 @@ type Host struct {
 // Client lists a tenant's inventory hosts.
 type Client interface {
 	ListHosts(ctx context.Context, tenantID string) ([]Host, error)
+	// Roles returns the detected virtualization role of each host
+	// (host id -> physical|vm|container|unknown; "" when not reported), read
+	// from the inventory host reports (asset feature 030).
+	Roles(ctx context.Context, tenantID string) (map[string]string, error)
 }
 
 // Mesh is the Client over the inventory gRPC surface.
@@ -67,15 +71,62 @@ func (m *Mesh) ListHosts(ctx context.Context, tenantID string) ([]Host, error) {
 	}
 }
 
+// Roles pages the tenant's host reports and returns each host's role.
+func (m *Mesh) Roles(ctx context.Context, tenantID string) (map[string]string, error) {
+	out := map[string]string{}
+	cursor := ""
+	for i := 0; i < 10000; i++ {
+		reports, next, err := m.c.ListHostReports(ctx, tenantID, inventoryclient.ReportFilter{Limit: 200, Cursor: cursor})
+		if err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrUnavailable, err)
+		}
+		for _, r := range reports {
+			out[r.Host.ID] = r.Virtualization.Role
+		}
+		if next == "" || len(reports) == 0 {
+			return out, nil
+		}
+		cursor = next
+	}
+	return out, nil
+}
+
 // Fake is an in-memory Client for tests.
 type Fake struct {
 	mu    sync.Mutex
 	hosts map[string][]Host
+	roles map[string]map[string]string
 	Down  bool // when set, ListHosts returns ErrUnavailable
+	// RolesDown makes Roles fail (e.g. an inventory without host reports).
+	RolesDown bool
 }
 
 // NewFake builds an empty fake.
-func NewFake() *Fake { return &Fake{hosts: map[string][]Host{}} }
+func NewFake() *Fake { return &Fake{hosts: map[string][]Host{}, roles: map[string]map[string]string{}} }
+
+// SetRole records a host's virtualization role.
+func (f *Fake) SetRole(tenantID, hostID, role string) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.roles[tenantID] == nil {
+		f.roles[tenantID] = map[string]string{}
+	}
+	f.roles[tenantID][hostID] = role
+}
+
+// Roles implements Client.
+func (f *Fake) Roles(_ context.Context, tenantID string) (map[string]string, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.Down || f.RolesDown {
+		return nil, ErrUnavailable
+	}
+	out := map[string]string{}
+	for k, v := range f.roles[tenantID] {
+		out[k] = v
+	}
+	return out, nil
+}
 
 // Set replaces the hosts of a tenant.
 func (f *Fake) Set(tenantID string, hosts []Host) {

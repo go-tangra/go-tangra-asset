@@ -43,6 +43,29 @@ of a response, log, audit row or backup. Uploads are bounded by
 `uploads.max_size_bytes` (and the route's declared body limit); photos must be
 PNG/JPEG/GIF/WebP.
 
+## Documents in paperless (feature 030)
+
+With `paperless.enabled` (default on; `paperless.service`, default
+`paperless`, needs `discovery.static.paperless`) the documents attached to
+assets, consumables and licenses are stored in the **paperless** module, which
+extracts their text for full-text search. They are filed under the paperless
+category `Assets/<asset tag>`, `Assets/Consumables/<name>` or
+`Assets/Licenses/<name>` and tagged `asset_entity_type`/`asset_entity_id`/
+`asset_label`; the asset row keeps the metadata, the SHA-256 and the paperless
+document id (`storage_key` `paperless:<id>`). Paperless users see them through
+their access to the `Assets` category (tenant admins see everything). The
+asset UI searches them on the **Document search** page
+(`GET /documents/search?q=`, `assets:read`); hits are mapped back to their
+asset, consumable or license. Downloads stream through the asset service;
+deletes (also of the owning asset/consumable/license) hard-delete the
+paperless document.
+
+A background worker moves the documents still held in the object store into
+paperless a minute after start and then hourly (checksum verified, the old
+object deleted afterwards; a failed document stays and is retried). Photos
+stay in the object store. The paperless policy must admit `svc/asset`
+(rule `asset-documents`); paperless ≥ the release with the paperless SDK.
+
 ## Inventory-sync
 
 `POST /assets/inventory-sync/preview` lists the tenant's hosts from the
@@ -54,6 +77,24 @@ hostnames: new assets are auto-tagged (`AST-xxxxxx`) from the host's name,
 serial, model and OS (as tags); matched assets get the sync-owned fields
 updated. When inventory is unreachable the request fails with
 `temporarily_unavailable` and writes nothing.
+
+**Filters (feature 030).** `GET/PUT /assets/inventory-sync/settings`
+(`inventory:sync`, the sync page's *Sync filter* card) store per tenant:
+skip virtual machines / containers (the host's virtualization role from the
+inventory host reports — the inventory must list `asset` in
+`host_reports.consumers` and allow `HostReportService/ListHostReports`; hosts
+with an unknown role are imported), skip stale / retired hosts, and
+case-insensitive hostname and OS include/exclude globs. Excluded hosts show in
+the preview as `excluded` with a reason and are neither created nor updated;
+existing assets are never deleted.
+
+**Scheduled sync.** The task type `asset:inventory-sync` (tenant-scoped,
+payload `{"create": bool, "update": bool}`, both default true, suggested
+cron `0 3 * * *`) runs the filtered sync for the platform scheduler. With
+`task_scheduler.enabled` (service `scheduler`) the module registers it; the
+scheduler needs `svc/asset` in `modules-register` and
+`discovery.static.asset`, and the asset policy admits `svc/scheduler` on
+`/scheduler.v1.TaskExecutor/ExecuteTask` (rule `scheduler-execute`).
 
 ## Lifecycle events
 

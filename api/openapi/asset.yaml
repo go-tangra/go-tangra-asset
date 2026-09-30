@@ -53,6 +53,19 @@ components:
       required: false
       schema: { type: string, maxLength: 200 }
   schemas:
+    InventorySyncSettings:
+      type: object
+      additionalProperties: false
+      description: 'Hosts matching these filters are neither created nor updated as assets (feature 030). Patterns are case-insensitive globs.'
+      properties:
+        exclude_vms: { type: boolean }
+        exclude_containers: { type: boolean }
+        skip_stale: { type: boolean }
+        skip_retired: { type: boolean }
+        hostname_include: { type: array, maxItems: 50, items: { type: string, maxLength: 200 } }
+        hostname_exclude: { type: array, maxItems: 50, items: { type: string, maxLength: 200 } }
+        os_include: { type: array, maxItems: 50, items: { type: string, maxLength: 200 } }
+        os_exclude: { type: array, maxItems: 50, items: { type: string, maxLength: 200 } }
     Error:
       type: object
       properties:
@@ -68,6 +81,9 @@ paths:
     post: { operationId: createAsset, x-freya-permission: 'assets:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '201': { description: created }, '409': { description: conflict } } }
   /api/asset/v1/assets/inventory-sync/preview:
     post: { operationId: inventorySyncPreview, x-freya-permission: 'inventory:sync', x-freya-timeout-seconds: 60, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '200': { description: 'sync preview (create/update/unchanged)' }, '503': { description: 'inventory unavailable' } } }
+  /api/asset/v1/assets/inventory-sync/settings:
+    get: { operationId: getInventorySyncSettings, x-freya-permission: 'inventory:sync', responses: { '200': { description: 'persisted inventory-sync filter settings' } } }
+    put: { operationId: putInventorySyncSettings, x-freya-permission: 'inventory:sync', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/InventorySyncSettings' } } } }, responses: { '200': { description: 'stored' }, '422': { description: validation_failed } } }
   /api/asset/v1/assets/inventory-sync/execute:
     post: { operationId: inventorySyncExecute, x-freya-permission: 'inventory:sync', x-freya-max-body-bytes: 1048576, x-freya-timeout-seconds: 120, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '200': { description: 'sync result' }, '503': { description: 'inventory unavailable' } } }
   /api/asset/v1/assets/{id}:
@@ -84,6 +100,8 @@ paths:
     get: { operationId: getAssetPhoto, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: 'photo bytes' }, '404': { description: not_found } } }
     post: { operationId: uploadAssetPhoto, x-freya-permission: 'documents:manage', x-freya-max-body-bytes: 20971520, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: 'photo stored' } } }
     delete: { operationId: deleteAssetPhoto, x-freya-permission: 'documents:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '204': { description: deleted } } }
+  /api/asset/v1/documents/search:
+    get: { operationId: searchDocuments, x-freya-permission: 'assets:read', x-freya-timeout-seconds: 30, parameters: [{ name: q, in: query, required: true, schema: { type: string, minLength: 1, maxLength: 200 } }, { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100 } }], responses: { '200': { description: 'documents matching the text (items of {document, snippet, rank})' }, '503': { description: 'paperless unavailable' } } }
   /api/asset/v1/assets/{id}/documents:
     get: { operationId: listAssetDocuments, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: documents } } }
     post: { operationId: uploadAssetDocument, x-freya-permission: 'documents:manage', x-freya-max-body-bytes: 20971520, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '201': { description: uploaded } } }

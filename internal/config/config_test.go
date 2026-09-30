@@ -50,6 +50,9 @@ func TestDefaultSecure(t *testing.T) {
 	if d.Uploads.MaxSizeBytes != 20<<20 {
 		t.Errorf("uploads.max_size_bytes default = %d", d.Uploads.MaxSizeBytes)
 	}
+	if !d.Paperless.Enabled || d.Paperless.Service != "paperless" || d.TaskScheduler.Enabled || d.TaskScheduler.Service != "scheduler" {
+		t.Errorf("feature 030 defaults: %+v %+v", d.Paperless, d.TaskScheduler)
+	}
 	if d.Inventory.Service != "inventory" {
 		t.Errorf("inventory.service default = %q, want inventory", d.Inventory.Service)
 	}

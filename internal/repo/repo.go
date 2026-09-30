@@ -52,11 +52,23 @@ type Store interface {
 	CloseActiveAssignment(ctx context.Context, tenantID, assetID string, at time.Time) error
 	ListAssignments(ctx context.Context, tenantID, assetID string, limit int) ([]store.Assignment, error)
 
+	// Inventory-sync filters (feature 030); found false: defaults (no filter).
+	GetInvSyncSettings(ctx context.Context, tenantID string) (store.InvSyncSettings, bool, error)
+	PutInvSyncSettings(ctx context.Context, s store.InvSyncSettings) error
+
 	// Documents (polymorphic)
 	InsertDocument(ctx context.Context, d store.Document) error
 	GetDocument(ctx context.Context, tenantID, id string) (store.Document, error)
 	ListDocuments(ctx context.Context, tenantID, entityType, entityID string) ([]store.Document, error)
 	DeleteDocument(ctx context.Context, tenantID, id string) error
+	// Feature 030: documents moved to paperless.
+	ListDocumentsByPaperlessIDs(ctx context.Context, tenantID string, ids []string) ([]store.Document, error)
+	// ListUnmigratedDocuments returns up to limit documents still held in the
+	// asset object store, across tenants (system scope).
+	ListUnmigratedDocuments(ctx context.Context, limit int) ([]store.Document, error)
+	// MoveDocumentToPaperless records that a document's bytes now live in
+	// paperless (storage key "paperless:<id>").
+	MoveDocumentToPaperless(ctx context.Context, tenantID, id, paperlessID string) error
 
 	// Categories
 	CreateCategory(ctx context.Context, c store.Category) error

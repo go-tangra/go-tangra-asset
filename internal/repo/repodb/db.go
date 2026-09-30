@@ -357,11 +357,11 @@ func (d *DB) ListAssignments(ctx context.Context, tenantID, assetID string, limi
 
 // ---- documents
 
-const documentCols = `id, tenant_id, entity_type, entity_id, file_name, file_size, mime_type, storage_key, checksum, description, uploaded_by, created_at`
+const documentCols = `id, tenant_id, entity_type, entity_id, file_name, file_size, mime_type, storage_key, checksum, description, uploaded_by, created_at, paperless_document_id`
 
 func scanDocument(sc scanner) (store.Document, error) {
 	var x store.Document
-	err := sc.Scan(&x.ID, &x.TenantID, &x.EntityType, &x.EntityID, &x.FileName, &x.FileSize, &x.MimeType, &x.StorageKey, &x.Checksum, &x.Description, &x.UploadedBy, &x.CreatedAt)
+	err := sc.Scan(&x.ID, &x.TenantID, &x.EntityType, &x.EntityID, &x.FileName, &x.FileSize, &x.MimeType, &x.StorageKey, &x.Checksum, &x.Description, &x.UploadedBy, &x.CreatedAt, &x.PaperlessDocumentID)
 	return x, err
 }
 
@@ -370,8 +370,8 @@ func (d *DB) InsertDocument(ctx context.Context, x store.Document) error {
 		if x.ID == "" {
 			x.ID = store.NewID()
 		}
-		_, err := tx.Exec(ctx, sqlInsert+`asset_documents (`+documentCols+`) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
-			x.ID, x.TenantID, x.EntityType, x.EntityID, x.FileName, x.FileSize, x.MimeType, x.StorageKey, x.Checksum, x.Description, x.UploadedBy, orNow(x.CreatedAt))
+		_, err := tx.Exec(ctx, sqlInsert+`asset_documents (`+documentCols+`) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
+			x.ID, x.TenantID, x.EntityType, x.EntityID, x.FileName, x.FileSize, x.MimeType, x.StorageKey, x.Checksum, x.Description, x.UploadedBy, orNow(x.CreatedAt), x.PaperlessDocumentID)
 		return mapWriteErr(err)
 	})
 }

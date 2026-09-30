@@ -178,10 +178,11 @@ export interface SyncChange {
   host_id: string
   hostname: string
   serial?: string
-  action: 'create' | 'update' | 'unchanged'
+  action: 'create' | 'update' | 'unchanged' | 'excluded'
   asset_id?: string
   asset_tag?: string
   changes?: Record<string, { old: string; new: string }>
+  reason?: string // why the filter excluded the host
 }
 
 export interface SyncPreview {
@@ -189,6 +190,7 @@ export interface SyncPreview {
   create: number
   update: number
   unchanged: number
+  excluded: number
   changes: SyncChange[]
 }
 
@@ -196,6 +198,7 @@ export interface SyncResult {
   created: number
   updated: number
   skipped: number
+  excluded: number
   selected: number
   errors: string[]
   changes: SyncChange[]
@@ -218,4 +221,34 @@ export interface Dashboard {
   licenses_expiring_soon: number
   insurance_expiring_soon: number
   assigned_assets: number
+}
+
+// SyncSettings are the tenant's persisted inventory-sync filters (feature 030).
+export interface SyncSettings {
+  exclude_vms: boolean
+  exclude_containers: boolean
+  skip_stale: boolean
+  skip_retired: boolean
+  hostname_include: string[]
+  hostname_exclude: string[]
+  os_include: string[]
+  os_exclude: string[]
+  updated_by?: string
+  updated_at?: string
+}
+
+// DocumentHit is one full-text search result (paperless, feature 030).
+export interface DocumentHit {
+  document: {
+    id: string
+    entity_type: 'asset' | 'consumable' | 'license'
+    entity_id: string
+    file_name: string
+    file_size: number
+    mime_type?: string
+    description?: string
+    created_at: string
+  }
+  snippet: string
+  rank: number
 }
