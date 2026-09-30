@@ -3,11 +3,12 @@ import { computed, ref } from 'vue'
 import { UiPage, UiAlert, UiCard, UiButton, UiDataTable, UiStatGrid, UiStatTile, UiStatusChip, UiEmptyState, type Column } from '@go-tangra/ui'
 import { useSync } from '@/stores/sync'
 import type { SyncChange } from '@/api/types'
+import FilterCard from './FilterCard.vue'
 
 // Preview the inventory host ↔ asset diff, pick hosts, execute.
 const sync = useSync()
 const selected = ref<string[]>([])
-const actionable = computed(() => (sync.preview?.changes ?? []).filter((c) => c.action !== 'unchanged'))
+const actionable = computed(() => (sync.preview?.changes ?? []).filter((c) => c.action === 'create' || c.action === 'update'))
 const rows = computed(() => (sync.preview?.changes ?? []).map((c) => ({ ...c, id: c.hostname })))
 
 async function preview(): Promise<void> {
@@ -29,8 +30,14 @@ const columns: Column<SyncChange & { id: string }>[] = [
   { key: 'serial', label: 'Serial', hideOnStack: true },
   { key: 'action', label: 'Action', width: 'sm', sortable: true },
   { key: 'asset_tag', label: 'Asset' },
-  { key: 'changes', label: 'Changes', format: (c) => fmtChanges(c.changes) },
+  { key: 'changes', label: 'Changes', format: (c) => (c.action === 'excluded' ? reasonText(c.reason) : fmtChanges(c.changes)) },
 ]
+const reasons: Record<string, string> = {
+  virtual_machine: 'Skipped: virtual machine', container: 'Skipped: container', stale: 'Skipped: stale host', retired: 'Skipped: retired host',
+  hostname_excluded: 'Skipped: hostname filter', hostname_not_included: 'Skipped: hostname not in the include list',
+  os_excluded: 'Skipped: OS filter', os_not_included: 'Skipped: OS not in the include list',
+}
+const reasonText = (r?: string): string => (r ? (reasons[r] ?? 'Skipped by the filter') : '')
 const selectable = computed(() => selected.value.filter((h) => actionable.value.some((c) => c.hostname === h)))
 </script>
 
@@ -42,22 +49,24 @@ const selectable = computed(() => selected.value.filter((h) => actionable.value.
     </template>
     <UiAlert v-if="sync.error" kind="error" class="mb-3">{{ sync.error }}</UiAlert>
     <UiAlert v-if="sync.result" kind="success" class="mb-3">
-      Created {{ sync.result.created }}, updated {{ sync.result.updated }}, skipped {{ sync.result.skipped }}
+      Created {{ sync.result.created }}, updated {{ sync.result.updated }}, skipped {{ sync.result.skipped }}, excluded by the filter {{ sync.result.excluded }}
       <span v-if="sync.result.errors.length">; {{ sync.result.errors.length }} error(s): {{ sync.result.errors.join(', ') }}</span>
     </UiAlert>
     <template v-if="sync.preview">
-      <UiStatGrid class="mb-4" :cols="4">
+      <UiStatGrid class="mb-4" :cols="6">
         <UiStatTile title="Hosts" :value="sync.preview.hosts" icon="mdi-server" />
         <UiStatTile title="To create" :value="sync.preview.create" icon="mdi-plus-box-outline" color="success" />
         <UiStatTile title="To update" :value="sync.preview.update" icon="mdi-update" color="info" />
         <UiStatTile title="Unchanged" :value="sync.preview.unchanged" icon="mdi-check" />
+        <UiStatTile title="Excluded" :value="sync.preview.excluded" icon="mdi-filter-outline" />
       </UiStatGrid>
       <UiCard :padded="false">
         <UiDataTable v-model:selected="selected" :items="rows" :columns="columns" caption="Inventory hosts" empty-title="No inventory hosts for this tenant" selectable>
-          <template #cell-action="{ row }"><UiStatusChip :status="row.action" :colors="{ create: 'success', update: 'info', unchanged: 'neutral' }" /></template>
+          <template #cell-action="{ row }"><UiStatusChip :status="row.action" :colors="{ create: 'success', update: 'info', unchanged: 'neutral', excluded: 'warning' }" /></template>
         </UiDataTable>
       </UiCard>
     </template>
     <UiEmptyState v-else title="No preview yet" text="Run a preview to see which inventory hosts would be created or updated as assets." icon="mdi-magnify-scan" />
+    <FilterCard class="mt-4" @saved="sync.preview && preview()" />
   </UiPage>
 </template>
