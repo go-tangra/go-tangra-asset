@@ -76,7 +76,13 @@ type Document struct {
 	Description string    `json:"description,omitempty"`
 	UploadedBy  string    `json:"uploaded_by,omitempty"`
 	CreatedAt   time.Time `json:"created_at"`
+	// PaperlessDocumentID is set when the bytes live in the paperless module
+	// (feature 030); StorageKey is then "paperless:<id>".
+	PaperlessDocumentID string `json:"paperless_document_id,omitempty"`
 }
+
+// PaperlessKeyPrefix prefixes the storage key of a document held by paperless.
+const PaperlessKeyPrefix = "paperless:"
 
 // InvSyncSettings are a tenant's persisted inventory-sync filters (feature
 // 030): hosts they exclude are neither created nor updated as assets.

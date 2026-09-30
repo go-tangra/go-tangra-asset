@@ -703,3 +703,10 @@ func TestInventorySyncSettingsAPI(t *testing.T) {
 	f.mem.FailNext("PutInvSyncSettings")
 	want(t, f.req(t, "PUT", p+"/assets/inventory-sync/settings", "admin", `{}`), 500)
 }
+
+// Document search needs paperless (feature 030).
+func TestDocumentSearchAPI(t *testing.T) {
+	f := newAPI(t, false)
+	want(t, f.req(t, "GET", p+"/documents/search?q=invoice", "admin", ""), 503)
+	want(t, f.req(t, "GET", p+"/documents/search?q=", "admin", ""), 422)
+}

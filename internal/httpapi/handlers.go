@@ -712,6 +712,20 @@ func (s *Server) registerInventories(d Deps) {
 
 // registerDocuments mounts the photo route and the per-entity document routes.
 func (s *Server) registerDocuments(d Deps) {
+	// Full-text search over the tenant's documents (paperless, feature 030).
+	s.handle("GET", prefix+"/documents/search", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
+		limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+		hits, err := d.Documents.Search(r.Context(), subj, r.URL.Query().Get("q"), limit)
+		if errors.Is(err, documents.ErrSearchUnavailable) {
+			WriteError(w, http.StatusServiceUnavailable, "temporarily_unavailable")
+			return
+		}
+		if err != nil {
+			failSvc(w, err)
+			return
+		}
+		WriteJSON(w, http.StatusOK, map[string]any{"items": hits})
+	})
 	p := prefix
 	// ---- Photo
 	s.handle("GET", p+"/assets/{id}/photo", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {

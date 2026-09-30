@@ -61,6 +61,14 @@ type Store interface {
 	GetDocument(ctx context.Context, tenantID, id string) (store.Document, error)
 	ListDocuments(ctx context.Context, tenantID, entityType, entityID string) ([]store.Document, error)
 	DeleteDocument(ctx context.Context, tenantID, id string) error
+	// Feature 030: documents moved to paperless.
+	ListDocumentsByPaperlessIDs(ctx context.Context, tenantID string, ids []string) ([]store.Document, error)
+	// ListUnmigratedDocuments returns up to limit documents still held in the
+	// asset object store, across tenants (system scope).
+	ListUnmigratedDocuments(ctx context.Context, limit int) ([]store.Document, error)
+	// MoveDocumentToPaperless records that a document's bytes now live in
+	// paperless (storage key "paperless:<id>").
+	MoveDocumentToPaperless(ctx context.Context, tenantID, id, paperlessID string) error
 
 	// Categories
 	CreateCategory(ctx context.Context, c store.Category) error

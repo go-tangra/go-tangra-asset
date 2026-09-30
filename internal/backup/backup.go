@@ -459,10 +459,13 @@ func (s *Service) Import(ctx context.Context, subj authz.Subjects, b Backup, opt
 		}
 	}
 	// Documents: metadata only, and only when the object key already belongs to
-	// the target tenant (bytes are never part of a backup).
+	// the target tenant or the paperless document is the target tenant's
+	// (bytes are never part of a backup).
 	prefix := "tenants/" + target + "/"
 	for _, d := range b.Documents {
-		if !strings.HasPrefix(d.StorageKey, prefix) {
+		// A document held by paperless is only valid in its own tenant.
+		paperOK := d.PaperlessDocumentID != "" && d.TenantID == target && d.StorageKey == store.PaperlessKeyPrefix+d.PaperlessDocumentID
+		if !paperOK && !strings.HasPrefix(d.StorageKey, prefix) {
 			res.Skipped["documents"]++
 			continue
 		}

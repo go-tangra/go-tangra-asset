@@ -100,6 +100,8 @@ paths:
     get: { operationId: getAssetPhoto, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: 'photo bytes' }, '404': { description: not_found } } }
     post: { operationId: uploadAssetPhoto, x-freya-permission: 'documents:manage', x-freya-max-body-bytes: 20971520, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: 'photo stored' } } }
     delete: { operationId: deleteAssetPhoto, x-freya-permission: 'documents:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '204': { description: deleted } } }
+  /api/asset/v1/documents/search:
+    get: { operationId: searchDocuments, x-freya-permission: 'assets:read', x-freya-timeout-seconds: 30, parameters: [{ name: q, in: query, required: true, schema: { type: string, minLength: 1, maxLength: 200 } }, { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100 } }], responses: { '200': { description: 'documents matching the text (items of {document, snippet, rank})' }, '503': { description: 'paperless unavailable' } } }
   /api/asset/v1/assets/{id}/documents:
     get: { operationId: listAssetDocuments, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: documents } } }
     post: { operationId: uploadAssetDocument, x-freya-permission: 'documents:manage', x-freya-max-body-bytes: 20971520, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '201': { description: uploaded } } }
