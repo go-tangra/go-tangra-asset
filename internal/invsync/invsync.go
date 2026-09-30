@@ -31,6 +31,7 @@ type Preview struct {
 	Create    int      `json:"create"`
 	Update    int      `json:"update"`
 	Unchanged int      `json:"unchanged"`
+	Excluded  int      `json:"excluded"` // skipped by the tenant's filter (feature 030)
 	Changes   []Change `json:"changes"`
 }
 
@@ -39,6 +40,7 @@ type Result struct {
 	Created  int      `json:"created"`
 	Updated  int      `json:"updated"`
 	Skipped  int      `json:"skipped"`
+	Excluded int      `json:"excluded"`
 	Errors   []string `json:"errors"`
 	Changes  []Change `json:"changes"`
 	Selected int      `json:"selected"`
@@ -86,6 +88,8 @@ func summarize(changes []Change) Preview {
 			p.Create++
 		case ActionUpdate:
 			p.Update++
+		case ActionExcluded:
+			p.Excluded++
 		default:
 			p.Unchanged++
 		}
@@ -98,24 +102,71 @@ func (s *Service) Preview(ctx context.Context, subj authz.Subjects) (Preview, er
 	if err := authz.RequireTenant(subj, subj.TenantID); err != nil {
 		return Preview{}, err
 	}
-	hosts, all, err := s.load(ctx, subj.TenantID)
+	changes, _, err := s.plan(ctx, subj.TenantID)
 	if err != nil {
 		return Preview{}, err
 	}
-	p := summarize(Diff(hosts, all))
+	p := summarize(changes)
 	audit.Emit(ctx, s.aud, audit.Event{TenantID: subj.TenantID, EventType: audit.InventorySyncPreviewed, ActorKind: subj.ActorKind, ActorID: subj.ActorID(),
-		SubjectKind: audit.SubjectSync, SubjectID: "preview", Outcome: audit.OutcomeOK, Details: map[string]any{"hosts": p.Hosts, "create": p.Create, "update": p.Update}})
+		SubjectKind: audit.SubjectSync, SubjectID: "preview", Outcome: audit.OutcomeOK, Details: map[string]any{"hosts": p.Hosts, "create": p.Create, "update": p.Update, "excluded": p.Excluded}})
 	return p, nil
+}
+
+// plan diffs the tenant's hosts against its assets and marks the hosts the
+// tenant's filter excludes. The virtualization roles are only fetched when
+// the filter uses them; if they cannot be read the sync fails (nothing is
+// written) rather than import hosts the filter should have skipped.
+func (s *Service) plan(ctx context.Context, tenantID string) ([]Change, map[string]invclient.Host, error) {
+	hosts, all, err := s.load(ctx, tenantID)
+	if err != nil {
+		return nil, nil, err
+	}
+	f, _, err := s.st.GetInvSyncSettings(ctx, tenantID)
+	if err != nil {
+		return nil, nil, err
+	}
+	var roles map[string]string
+	if needsRoles(f) {
+		if roles, err = s.inv.Roles(ctx, tenantID); err != nil {
+			if !errors.Is(err, invclient.ErrUnavailable) {
+				err = fmt.Errorf("%w: %v", ErrUnavailable, err)
+			}
+			return nil, nil, err
+		}
+	}
+	byHost := make(map[string]invclient.Host, len(hosts))
+	for _, h := range hosts {
+		byHost[h.ID] = h
+	}
+	return applyFilter(Diff(hosts, all), byHost, f, roles), byHost, nil
+}
+
+// Options of a sync run: which kinds of changes to apply.
+type Options struct {
+	Create bool // create assets for new hosts
+	Update bool // update the sync-owned fields of matched assets
 }
 
 // Execute applies the sync for the selected hostnames (all hosts when the
 // selection is empty): creates auto-tagged assets for unmatched hosts and
-// updates the sync-owned fields of matched ones.
+// updates the sync-owned fields of matched ones. Hosts the tenant's filter
+// excludes are skipped.
 func (s *Service) Execute(ctx context.Context, subj authz.Subjects, hostnames []string) (Result, error) {
+	return s.run(ctx, subj, hostnames, Options{Create: true, Update: true})
+}
+
+// RunScheduled runs the whole sync for a tenant as the system (the
+// asset:inventory-sync scheduler task).
+func (s *Service) RunScheduled(ctx context.Context, tenantID string, opts Options) (Result, error) {
+	subj := authz.Subjects{TenantID: tenantID, UserID: "scheduler", ActorKind: authz.ActorSystem}
+	return s.run(ctx, subj, nil, opts)
+}
+
+func (s *Service) run(ctx context.Context, subj authz.Subjects, hostnames []string, opts Options) (Result, error) {
 	if err := authz.RequireTenant(subj, subj.TenantID); err != nil {
 		return Result{}, err
 	}
-	hosts, all, err := s.load(ctx, subj.TenantID)
+	changes, byHost, err := s.plan(ctx, subj.TenantID)
 	if err != nil {
 		return Result{}, err
 	}
@@ -123,19 +174,23 @@ func (s *Service) Execute(ctx context.Context, subj authz.Subjects, hostnames []
 	for _, h := range hostnames {
 		selected[h] = true
 	}
-	byHost := map[string]invclient.Host{}
-	for _, h := range hosts {
-		byHost[h.Hostname] = h
-	}
-	changes := Diff(hosts, all)
 	res := Result{Errors: []string{}, Changes: []Change{}}
 	now := s.now()
 	for _, c := range changes {
 		if len(selected) > 0 && !selected[c.Hostname] {
 			continue
 		}
+		if c.Action == ActionExcluded {
+			res.Excluded++
+			res.Changes = append(res.Changes, c)
+			continue
+		}
+		if (c.Action == ActionCreate && !opts.Create) || (c.Action == ActionUpdate && !opts.Update) {
+			res.Skipped++
+			continue
+		}
 		res.Selected++
-		h := byHost[c.Hostname]
+		h := byHost[c.HostID]
 		d := desired(h)
 		switch c.Action {
 		case ActionCreate:
@@ -175,6 +230,6 @@ func (s *Service) Execute(ctx context.Context, subj authz.Subjects, hostnames []
 	}
 	audit.Emit(ctx, s.aud, audit.Event{TenantID: subj.TenantID, EventType: audit.InventorySyncExecuted, ActorKind: subj.ActorKind, ActorID: subj.ActorID(),
 		SubjectKind: audit.SubjectSync, SubjectID: "execute", Outcome: audit.OutcomeOK,
-		Details: map[string]any{"selected": res.Selected, "created": res.Created, "updated": res.Updated, "errors": len(res.Errors)}})
+		Details: map[string]any{"selected": res.Selected, "created": res.Created, "updated": res.Updated, "excluded": res.Excluded, "errors": len(res.Errors)}})
 	return res, nil
 }

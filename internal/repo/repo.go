@@ -52,6 +52,10 @@ type Store interface {
 	CloseActiveAssignment(ctx context.Context, tenantID, assetID string, at time.Time) error
 	ListAssignments(ctx context.Context, tenantID, assetID string, limit int) ([]store.Assignment, error)
 
+	// Inventory-sync filters (feature 030); found false: defaults (no filter).
+	GetInvSyncSettings(ctx context.Context, tenantID string) (store.InvSyncSettings, bool, error)
+	PutInvSyncSettings(ctx context.Context, s store.InvSyncSettings) error
+
 	// Documents (polymorphic)
 	InsertDocument(ctx context.Context, d store.Document) error
 	GetDocument(ctx context.Context, tenantID, id string) (store.Document, error)

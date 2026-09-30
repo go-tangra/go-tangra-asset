@@ -39,6 +39,7 @@ type Change struct {
 	AssetID  string                 `json:"asset_id,omitempty"`
 	AssetTag string                 `json:"asset_tag,omitempty"`
 	Changes  map[string]FieldChange `json:"changes,omitempty"`
+	Reason   string                 `json:"reason,omitempty"` // why the filter excluded the host
 }
 
 // Desired is the asset projection of an inventory host.

@@ -566,6 +566,8 @@ func TestSyncStatsBackupStream(t *testing.T) {
 	gs.Register(Deps{Assets: assets.New(g.mem, nil, nil, nil), Categories: categories.New(g.mem, nil), Stats: stats.New(g.mem, config.SoonWindows{}), Backup: backup.New(g.mem, nil), Documents: documents.New(g.mem, g.blob, nil, 1, time.Minute), Suppliers: suppliers.New(g.mem, nil, nil), Locations: locations.New(g.mem, nil, nil), Consumables: consumables.New(g.mem, nil), Licenses: licenses.New(g.mem, nil), Insurance: insurance.New(g.mem, nil)})
 	want(t, g.req(t, "POST", p+"/assets/inventory-sync/preview", "admin", ""), 503)
 	want(t, g.req(t, "POST", p+"/assets/inventory-sync/execute", "admin", ""), 503)
+	want(t, g.req(t, "GET", p+"/assets/inventory-sync/settings", "admin", ""), 503)
+	want(t, g.req(t, "PUT", p+"/assets/inventory-sync/settings", "admin", `{}`), 503)
 	if us := want(t, g.req(t, "GET", p+"/users", "admin", ""), 200); len(items(us)) != 0 {
 		t.Fatal("no directory → empty")
 	}
@@ -672,4 +674,32 @@ func TestHelpers(t *testing.T) {
 	if jsonRaw([]byte(`{"a":1}`)) == nil || jsonRaw([]byte(`nope`)) != "nope" {
 		t.Fatal("jsonRaw")
 	}
+}
+
+// Inventory-sync filter settings are persisted per tenant (feature 030).
+func TestInventorySyncSettingsAPI(t *testing.T) {
+	f := newAPI(t, false)
+	st := want(t, f.req(t, "GET", p+"/assets/inventory-sync/settings", "admin", ""), 200)
+	if st["exclude_vms"] != false || len(st["hostname_exclude"].([]any)) != 0 {
+		t.Fatalf("defaults %v", st)
+	}
+	saved := want(t, f.req(t, "PUT", p+"/assets/inventory-sync/settings", "admin",
+		`{"exclude_vms":true,"skip_retired":true,"hostname_exclude":["*.LAB.*"],"os_include":["ubuntu*"]}`), 200)
+	if saved["exclude_vms"] != true || saved["hostname_exclude"].([]any)[0] != "*.lab.*" {
+		t.Fatalf("saved %v", saved)
+	}
+	if got := want(t, f.req(t, "GET", p+"/assets/inventory-sync/settings", "admin", ""), 200); got["skip_retired"] != true {
+		t.Fatalf("not persisted %v", got)
+	}
+	if other := want(t, f.req(t, "GET", p+"/assets/inventory-sync/settings", "other", ""), 200); other["exclude_vms"] != false {
+		t.Fatalf("settings leaked across tenants %v", other)
+	}
+	if bad := f.req(t, "PUT", p+"/assets/inventory-sync/settings", "admin", `{"hostname_exclude":["[x"]}`); bad.Code != 422 || !strings.Contains(bad.Body.String(), "hostname_exclude") {
+		t.Fatalf("bad pattern %d %s", bad.Code, bad.Body)
+	}
+	want(t, f.req(t, "PUT", p+"/assets/inventory-sync/settings", "admin", `{`), 400)
+	f.mem.FailNext("GetInvSyncSettings")
+	want(t, f.req(t, "GET", p+"/assets/inventory-sync/settings", "admin", ""), 500)
+	f.mem.FailNext("PutInvSyncSettings")
+	want(t, f.req(t, "PUT", p+"/assets/inventory-sync/settings", "admin", `{}`), 500)
 }

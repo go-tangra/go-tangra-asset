@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -11,6 +12,7 @@ import (
 	"github.com/go-tangra/go-tangra-asset/v4/internal/consumables"
 	"github.com/go-tangra/go-tangra-asset/v4/internal/documents"
 	"github.com/go-tangra/go-tangra-asset/v4/internal/insurance"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/invsync"
 	"github.com/go-tangra/go-tangra-asset/v4/internal/licenses"
 	"github.com/go-tangra/go-tangra-asset/v4/internal/locations"
 	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
@@ -283,6 +285,52 @@ func (s *Server) registerAssets(d Deps) {
 		}
 		v, err := d.Sync.Execute(r.Context(), subj, in.Hostnames)
 		if err != nil {
+			failSvc(w, err)
+			return
+		}
+		WriteJSON(w, http.StatusOK, v)
+	})
+	// Persisted filter settings (feature 030).
+	s.handle("GET", p+"/assets/inventory-sync/settings", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
+		if d.Sync == nil {
+			WriteError(w, http.StatusServiceUnavailable, "temporarily_unavailable")
+			return
+		}
+		v, err := d.Sync.Settings(r.Context(), subj)
+		if err != nil {
+			failSvc(w, err)
+			return
+		}
+		WriteJSON(w, http.StatusOK, v)
+	})
+	s.handle("PUT", p+"/assets/inventory-sync/settings", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
+		if d.Sync == nil {
+			WriteError(w, http.StatusServiceUnavailable, "temporarily_unavailable")
+			return
+		}
+		var in struct {
+			ExcludeVMs        bool     `json:"exclude_vms"`
+			ExcludeContainers bool     `json:"exclude_containers"`
+			SkipStale         bool     `json:"skip_stale"`
+			SkipRetired       bool     `json:"skip_retired"`
+			HostnameInclude   []string `json:"hostname_include"`
+			HostnameExclude   []string `json:"hostname_exclude"`
+			OSInclude         []string `json:"os_include"`
+			OSExclude         []string `json:"os_exclude"`
+		}
+		if err := DecodeJSON(r, &in, 64<<10); err != nil {
+			Fail(w, r, nil, err)
+			return
+		}
+		v, err := d.Sync.SaveSettings(r.Context(), subj, store.InvSyncSettings{ExcludeVMs: in.ExcludeVMs, ExcludeContainers: in.ExcludeContainers,
+			SkipStale: in.SkipStale, SkipRetired: in.SkipRetired, HostnameInclude: in.HostnameInclude, HostnameExclude: in.HostnameExclude,
+			OSInclude: in.OSInclude, OSExclude: in.OSExclude})
+		if err != nil {
+			var ve invsync.SettingsValidationError
+			if errors.As(err, &ve) {
+				WriteDetail(w, ErrValidation, map[string]any{"field": ve.Field, "message": ve.Msg})
+				return
+			}
 			failSvc(w, err)
 			return
 		}

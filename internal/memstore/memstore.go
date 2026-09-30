@@ -34,6 +34,7 @@ type Mem struct {
 	assets       map[string]store.Asset
 	assignments  map[string]store.Assignment
 	documents    map[string]store.Document
+	invsync      map[string]store.InvSyncSettings // feature 030
 	categories   map[string]store.Category
 	suppliers    map[string]store.Supplier
 	locations    map[string]store.Location
