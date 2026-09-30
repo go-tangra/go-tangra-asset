@@ -11,6 +11,7 @@ export const routes: RouteRecordRaw[] = [
   { path: '/asset/locations', name: 'asset-locations', component: () => import('@/views/locations/index.vue'), meta: m },
   { path: '/asset/consumables', name: 'asset-consumables', component: () => import('@/views/consumables/index.vue'), meta: m },
   { path: '/asset/licenses', name: 'asset-licenses', component: () => import('@/views/licenses/index.vue'), meta: m },
+  { path: '/asset/documents', name: 'asset-documents', component: () => import('@/views/documents/index.vue'), meta: m },
   { path: '/asset/insurance', name: 'asset-insurance', component: () => import('@/views/insurance/index.vue'), meta: m },
   { path: '/asset/inventory-sync', name: 'asset-inventory-sync', component: () => import('@/views/inventory-sync/index.vue'), meta: m },
   { path: '/asset/dashboard', name: 'asset-dashboard', component: () => import('@/views/dashboard/index.vue'), meta: m },

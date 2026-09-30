@@ -40,11 +40,14 @@ type Config struct {
 	// TaskScheduler registers the asset task types with the platform
 	// scheduler module (feature 030: asset:inventory-sync).
 	TaskScheduler TaskScheduler `yaml:"task_scheduler"`
-	Uploads       Uploads       `yaml:"uploads"`
-	Events        Events        `yaml:"events"`
-	Gateway       Gateway       `yaml:"gateway"`
-	MeshEnroll    MeshEnroll    `yaml:"mesh_enroll"`
-	Limits        Limits        `yaml:"limits_asset"`
+	// Paperless stores asset documents in the paperless module (feature
+	// 030; full-text search). Photos stay in the object store.
+	Paperless  Paperless  `yaml:"paperless"`
+	Uploads    Uploads    `yaml:"uploads"`
+	Events     Events     `yaml:"events"`
+	Gateway    Gateway    `yaml:"gateway"`
+	MeshEnroll MeshEnroll `yaml:"mesh_enroll"`
+	Limits     Limits     `yaml:"limits_asset"`
 }
 
 // DB configures the PostgreSQL/TimescaleDB store.
@@ -97,6 +100,13 @@ type Scheduler struct {
 	WarrantySoonDays  int `yaml:"warranty_soon_days"`
 	LicenseSoonDays   int `yaml:"license_soon_days"`
 	InsuranceSoonDays int `yaml:"insurance_soon_days"`
+}
+
+// Paperless: Enabled files new documents in the paperless service Service
+// and migrates the documents still held in the object store.
+type Paperless struct {
+	Enabled bool   `yaml:"enabled"`
+	Service string `yaml:"service"`
 }
 
 // TaskScheduler: Enabled keeps the asset task types registered with the
@@ -159,6 +169,7 @@ func Default() Config {
 		ObjectStore:   ObjectStore{Region: "us-east-1", PresignTTL: 300},
 		Inventory:     Inventory{Service: "inventory"},
 		TaskScheduler: TaskScheduler{Service: "scheduler"},
+		Paperless:     Paperless{Enabled: true, Service: "paperless"},
 		Scheduler:     Scheduler{IntervalSeconds: 3600, WarrantySoonDays: 30, LicenseSoonDays: 30, InsuranceSoonDays: 30},
 		Uploads:       Uploads{MaxSizeBytes: 20 << 20},
 		Events:        Events{Enabled: true},

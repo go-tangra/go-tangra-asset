@@ -236,3 +236,19 @@ export interface SyncSettings {
   updated_by?: string
   updated_at?: string
 }
+
+// DocumentHit is one full-text search result (paperless, feature 030).
+export interface DocumentHit {
+  document: {
+    id: string
+    entity_type: 'asset' | 'consumable' | 'license'
+    entity_id: string
+    file_name: string
+    file_size: number
+    mime_type?: string
+    description?: string
+    created_at: string
+  }
+  snippet: string
+  rank: number
+}

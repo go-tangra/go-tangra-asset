@@ -58,7 +58,7 @@ func TestOpenAPIDocumentAndRoutes(t *testing.T) {
 		t.Fatalf("exactly /health is public: %v", public)
 	}
 	m, err := assetmanifest.Manifest()
-	if err != nil || m.Module != "asset" || len(m.Nav) != 9 {
+	if err != nil || m.Module != "asset" || len(m.Nav) != 10 {
 		t.Fatalf("%+v %v", m, err)
 	}
 

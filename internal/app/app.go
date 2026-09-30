@@ -6,8 +6,11 @@
 package app
 
 import (
+	"google.golang.org/grpc"
+
 	"context"
 	"fmt"
+	"github.com/go-tangra/go-tangra-asset/v4/internal/paper"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -213,6 +216,15 @@ func Build(ctx context.Context, cfg config.Config, o Options) (a *App, err error
 	licSvc := licenses.New(a.Repo, a.Audit)
 	insSvc := insurance.New(a.Repo, a.Audit)
 	docSvc := documents.New(a.Repo, a.Blob, a.Audit, cfg.Uploads.MaxSizeBytes, cfg.PresignTTL())
+	assetsSvc.SetDocumentPurger(docSvc)
+	if cfg.Paperless.Enabled {
+		// Documents live in paperless (feature 030); the ones still in the
+		// object store are moved there in the background.
+		docSvc.SetPaperless(paper.New(func(ctx context.Context) (grpc.ClientConnInterface, error) {
+			return a.Freya.Client(ctx, cfg.Paperless.Service)
+		}))
+		a.workers = append(a.workers, func(c context.Context) { migrateDocuments(c, docSvc, a.Log) })
+	}
 	syncSvc := invsync.New(a.Repo, inv, a.Audit)
 	statsSvc := stats.New(a.Repo, cfg.SoonWindows())
 	backupSvc := backup.New(a.Repo, a.Audit)

@@ -88,6 +88,7 @@ var Nav = []gatewayclient.NavEntry{
 	{Title: "Consumables", Path: "/asset/consumables", Icon: "mdi-package-variant", Order: 740, Requires: "assets:read"},
 	{Title: "Licenses", Path: "/asset/licenses", Icon: "mdi-license", Order: 750, Requires: "assets:read"},
 	{Title: "Insurance", Path: "/asset/insurance", Icon: "mdi-shield-check-outline", Order: 760, Requires: "assets:read"},
+	{Title: "Document search", Path: "/asset/documents", Icon: "mdi-file-search-outline", Order: 765, Requires: "assets:read"},
 	{Title: "Inventory Sync", Path: "/asset/inventory-sync", Icon: "mdi-sync", Order: 770, Requires: "inventory:sync"},
 	{Title: "Dashboard", Path: "/asset/dashboard", Icon: "mdi-view-dashboard-outline", Order: 780, Requires: "stats:read"},
 }

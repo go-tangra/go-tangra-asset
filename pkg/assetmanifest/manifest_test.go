@@ -51,7 +51,7 @@ func TestManifestBuilds(t *testing.T) {
 			t.Fatalf("route %s %s has unknown permission %q", r.Method, r.Path, r.Permission)
 		}
 	}
-	if len(m.Nav) != 9 {
+	if len(m.Nav) != 10 {
 		t.Fatalf("nav entries = %d", len(m.Nav))
 	}
 	if len(m.Permissions) != 13 {
