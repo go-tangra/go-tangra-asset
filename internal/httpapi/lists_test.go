@@ -75,6 +75,15 @@ func TestListContractValidation(t *testing.T) {
 			}
 		}
 	}
+	// An over-long free-text query is rejected without echoing it (both styles).
+	long := strings.Repeat("q", store.MaxQueryLen+1)
+	for _, path := range []string{"/assets?query=" + long, "/suppliers?page=1&query=" + long, "/licenses?limit=5&query=" + long} {
+		e := want(t, f.req(t, "GET", p+path, "admin", ""), 422)
+		if d, _ := e["detail"].(map[string]any); d["param"] != "query" || strings.Contains(fmt.Sprint(e), long) {
+			t.Fatalf("%s: %v", path[:12], e)
+		}
+	}
+	want(t, f.req(t, "GET", p+"/assets?query="+long[1:], "admin", ""), 200)
 	// The sub-lists validate the same way.
 	e := want(t, f.req(t, "GET", p+"/insurance-policies/x/assets?sort=covered_value", "admin", ""), 422)
 	if e["detail"].(map[string]any)["param"] != "sort" {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"unicode/utf8"
 
 	"github.com/go-tangra/go-tangra/v4/listquery"
 
@@ -39,6 +40,10 @@ func legacyLimit(q url.Values) int {
 func serveList[T any](w http.ResponseWriter, r *http.Request, spec listquery.Spec,
 	legacy func() ([]T, error), paged func(listquery.Request) (listquery.Page[T], error)) {
 	q := r.URL.Query()
+	if utf8.RuneCountInString(q.Get("query")) > store.MaxQueryLen {
+		WriteDetail(w, ErrValidation, map[string]any{"param": "query"})
+		return
+	}
 	if listquery.Legacy(q) {
 		items, err := legacy()
 		if err != nil {
