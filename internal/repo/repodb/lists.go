@@ -59,17 +59,27 @@ func qualify(cols, prefix string) string {
 	return strings.Join(parts, ", ")
 }
 
-// searchCond is the case-insensitive substring match of query over cols
-// ("" when query is blank).
+// likeEscaper escapes the LIKE metacharacters (and the escape character), so
+// a query matches literally (ESCAPE '\').
+var likeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
+
+// likePattern is the literal substring pattern of query, capped at
+// store.MaxQueryLen runes.
+func likePattern(query string) string {
+	return "%" + likeEscaper.Replace(store.TrimQuery(query)) + "%"
+}
+
+// searchCond is the case-insensitive literal substring match of query over
+// cols ("" when query is blank).
 func searchCond(query string, cols []string, args *[]any) string {
 	if query == "" {
 		return ""
 	}
-	*args = append(*args, "%"+query+"%")
+	*args = append(*args, likePattern(query))
 	n := len(*args)
 	parts := make([]string, 0, len(cols))
 	for _, c := range cols {
-		parts = append(parts, fmt.Sprintf("%s ILIKE $%d", c, n))
+		parts = append(parts, fmt.Sprintf(`%s ILIKE $%d ESCAPE '\'`, c, n))
 	}
 	return " AND (" + strings.Join(parts, " OR ") + ")"
 }
@@ -103,8 +113,10 @@ func (d *DB) PageAssets(ctx context.Context, tenantID string, f store.AssetFilte
 		where := "a.tenant_id=$1" + assetConds(f, "a.", &args)
 		var e error
 		out, total, applied, e = page(ctx, tx, pageSQL{cols: assetColsA, countFrom: "asset_assets a",
-			selectFrom: "asset_assets a LEFT JOIN asset_categories c ON c.id = a.category_id LEFT JOIN asset_locations l ON l.id = a.location_id",
-			where:      where}, args, store.AssetList, req, scanAsset)
+			selectFrom: "asset_assets a" +
+				" LEFT JOIN asset_categories c ON c.tenant_id = a.tenant_id AND c.id = a.category_id" +
+				" LEFT JOIN asset_locations l ON l.tenant_id = a.tenant_id AND l.id = a.location_id",
+			where: where}, args, store.AssetList, req, scanAsset)
 		return e
 	})
 	return
