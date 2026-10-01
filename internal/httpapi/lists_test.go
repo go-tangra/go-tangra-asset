@@ -196,8 +196,12 @@ func TestListContractOtherLists(t *testing.T) {
 	f.mem.FailNext("PagePolicyAssets")
 	want(t, f.req(t, "GET", p+"/insurance-policies/"+policy+"/assets", "admin", ""), 500)
 	m = want(t, f.req(t, "GET", p+"/insurance-policies/"+policy+"/assets?limit=1", "admin", ""), 200)
-	if _, paged := m["page"]; paged || m["total"] != 5.0 || len(items(m)) != 5 {
+	if _, paged := m["page"]; paged || m["total"] != 5.0 || len(items(m)) != 1 {
 		t.Fatalf("policy assets legacy: %v", m)
+	}
+	m = want(t, f.req(t, "GET", p+"/insurance-policies/"+policy+"/assets?cursor=", "admin", ""), 200)
+	if _, paged := m["page"]; paged || m["total"] != 5.0 || len(items(m)) != 5 {
+		t.Fatalf("policy assets legacy cursor: %v", m)
 	}
 
 	// Assignment history: newest first by default; returned_at sorts open ones last.

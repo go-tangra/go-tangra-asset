@@ -37,7 +37,7 @@ func atoiDefault(s string, def int) int {
 
 func listOpts(r *http.Request) store.ListOpts {
 	q := r.URL.Query()
-	return store.ListOpts{Query: q.Get("query"), Limit: atoiDefault(q.Get("limit"), 0), CursorID: q.Get("cursor")}
+	return store.ListOpts{Query: q.Get("query"), Limit: legacyLimit(q), CursorID: q.Get("cursor")}
 }
 
 // handle wraps a handler that needs the caller's subject.
@@ -167,7 +167,7 @@ func (s *Server) registerAssets(d Deps) {
 		q := r.URL.Query()
 		f := store.AssetFilter{
 			Status: q.Get("status"), CategoryID: q.Get("category_id"), SupplierID: q.Get("supplier_id"), LocationID: q.Get("location_id"),
-			UserID: q.Get("user_id"), Query: q.Get("query"), Limit: atoiDefault(q.Get("limit"), 0), CursorID: q.Get("cursor"),
+			UserID: q.Get("user_id"), Query: q.Get("query"), Limit: legacyLimit(q), CursorID: q.Get("cursor"),
 		}
 		serveList(w, r, store.AssetList, func() ([]assets.View, error) { return d.Assets.List(r.Context(), subj, f) },
 			func(req listquery.Request) (listquery.Page[assets.View], error) {
@@ -253,7 +253,7 @@ func (s *Server) registerAssets(d Deps) {
 		id := r.PathValue("id")
 		serveList(w, r, store.AssignmentList,
 			func() ([]store.Assignment, error) {
-				return d.Assets.Assignments(r.Context(), subj, id, atoiDefault(r.URL.Query().Get("limit"), 0))
+				return d.Assets.Assignments(r.Context(), subj, id, legacyLimit(r.URL.Query()))
 			},
 			func(req listquery.Request) (listquery.Page[store.Assignment], error) {
 				return d.Assets.AssignmentsPage(r.Context(), subj, id, req)
@@ -677,7 +677,14 @@ func (s *Server) registerInventories(d Deps) {
 	})
 	s.handle("GET", p+"/insurance-policies/{id}/assets", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
 		id := r.PathValue("id")
-		serveList(w, r, store.PolicyAssetList, func() ([]store.PolicyAsset, error) { return d.Insurance.ListPolicyAssets(r.Context(), subj, id) },
+		serveList(w, r, store.PolicyAssetList, func() ([]store.PolicyAsset, error) {
+			// Legacy: no cursor here; bounded like every legacy list.
+			v, err := d.Insurance.ListPolicyAssets(r.Context(), subj, id)
+			if n := legacyLimit(r.URL.Query()); len(v) > n {
+				v = v[:n]
+			}
+			return v, err
+		},
 			func(req listquery.Request) (listquery.Page[store.PolicyAsset], error) {
 				return d.Insurance.PolicyAssetsPage(r.Context(), subj, id, req)
 			})
@@ -715,8 +722,7 @@ func (s *Server) registerDocuments(d Deps) {
 		q := r.URL.Query()
 		if listquery.Legacy(q) {
 			// Legacy limit-only search (one release): the old shape plus total.
-			limit, _ := strconv.Atoi(q.Get("limit"))
-			hits, err := d.Documents.Search(r.Context(), subj, q.Get("q"), limit)
+			hits, err := d.Documents.Search(r.Context(), subj, q.Get("q"), legacyLimit(q))
 			if err != nil {
 				failList(w, err)
 				return

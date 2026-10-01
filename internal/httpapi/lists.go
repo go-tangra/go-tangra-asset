@@ -3,6 +3,7 @@ package httpapi
 import (
 	"errors"
 	"net/http"
+	"net/url"
 
 	"github.com/go-tangra/go-tangra/v4/listquery"
 
@@ -16,6 +17,22 @@ import (
 // with only the old cursor / limit parameters keeps the old shape ({items})
 // plus total for one release; mixing both styles is validation_failed on
 // "cursor".
+
+// legacyDefaultLimit is the page size of a legacy request without a usable
+// limit (cursor only, or limit absent, invalid or < 1).
+const legacyDefaultLimit = 50
+
+// legacyLimit is the page size a legacy cursor/limit request stands for:
+// always 1..listquery.MaxPageSize, legacyDefaultLimit when the limit is
+// absent, invalid or < 1. A legacy request never reads an unbounded list
+// (032 security review F-1).
+func legacyLimit(q url.Values) int {
+	n := atoiDefault(q.Get("limit"), legacyDefaultLimit)
+	if n < 1 {
+		n = legacyDefaultLimit
+	}
+	return min(n, listquery.MaxPageSize)
+}
 
 // serveList answers one list request: legacy runs the old cursor path, paged
 // the list-contract page (also used, with one row, to count for legacy).
