@@ -10,6 +10,8 @@ import (
 	"io"
 	"strings"
 
+	"github.com/go-tangra/go-tangra/v4/listquery"
+
 	"github.com/go-tangra/go-tangra-asset/v4/internal/audit"
 	"github.com/go-tangra/go-tangra-asset/v4/internal/authz"
 	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
@@ -272,3 +274,17 @@ func (s *Service) migrateOne(ctx context.Context, d store.Document) error {
 
 // paperReader wraps downloaded bytes.
 func paperReader(b []byte) io.ReadCloser { return io.NopCloser(bytes.NewReader(b)) }
+
+// SearchPage is the list-contract page of a document search: the top
+// store.SearchWindow paperless hits that are asset documents, in relevance
+// order (the only sort), windowed by req.
+func (s *Service) SearchPage(ctx context.Context, subj authz.Subjects, query string, req listquery.Request) (listquery.Page[SearchHit], error) {
+	hits, err := s.Search(ctx, subj, query, store.SearchWindow)
+	if err != nil {
+		return listquery.Page[SearchHit]{}, err
+	}
+	req = store.ListRequest(req, store.DocumentSearchList)
+	req.Order = listquery.Desc // relevance order is fixed: best first
+	pg, total, applied := listquery.Window(hits, req)
+	return listquery.NewPage(pg, total, applied), nil
+}

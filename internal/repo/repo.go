@@ -6,6 +6,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/go-tangra/go-tangra/v4/listquery"
+
 	"github.com/go-tangra/go-tangra-asset/v4/internal/store"
 )
 
@@ -46,11 +48,16 @@ type Store interface {
 	CountAssetsBySupplier(ctx context.Context, tenantID, supplierID string) (int64, error)
 	CountAssetsByLocation(ctx context.Context, tenantID, locationID string) (int64, error)
 	AllAssets(ctx context.Context, tenantID string) ([]store.Asset, error) // scheduler/stats/sync
+	// PageAssets is the list-contract page of ListAssets (store.AssetList
+	// order; f.CursorID/f.Limit ignored): the rows, the total matching the
+	// filter and the request clamped to the last page.
+	PageAssets(ctx context.Context, tenantID string, f store.AssetFilter, req listquery.Request) ([]store.Asset, int, listquery.Request, error)
 
 	// Assignments
 	InsertAssignment(ctx context.Context, a store.Assignment) error
 	CloseActiveAssignment(ctx context.Context, tenantID, assetID string, at time.Time) error
 	ListAssignments(ctx context.Context, tenantID, assetID string, limit int) ([]store.Assignment, error)
+	PageAssignments(ctx context.Context, tenantID, assetID string, req listquery.Request) ([]store.Assignment, int, listquery.Request, error)
 
 	// Inventory-sync filters (feature 030); found false: defaults (no filter).
 	GetInvSyncSettings(ctx context.Context, tenantID string) (store.InvSyncSettings, bool, error)
@@ -82,6 +89,8 @@ type Store interface {
 	CreateSupplier(ctx context.Context, s store.Supplier) error
 	GetSupplier(ctx context.Context, tenantID, id string) (store.Supplier, error)
 	ListSuppliers(ctx context.Context, tenantID string, f store.ListOpts) ([]store.Supplier, error)
+	// PageSuppliers pages by f.Query (cursor/limit ignored).
+	PageSuppliers(ctx context.Context, tenantID string, f store.ListOpts, req listquery.Request) ([]store.Supplier, int, listquery.Request, error)
 	UpdateSupplier(ctx context.Context, s store.Supplier) error
 	DeleteSupplier(ctx context.Context, tenantID, id string) error
 
@@ -97,6 +106,8 @@ type Store interface {
 	CreateConsumable(ctx context.Context, c store.Consumable) error
 	GetConsumable(ctx context.Context, tenantID, id string) (store.Consumable, error)
 	ListConsumables(ctx context.Context, tenantID string, f store.ListOpts) ([]store.Consumable, error)
+	// PageConsumables pages by f.Query (cursor/limit ignored).
+	PageConsumables(ctx context.Context, tenantID string, f store.ListOpts, req listquery.Request) ([]store.Consumable, int, listquery.Request, error)
 	UpdateConsumable(ctx context.Context, c store.Consumable) error
 	DeleteConsumable(ctx context.Context, tenantID, id string) error
 	AllConsumables(ctx context.Context, tenantID string) ([]store.Consumable, error) // scheduler
@@ -105,6 +116,8 @@ type Store interface {
 	CreateLicense(ctx context.Context, l store.License) error
 	GetLicense(ctx context.Context, tenantID, id string) (store.License, error)
 	ListLicenses(ctx context.Context, tenantID string, f store.ListOpts) ([]store.License, error)
+	// PageLicenses pages by f.Query (cursor/limit ignored).
+	PageLicenses(ctx context.Context, tenantID string, f store.ListOpts, req listquery.Request) ([]store.License, int, listquery.Request, error)
 	UpdateLicense(ctx context.Context, l store.License) error
 	DeleteLicense(ctx context.Context, tenantID, id string) error
 	AllLicenses(ctx context.Context, tenantID string) ([]store.License, error) // scheduler
@@ -113,12 +126,15 @@ type Store interface {
 	CreateInsurance(ctx context.Context, p store.InsurancePolicy) error
 	GetInsurance(ctx context.Context, tenantID, id string) (store.InsurancePolicy, error)
 	ListInsurance(ctx context.Context, tenantID string, f store.ListOpts) ([]store.InsurancePolicy, error)
+	// PageInsurance pages by f.Query (cursor/limit ignored).
+	PageInsurance(ctx context.Context, tenantID string, f store.ListOpts, req listquery.Request) ([]store.InsurancePolicy, int, listquery.Request, error)
 	UpdateInsurance(ctx context.Context, p store.InsurancePolicy) error
 	DeleteInsurance(ctx context.Context, tenantID, id string) error
 	AllInsurance(ctx context.Context, tenantID string) ([]store.InsurancePolicy, error) // scheduler
 	AddPolicyAsset(ctx context.Context, pa store.PolicyAsset) error                     // ErrConflict on dup
 	RemovePolicyAsset(ctx context.Context, tenantID, policyID, assetID string) error
 	ListPolicyAssets(ctx context.Context, tenantID, policyID string) ([]store.PolicyAsset, error)
+	PagePolicyAssets(ctx context.Context, tenantID, policyID string, req listquery.Request) ([]store.PolicyAsset, int, listquery.Request, error)
 
 	// Notify-state (scheduler dedup)
 	GetNotifyState(ctx context.Context, tenantID, conditionKey string) (store.NotifyState, error)

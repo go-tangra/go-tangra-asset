@@ -209,37 +209,7 @@ func (m *Mem) ListAssets(_ context.Context, tenantID string, f store.AssetFilter
 	if err := m.fail("ListAssets"); err != nil {
 		return nil, err
 	}
-	var out []store.Asset
-	for _, a := range m.assets {
-		if a.TenantID != tenantID {
-			continue
-		}
-		if f.Status != "" && a.Status != f.Status {
-			continue
-		}
-		if f.CategoryID != "" && a.CategoryID != f.CategoryID {
-			continue
-		}
-		if f.SupplierID != "" && a.SupplierID != f.SupplierID {
-			continue
-		}
-		if f.LocationID != "" && a.LocationID != f.LocationID {
-			continue
-		}
-		if f.UserID != "" && a.UserID != f.UserID {
-			continue
-		}
-		if f.Query != "" {
-			q := strings.ToLower(f.Query)
-			if !strings.Contains(strings.ToLower(a.AssetTag), q) &&
-				!strings.Contains(strings.ToLower(a.Name), q) &&
-				!strings.Contains(strings.ToLower(a.Serial), q) &&
-				!strings.Contains(strings.ToLower(a.ModelName), q) {
-				continue
-			}
-		}
-		out = append(out, a)
-	}
+	out := m.matchAssets(tenantID, f)
 	out = paginate(out, func(a store.Asset) string { return a.ID }, f.CursorID, f.Limit)
 	for i := range out {
 		m.fillAsset(&out[i])
@@ -699,19 +669,7 @@ func (m *Mem) ListSuppliers(_ context.Context, tenantID string, f store.ListOpts
 	if err := m.fail("ListSuppliers"); err != nil {
 		return nil, err
 	}
-	var out []store.Supplier
-	for _, s := range m.suppliers {
-		if s.TenantID != tenantID {
-			continue
-		}
-		if f.Query != "" {
-			q := strings.ToLower(f.Query)
-			if !strings.Contains(strings.ToLower(s.Name), q) && !strings.Contains(strings.ToLower(s.Code), q) {
-				continue
-			}
-		}
-		out = append(out, s)
-	}
+	out := m.matchSuppliers(tenantID, f.Query)
 	out = paginate(out, func(s store.Supplier) string { return s.ID }, f.CursorID, f.Limit)
 	return out, nil
 }
@@ -959,19 +917,7 @@ func (m *Mem) ListConsumables(_ context.Context, tenantID string, f store.ListOp
 	if err := m.fail("ListConsumables"); err != nil {
 		return nil, err
 	}
-	var out []store.Consumable
-	for _, c := range m.consumables {
-		if c.TenantID != tenantID {
-			continue
-		}
-		if f.Query != "" {
-			q := strings.ToLower(f.Query)
-			if !strings.Contains(strings.ToLower(c.Name), q) && !strings.Contains(strings.ToLower(c.ModelName), q) {
-				continue
-			}
-		}
-		out = append(out, c)
-	}
+	out := m.matchConsumables(tenantID, f.Query)
 	out = paginate(out, func(c store.Consumable) string { return c.ID }, f.CursorID, f.Limit)
 	return out, nil
 }
@@ -1072,19 +1018,7 @@ func (m *Mem) ListLicenses(_ context.Context, tenantID string, f store.ListOpts)
 	if err := m.fail("ListLicenses"); err != nil {
 		return nil, err
 	}
-	var out []store.License
-	for _, l := range m.licenses {
-		if l.TenantID != tenantID {
-			continue
-		}
-		if f.Query != "" {
-			q := strings.ToLower(f.Query)
-			if !strings.Contains(strings.ToLower(l.Name), q) {
-				continue
-			}
-		}
-		out = append(out, l)
-	}
+	out := m.matchLicenses(tenantID, f.Query)
 	out = paginate(out, func(l store.License) string { return l.ID }, f.CursorID, f.Limit)
 	return out, nil
 }
@@ -1204,19 +1138,7 @@ func (m *Mem) ListInsurance(_ context.Context, tenantID string, f store.ListOpts
 	if err := m.fail("ListInsurance"); err != nil {
 		return nil, err
 	}
-	var out []store.InsurancePolicy
-	for _, p := range m.insurance {
-		if p.TenantID != tenantID {
-			continue
-		}
-		if f.Query != "" {
-			q := strings.ToLower(f.Query)
-			if !strings.Contains(strings.ToLower(p.Name), q) && !strings.Contains(strings.ToLower(p.PolicyNumber), q) {
-				continue
-			}
-		}
-		out = append(out, p)
-	}
+	out := m.matchInsurance(tenantID, f.Query)
 	out = paginate(out, func(p store.InsurancePolicy) string { return p.ID }, f.CursorID, f.Limit)
 	for i := range out {
 		m.fillInsurance(&out[i])

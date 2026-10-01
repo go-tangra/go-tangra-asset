@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-tangra/go-tangra/v4/listquery"
+
 	"github.com/go-tangra/go-tangra-asset/v4/internal/assets"
 	"github.com/go-tangra/go-tangra-asset/v4/internal/backup"
 	"github.com/go-tangra/go-tangra-asset/v4/internal/categories"
@@ -163,15 +165,14 @@ func (s *Server) registerAssets(d Deps) {
 	p := prefix
 	s.handle("GET", p+"/assets", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
 		q := r.URL.Query()
-		items, err := d.Assets.List(r.Context(), subj, store.AssetFilter{
+		f := store.AssetFilter{
 			Status: q.Get("status"), CategoryID: q.Get("category_id"), SupplierID: q.Get("supplier_id"), LocationID: q.Get("location_id"),
 			UserID: q.Get("user_id"), Query: q.Get("query"), Limit: atoiDefault(q.Get("limit"), 0), CursorID: q.Get("cursor"),
-		})
-		if err != nil {
-			failSvc(w, err)
-			return
 		}
-		WriteJSON(w, http.StatusOK, map[string]any{"items": items})
+		serveList(w, r, store.AssetList, func() ([]assets.View, error) { return d.Assets.List(r.Context(), subj, f) },
+			func(req listquery.Request) (listquery.Page[assets.View], error) {
+				return d.Assets.Page(r.Context(), subj, f, req)
+			})
 	})
 	s.handle("POST", p+"/assets", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
 		var in assets.Input
@@ -249,12 +250,14 @@ func (s *Server) registerAssets(d Deps) {
 		WriteJSON(w, http.StatusOK, v)
 	})
 	s.handle("GET", p+"/assets/{id}/assignments", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
-		items, err := d.Assets.Assignments(r.Context(), subj, r.PathValue("id"), atoiDefault(r.URL.Query().Get("limit"), 0))
-		if err != nil {
-			failSvc(w, err)
-			return
-		}
-		WriteJSON(w, http.StatusOK, map[string]any{"items": items})
+		id := r.PathValue("id")
+		serveList(w, r, store.AssignmentList,
+			func() ([]store.Assignment, error) {
+				return d.Assets.Assignments(r.Context(), subj, id, atoiDefault(r.URL.Query().Get("limit"), 0))
+			},
+			func(req listquery.Request) (listquery.Page[store.Assignment], error) {
+				return d.Assets.AssignmentsPage(r.Context(), subj, id, req)
+			})
 	})
 	// ---- Inventory sync
 	s.handle("POST", p+"/assets/inventory-sync/preview", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
@@ -400,12 +403,11 @@ func (s *Server) registerOrg(d Deps) {
 	})
 	// ---- Suppliers
 	s.handle("GET", p+"/suppliers", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
-		items, err := d.Suppliers.List(r.Context(), subj, listOpts(r))
-		if err != nil {
-			failSvc(w, err)
-			return
-		}
-		WriteJSON(w, http.StatusOK, map[string]any{"items": items})
+		f := listOpts(r)
+		serveList(w, r, store.SupplierList, func() ([]store.Supplier, error) { return d.Suppliers.List(r.Context(), subj, f) },
+			func(req listquery.Request) (listquery.Page[store.Supplier], error) {
+				return d.Suppliers.Page(r.Context(), subj, f, req)
+			})
 	})
 	s.handle("POST", p+"/suppliers", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
 		var in suppliers.Input
@@ -512,12 +514,11 @@ func (s *Server) registerInventories(d Deps) {
 	p := prefix
 	// ---- Consumables
 	s.handle("GET", p+"/consumables", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
-		items, err := d.Consumables.List(r.Context(), subj, listOpts(r))
-		if err != nil {
-			failSvc(w, err)
-			return
-		}
-		WriteJSON(w, http.StatusOK, map[string]any{"items": items})
+		f := listOpts(r)
+		serveList(w, r, store.ConsumableList, func() ([]consumables.View, error) { return d.Consumables.List(r.Context(), subj, f) },
+			func(req listquery.Request) (listquery.Page[consumables.View], error) {
+				return d.Consumables.Page(r.Context(), subj, f, req)
+			})
 	})
 	s.handle("POST", p+"/consumables", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
 		var in consumables.Input
@@ -570,12 +571,11 @@ func (s *Server) registerInventories(d Deps) {
 	})
 	// ---- Licenses
 	s.handle("GET", p+"/licenses", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
-		items, err := d.Licenses.List(r.Context(), subj, listOpts(r))
-		if err != nil {
-			failSvc(w, err)
-			return
-		}
-		WriteJSON(w, http.StatusOK, map[string]any{"items": items})
+		f := listOpts(r)
+		serveList(w, r, store.LicenseList, func() ([]store.License, error) { return d.Licenses.List(r.Context(), subj, f) },
+			func(req listquery.Request) (listquery.Page[store.License], error) {
+				return d.Licenses.Page(r.Context(), subj, f, req)
+			})
 	})
 	s.handle("POST", p+"/licenses", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
 		var in licenses.Input
@@ -628,12 +628,11 @@ func (s *Server) registerInventories(d Deps) {
 	})
 	// ---- Insurance
 	s.handle("GET", p+"/insurance-policies", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
-		items, err := d.Insurance.List(r.Context(), subj, listOpts(r))
-		if err != nil {
-			failSvc(w, err)
-			return
-		}
-		WriteJSON(w, http.StatusOK, map[string]any{"items": items})
+		f := listOpts(r)
+		serveList(w, r, store.InsuranceList, func() ([]store.InsurancePolicy, error) { return d.Insurance.List(r.Context(), subj, f) },
+			func(req listquery.Request) (listquery.Page[store.InsurancePolicy], error) {
+				return d.Insurance.Page(r.Context(), subj, f, req)
+			})
 	})
 	s.handle("POST", p+"/insurance-policies", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
 		var in insurance.Input
@@ -677,12 +676,11 @@ func (s *Server) registerInventories(d Deps) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 	s.handle("GET", p+"/insurance-policies/{id}/assets", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
-		items, err := d.Insurance.ListPolicyAssets(r.Context(), subj, r.PathValue("id"))
-		if err != nil {
-			failSvc(w, err)
-			return
-		}
-		WriteJSON(w, http.StatusOK, map[string]any{"items": items})
+		id := r.PathValue("id")
+		serveList(w, r, store.PolicyAssetList, func() ([]store.PolicyAsset, error) { return d.Insurance.ListPolicyAssets(r.Context(), subj, id) },
+			func(req listquery.Request) (listquery.Page[store.PolicyAsset], error) {
+				return d.Insurance.PolicyAssetsPage(r.Context(), subj, id, req)
+			})
 	})
 	s.handle("POST", p+"/insurance-policies/{id}/assets", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
 		var in struct {
@@ -714,17 +712,21 @@ func (s *Server) registerInventories(d Deps) {
 func (s *Server) registerDocuments(d Deps) {
 	// Full-text search over the tenant's documents (paperless, feature 030).
 	s.handle("GET", prefix+"/documents/search", func(w http.ResponseWriter, r *http.Request, subj subjectsT) {
-		limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-		hits, err := d.Documents.Search(r.Context(), subj, r.URL.Query().Get("q"), limit)
-		if errors.Is(err, documents.ErrSearchUnavailable) {
-			WriteError(w, http.StatusServiceUnavailable, "temporarily_unavailable")
+		q := r.URL.Query()
+		if listquery.Legacy(q) {
+			// Legacy limit-only search (one release): the old shape plus total.
+			limit, _ := strconv.Atoi(q.Get("limit"))
+			hits, err := d.Documents.Search(r.Context(), subj, q.Get("q"), limit)
+			if err != nil {
+				failList(w, err)
+				return
+			}
+			WriteJSON(w, http.StatusOK, map[string]any{"items": hits, "total": len(hits)})
 			return
 		}
-		if err != nil {
-			failSvc(w, err)
-			return
-		}
-		WriteJSON(w, http.StatusOK, map[string]any{"items": hits})
+		serveList(w, r, store.DocumentSearchList, nil, func(req listquery.Request) (listquery.Page[documents.SearchHit], error) {
+			return d.Documents.SearchPage(r.Context(), subj, q.Get("q"), req)
+		})
 	})
 	p := prefix
 	// ---- Photo

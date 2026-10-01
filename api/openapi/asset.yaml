@@ -52,7 +52,36 @@ components:
       in: query
       required: false
       schema: { type: string, maxLength: 200 }
+    # List contract (go-tangra specs/032-server-side-tables, contracts/http-list.md).
+    # cursor / limit (legacy, one release) cannot be combined with these.
+    page:
+      name: page
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, maximum: 2147483647 }
+    pageSize:
+      name: page_size
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, maximum: 200 }
+    order:
+      name: order
+      in: query
+      required: false
+      description: 'sort direction; defaults to the chosen field''s default direction'
+      schema: { type: string, enum: [asc, desc] }
   schemas:
+    ListPage:
+      type: object
+      description: 'one page of a list (a page beyond the end answers the last page); legacy cursor / limit requests answer {items, total}'
+      required: [items, total]
+      properties:
+        items: { type: array, items: { type: object } }
+        total: { type: integer, description: 'records matching the filters' }
+        page: { type: integer }
+        page_size: { type: integer }
+        sort: { type: string }
+        order: { type: string, enum: [asc, desc] }
     InventorySyncSettings:
       type: object
       additionalProperties: false
@@ -77,7 +106,7 @@ components:
 paths:
   # ---- Assets
   /api/asset/v1/assets:
-    get: { operationId: listAssets, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/query' }, { name: status, in: query, schema: { type: string, maxLength: 32 } }, { name: category_id, in: query, schema: { type: string, maxLength: 64 } }, { name: supplier_id, in: query, schema: { type: string, maxLength: 64 } }, { name: location_id, in: query, schema: { type: string, maxLength: 64 } }, { name: user_id, in: query, schema: { type: string, maxLength: 64 } }], responses: { '200': { description: list } } }
+    get: { operationId: listAssets, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/pageSize' }, { name: sort, in: query, description: 'default asset_tag (asc)', schema: { type: string, enum: [asset_tag, name, status, category, location, purchase_date, warranty_end, created_at] } }, { $ref: '#/components/parameters/order' }, { $ref: '#/components/parameters/query' }, { name: status, in: query, schema: { type: string, maxLength: 32 } }, { name: category_id, in: query, schema: { type: string, maxLength: 64 } }, { name: supplier_id, in: query, schema: { type: string, maxLength: 64 } }, { name: location_id, in: query, schema: { type: string, maxLength: 64 } }, { name: user_id, in: query, schema: { type: string, maxLength: 64 } }], responses: { '200': { description: 'page of assets', content: { application/json: { schema: { $ref: '#/components/schemas/ListPage' } } } } } }
     post: { operationId: createAsset, x-freya-permission: 'assets:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '201': { description: created }, '409': { description: conflict } } }
   /api/asset/v1/assets/inventory-sync/preview:
     post: { operationId: inventorySyncPreview, x-freya-permission: 'inventory:sync', x-freya-timeout-seconds: 60, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '200': { description: 'sync preview (create/update/unchanged)' }, '503': { description: 'inventory unavailable' } } }
@@ -95,13 +124,13 @@ paths:
   /api/asset/v1/assets/{id}/unassign:
     post: { operationId: unassignAsset, x-freya-permission: 'assets:assign', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: unassigned }, '409': { description: 'not assigned' } } }
   /api/asset/v1/assets/{id}/assignments:
-    get: { operationId: listAssetAssignments, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }, { $ref: '#/components/parameters/limit' }], responses: { '200': { description: 'assignment history (newest first)' } } }
+    get: { operationId: listAssetAssignments, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/pageSize' }, { name: sort, in: query, description: 'default assigned_at (desc)', schema: { type: string, enum: [assigned_at, returned_at] } }, { $ref: '#/components/parameters/order' }], responses: { '200': { description: 'assignment history (newest first by default)', content: { application/json: { schema: { $ref: '#/components/schemas/ListPage' } } } } } }
   /api/asset/v1/assets/{id}/photo:
     get: { operationId: getAssetPhoto, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: 'photo bytes' }, '404': { description: not_found } } }
     post: { operationId: uploadAssetPhoto, x-freya-permission: 'documents:manage', x-freya-max-body-bytes: 20971520, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: 'photo stored' } } }
     delete: { operationId: deleteAssetPhoto, x-freya-permission: 'documents:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '204': { description: deleted } } }
   /api/asset/v1/documents/search:
-    get: { operationId: searchDocuments, x-freya-permission: 'assets:read', x-freya-timeout-seconds: 30, parameters: [{ name: q, in: query, required: true, schema: { type: string, minLength: 1, maxLength: 200 } }, { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100 } }], responses: { '200': { description: 'documents matching the text (items of {document, snippet, rank})' }, '503': { description: 'paperless unavailable' } } }
+    get: { operationId: searchDocuments, x-freya-permission: 'assets:read', x-freya-timeout-seconds: 30, parameters: [{ name: q, in: query, required: true, schema: { type: string, minLength: 1, maxLength: 200 } }, { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100 } }, { $ref: '#/components/parameters/page' }, { name: page_size, in: query, schema: { type: integer, minimum: 1, maximum: 100 } }, { name: sort, in: query, description: 'relevance only (best first)', schema: { type: string, enum: [rank] } }], responses: { '200': { description: 'documents matching the text, best first: a page of the top 100 hits (items of {document, snippet, rank})', content: { application/json: { schema: { $ref: '#/components/schemas/ListPage' } } } }, '503': { description: 'paperless unavailable' } } }
   /api/asset/v1/assets/{id}/documents:
     get: { operationId: listAssetDocuments, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: documents } } }
     post: { operationId: uploadAssetDocument, x-freya-permission: 'documents:manage', x-freya-max-body-bytes: 20971520, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '201': { description: uploaded } } }
@@ -121,7 +150,7 @@ paths:
     delete: { operationId: deleteCategory, x-freya-permission: 'categories:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '204': { description: deleted }, '409': { description: 'in use' } } }
   # ---- Suppliers
   /api/asset/v1/suppliers:
-    get: { operationId: listSuppliers, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/query' }], responses: { '200': { description: list } } }
+    get: { operationId: listSuppliers, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/query' }, { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/pageSize' }, { name: sort, in: query, description: 'default name (asc)', schema: { type: string, enum: [name, created_at] } }, { $ref: '#/components/parameters/order' }], responses: { '200': { description: 'page of suppliers', content: { application/json: { schema: { $ref: '#/components/schemas/ListPage' } } } } } }
     post: { operationId: createSupplier, x-freya-permission: 'suppliers:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '201': { description: created }, '409': { description: conflict } } }
   /api/asset/v1/suppliers/{id}:
     get: { operationId: getSupplier, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: 'supplier (contact PII redacted unless admin)' }, '404': { description: not_found } } }
@@ -139,7 +168,7 @@ paths:
     delete: { operationId: deleteLocation, x-freya-permission: 'locations:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '204': { description: deleted }, '409': { description: 'in use' } } }
   # ---- Consumables
   /api/asset/v1/consumables:
-    get: { operationId: listConsumables, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/query' }], responses: { '200': { description: list } } }
+    get: { operationId: listConsumables, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/query' }, { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/pageSize' }, { name: sort, in: query, description: 'default name (asc)', schema: { type: string, enum: [name, amount, created_at] } }, { $ref: '#/components/parameters/order' }], responses: { '200': { description: 'page of consumables', content: { application/json: { schema: { $ref: '#/components/schemas/ListPage' } } } } } }
     post: { operationId: createConsumable, x-freya-permission: 'consumables:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '201': { description: created } } }
   /api/asset/v1/consumables/{id}:
     get: { operationId: getConsumable, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: consumable }, '404': { description: not_found } } }
@@ -154,7 +183,7 @@ paths:
     get: { operationId: downloadConsumableDocument, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }, { $ref: '#/components/parameters/docId' }], responses: { '200': { description: 'document bytes' } } }
   # ---- Licenses
   /api/asset/v1/licenses:
-    get: { operationId: listLicenses, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/query' }], responses: { '200': { description: list } } }
+    get: { operationId: listLicenses, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/query' }, { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/pageSize' }, { name: sort, in: query, description: 'default name (asc)', schema: { type: string, enum: [name, valid_to, created_at] } }, { $ref: '#/components/parameters/order' }], responses: { '200': { description: 'page of licenses', content: { application/json: { schema: { $ref: '#/components/schemas/ListPage' } } } } } }
     post: { operationId: createLicense, x-freya-permission: 'licenses:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '201': { description: created } } }
   /api/asset/v1/licenses/{id}:
     get: { operationId: getLicense, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: license }, '404': { description: not_found } } }
@@ -169,14 +198,14 @@ paths:
     get: { operationId: downloadLicenseDocument, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }, { $ref: '#/components/parameters/docId' }], responses: { '200': { description: 'document bytes' } } }
   # ---- Insurance policies
   /api/asset/v1/insurance-policies:
-    get: { operationId: listInsurancePolicies, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/query' }], responses: { '200': { description: list } } }
+    get: { operationId: listInsurancePolicies, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/cursor' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/query' }, { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/pageSize' }, { name: sort, in: query, description: 'default name (asc)', schema: { type: string, enum: [name, valid_to, created_at] } }, { $ref: '#/components/parameters/order' }], responses: { '200': { description: 'page of policies', content: { application/json: { schema: { $ref: '#/components/schemas/ListPage' } } } } } }
     post: { operationId: createInsurancePolicy, x-freya-permission: 'insurance:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }], responses: { '201': { description: created }, '409': { description: conflict } } }
   /api/asset/v1/insurance-policies/{id}:
     get: { operationId: getInsurancePolicy, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: policy }, '404': { description: not_found } } }
     put: { operationId: updateInsurancePolicy, x-freya-permission: 'insurance:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '200': { description: updated } } }
     delete: { operationId: deleteInsurancePolicy, x-freya-permission: 'insurance:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '204': { description: deleted } } }
   /api/asset/v1/insurance-policies/{id}/assets:
-    get: { operationId: listPolicyAssets, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }], responses: { '200': { description: 'covered assets' } } }
+    get: { operationId: listPolicyAssets, x-freya-permission: 'assets:read', parameters: [{ $ref: '#/components/parameters/id' }, { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/pageSize' }, { name: sort, in: query, description: 'default asset_tag (asc)', schema: { type: string, enum: [asset_tag, name] } }, { $ref: '#/components/parameters/order' }], responses: { '200': { description: 'page of covered assets', content: { application/json: { schema: { $ref: '#/components/schemas/ListPage' } } } } } }
     post: { operationId: addAssetToPolicy, x-freya-permission: 'insurance:manage', x-freya-max-body-bytes: 65536, parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }], responses: { '201': { description: added }, '409': { description: 'already covered' } } }
   /api/asset/v1/insurance-policies/{id}/assets/{asset_id}:
     delete: { operationId: removeAssetFromPolicy, x-freya-permission: 'insurance:manage', parameters: [{ $ref: '#/components/parameters/csrf' }, { $ref: '#/components/parameters/id' }, { $ref: '#/components/parameters/assetId' }], responses: { '204': { description: removed } } }

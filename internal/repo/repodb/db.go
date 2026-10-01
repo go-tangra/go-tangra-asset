@@ -208,34 +208,15 @@ func (d *DB) ListAssets(ctx context.Context, tenantID string, f store.AssetFilte
 		var b strings.Builder
 		b.WriteString("SELECT " + assetCols + " FROM asset_assets WHERE tenant_id=$1")
 		args := []any{tenantID}
-		add := func(cond string, val any) {
-			args = append(args, val)
-			b.WriteString(fmt.Sprintf(cond, len(args)))
-		}
-		if f.Status != "" {
-			add(" AND status=$%d", f.Status)
-		}
-		if f.CategoryID != "" {
-			add(" AND category_id=$%d", f.CategoryID)
-		}
-		if f.SupplierID != "" {
-			add(" AND supplier_id=$%d", f.SupplierID)
-		}
-		if f.LocationID != "" {
-			add(" AND location_id=$%d", f.LocationID)
-		}
-		if f.UserID != "" {
-			add(" AND user_id=$%d", f.UserID)
-		}
-		if f.Query != "" {
-			add(" AND (name ILIKE $%d OR asset_tag ILIKE $%[1]d OR serial ILIKE $%[1]d OR model_name ILIKE $%[1]d)", "%"+f.Query+"%")
-		}
+		b.WriteString(assetConds(f, "", &args))
 		if f.CursorID != "" {
-			add(" AND id < $%d", f.CursorID)
+			args = append(args, f.CursorID)
+			fmt.Fprintf(&b, " AND id < $%d", len(args))
 		}
 		b.WriteString(" ORDER BY id DESC")
 		if f.Limit > 0 {
-			add(" LIMIT $%d", f.Limit)
+			args = append(args, f.Limit)
+			fmt.Fprintf(&b, " LIMIT $%d", len(args))
 		}
 		rows, e := tx.Query(ctx, b.String(), args...)
 		if e != nil {
@@ -541,17 +522,9 @@ func (d *DB) GetSupplier(ctx context.Context, tenantID, id string) (out store.Su
 func listOpts(b *strings.Builder, args *[]any, f store.ListOpts, idCol string, searchCols []string) {
 	add := func(cond string, val any) {
 		*args = append(*args, val)
-		b.WriteString(fmt.Sprintf(cond, len(*args)))
+		fmt.Fprintf(b, cond, len(*args))
 	}
-	if f.Query != "" {
-		parts := make([]string, 0, len(searchCols))
-		*args = append(*args, "%"+f.Query+"%")
-		n := len(*args)
-		for _, c := range searchCols {
-			parts = append(parts, fmt.Sprintf("%s ILIKE $%d", c, n))
-		}
-		b.WriteString(" AND (" + strings.Join(parts, " OR ") + ")")
-	}
+	b.WriteString(searchCond(f.Query, searchCols, args))
 	if f.CursorID != "" {
 		add(" AND "+idCol+" < $%d", f.CursorID)
 	}
