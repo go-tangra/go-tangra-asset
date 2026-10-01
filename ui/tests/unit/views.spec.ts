@@ -87,14 +87,15 @@ describe('asset views on the kit', () => {
   })
 
   it('assets: list rows, stacked cards below md, a stream event reloads the list', async () => {
-    const calls = fetchMock((url) => (url.includes('/assets') ? { items: [asset] } : { items: [] }))
+    const calls = fetchMock((url) => (url.includes('/assets') ? { items: [asset], total: 1, page: 1 } : { items: [] }))
     const w = mount(Assets, { global })
     await flushPromises()
     expect(w.find('table').exists()).toBe(true)
     expect(w.text()).toContain('AST-1')
     expect(w.text()).toContain('1,200.5')
     const before = calls.filter((c) => c.url.startsWith('/api/asset/v1/assets')).length
-    FakeSource.instances[0]!.emit('asset.assigned', { id: 'a1' })
+    FakeSource.instances[0]!.emit('asset.assigned', { asset_id: 'a1' })
+    await new Promise((r) => setTimeout(r, 450)) // live reloads are coalesced
     await flushPromises()
     expect(calls.filter((c) => c.url.startsWith('/api/asset/v1/assets')).length).toBe(before + 1)
     w.unmount()
@@ -134,7 +135,7 @@ describe('asset views on the kit', () => {
 
   it('detail: key/value cards, history table, documents list, assign dialog validates', async () => {
     await router.push('/asset/item/a1')
-    fetchMock((url) => (url.endsWith('/assets/a1') ? asset : url.endsWith('/assignments') ? { items: [{ id: 'h1', asset_id: 'a1', action: 'assigned', assigned_at: '2026-01-02T00:00:00Z', user_name: 'Ann' }] } : url.endsWith('/users') ? { items: [{ id: 'u1', display_name: 'Ann' }] } : { items: [] }))
+    fetchMock((url) => (url.endsWith('/assets/a1') ? asset : url.includes('/assignments?') ? { items: [{ id: 'h1', asset_id: 'a1', action: 'assigned', assigned_at: '2026-01-02T00:00:00Z', user_name: 'Ann' }], total: 1, page: 1 } : url.endsWith('/users') ? { items: [{ id: 'u1', display_name: 'Ann' }] } : { items: [] }))
     const w = mount(Detail, { global, attachTo: document.body })
     await flushPromises()
     expect(w.find('h1').text()).toBe('AST-1')

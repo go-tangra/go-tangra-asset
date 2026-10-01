@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { UiPage, UiAlert, UiCard, UiInput, UiSelect, UiButton, UiDataTable, UiStatusChip, UiLiveIndicator, UiRecordDrawer, type Column, type SelectOption } from '@go-tangra/ui'
+import { UiPage, UiAlert, UiCard, UiInput, UiSelect, UiButton, UiDataTable, UiStatusChip, UiLiveIndicator, UiRecordDrawer, useListQuery, type Column, type SelectOption } from '@go-tangra/ui'
 import { zodToFields } from '@go-tangra/ui/forms'
-import { useAssets } from '@/stores/assets'
+import { ASSET_LIST, useAssets, type AssetFilter } from '@/stores/assets'
 import { useOrg } from '@/stores/org'
-import { useLive } from '@/stores/live'
+import { coalesce, useLive } from '@/stores/live'
 import { assetSchema, ASSET_STATUSES, type AssetInput } from '@/schemas'
 import type { Asset } from '@/api/types'
 
@@ -22,26 +22,41 @@ const dialog = ref(false)
 const statusOptions: SelectOption[] = ['deployable', 'assigned', 'broken', 'archived'].map((s) => ({ title: s, value: s }))
 const categoryOptions = computed<SelectOption[]>(() => org.categories.map((c) => ({ title: c.name, value: c.id })))
 
+// --- server paging and sorting (page / size / sort in the URL: ?assets.page=…) ---
+const lq = useListQuery('assets', ASSET_LIST.opts)
+const filterValue = (): AssetFilter => ({ query: query.value.trim() || undefined, status: status.value || undefined, category_id: category.value || undefined })
+async function load(): Promise<void> {
+  const res = await store.list(filterValue(), lq.query.value)
+  if (res?.page) lq.clampTo(res.page) // a page beyond the end answers the last page
+}
+watch(lq.query, () => void load())
+/** Filters changed: back to page 1 (which reloads), or reload in place. */
+function apply(): void {
+  if (lq.page.value !== 1) lq.resetPage()
+  else void load()
+}
+/** Reloads the current page (after a create, on Refresh or a live event). */
+const reload = () => void load()
+
+// Any asset.* event may change the visible rows: one reload per burst.
+const refresh = coalesce(reload)
 let release: (() => void) | null = null
 let off: (() => void) | null = null
 onMounted(() => {
-  void store.list()
+  void load()
   void org.loadCategories()
   void org.loadSuppliers()
   void org.loadLocations()
   release = live.connect()
   off = live.on((type) => {
-    if (type === 'asset.assigned' || type === 'asset.unassigned') reload()
+    if (type.startsWith('asset.')) refresh.trigger()
   })
 })
 onUnmounted(() => {
   release?.()
   off?.()
+  refresh.cancel()
 })
-
-function reload(): void {
-  void store.list({ query: query.value.trim() || undefined, status: status.value || undefined, category_id: category.value || undefined })
-}
 
 const fields = computed(() =>
   zodToFields(assetSchema, {
@@ -56,14 +71,18 @@ const fields = computed(() =>
     depreciation_rate: { label: 'Depreciation rate (0–1)', hint: 'Blank/0 → 0.40' },
   }),
 )
+// Sortable columns are the server's sort fields (ASSET_LIST): sorting orders
+// the whole list, not the visible page. Category and location sort by the
+// referenced record's name / path.
 const columns: Column<Asset>[] = [
   { key: 'asset_tag', label: 'Tag', sortable: true, width: 'sm' },
   { key: 'name', label: 'Name', sortable: true },
   { key: 'serial', label: 'Serial', hideOnStack: true },
-  { key: 'category_id', label: 'Category', format: (a) => org.categoryName(a.category_id) ?? '' },
-  { key: 'status', label: 'Status', width: 'sm' },
+  { key: 'category', label: 'Category', sortable: true, format: (a) => org.categoryName(a.category_id) ?? '' },
+  { key: 'status', label: 'Status', width: 'sm', sortable: true },
   { key: 'assignee_name', label: 'Assignee', format: (a) => a.assignee_name || a.user_id || '' },
-  { key: 'location_id', label: 'Location', format: (a) => org.locationName(a.location_id) ?? '', hideOnStack: true },
+  { key: 'location', label: 'Location', sortable: true, format: (a) => org.locationName(a.location_id) ?? '', hideOnStack: true },
+  { key: 'purchase_date', label: 'Purchased', sortable: true, defaultDir: 'desc', format: (a) => (a.purchase_date ? new Date(a.purchase_date).toLocaleDateString() : ''), hideOnStack: true },
   { key: 'book_value', label: 'Book value', align: 'end', format: (a) => money(a.book_value) },
 ]
 
@@ -84,15 +103,15 @@ function money(v?: number): string {
     </template>
     <template #filters>
       <div class="grid w-full grid-cols-2 gap-2 md:grid-cols-12 md:items-end">
-        <div class="col-span-2 md:col-span-5"><UiInput id="asset-search" v-model="query" label="Search (name, tag, serial, model)" type="search" size="sm" @enter="reload" /></div>
-        <div class="md:col-span-3"><UiSelect id="asset-status" v-model="status" label="Status" :options="statusOptions" size="sm" @update:model-value="reload" /></div>
-        <div class="md:col-span-3"><UiSelect id="asset-category" v-model="category" label="Category" :options="categoryOptions" size="sm" @update:model-value="reload" /></div>
-        <div class="col-span-2 md:col-span-1"><UiButton block variant="soft" size="sm" @click="reload">Filter</UiButton></div>
+        <div class="col-span-2 md:col-span-5"><UiInput id="asset-search" v-model="query" label="Search (name, tag, serial, model)" type="search" size="sm" @enter="apply" /></div>
+        <div class="md:col-span-3"><UiSelect id="asset-status" v-model="status" label="Status" :options="statusOptions" size="sm" @update:model-value="apply" /></div>
+        <div class="md:col-span-3"><UiSelect id="asset-category" v-model="category" label="Category" :options="categoryOptions" size="sm" @update:model-value="apply" /></div>
+        <div class="col-span-2 md:col-span-1"><UiButton block variant="soft" size="sm" @click="apply">Filter</UiButton></div>
       </div>
     </template>
     <UiAlert v-if="store.error" kind="error" class="mb-3">{{ store.error }}</UiAlert>
     <UiCard :padded="false">
-      <UiDataTable :items="store.items" :columns="columns" :loading="store.loading" caption="Assets" empty-title="No assets" clickable @row-click="open">
+      <UiDataTable :items="store.items" :columns="columns" :loading="store.loading" :total="store.total" :page="lq.page.value" :page-size="lq.pageSize.value" :sort="lq.sort.value" caption="Assets" empty-title="No assets" clickable @row-click="open" @update:page="lq.setPage" @update:page-size="lq.setPageSize" @update:sort="lq.setSort">
         <template #cell-status="{ row }"><UiStatusChip :status="row.status" /></template>
       </UiDataTable>
     </UiCard>

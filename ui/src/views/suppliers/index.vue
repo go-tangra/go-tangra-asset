@@ -1,20 +1,34 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { UiPage, UiAlert, UiCard, UiInput, UiButton, UiDataTable, UiStatusChip, UiRecordDrawer, useConfirm, type Column } from '@go-tangra/ui'
+import { onMounted, ref, watch } from 'vue'
+import { UiPage, UiAlert, UiCard, UiInput, UiButton, UiDataTable, UiStatusChip, UiRecordDrawer, useConfirm, useListQuery, type Column } from '@go-tangra/ui'
 import { zodToFields } from '@go-tangra/ui/forms'
-import { useOrg } from '@/stores/org'
+import { SUPPLIER_LIST, useOrg, useSupplierList } from '@/stores/org'
 import { describe } from '@/api/client'
 import { supplierSchema, SUPPLIER_STATUSES } from '@/schemas'
 import type { Supplier } from '@/api/types'
 
 const org = useOrg()
+const page = useSupplierList()
 const confirm = useConfirm()
 const query = ref('')
 const dialog = ref(false)
 const editing = ref<Supplier | null>(null)
 const error = ref('')
 
-onMounted(() => void org.loadSuppliers())
+// --- server paging and sorting (page / size / sort in the URL: ?suppliers.page=…) ---
+const lq = useListQuery('suppliers', SUPPLIER_LIST.opts)
+async function load(): Promise<void> {
+  const res = await page.list({ query: query.value.trim() || undefined }, lq.query.value)
+  if (res?.page) lq.clampTo(res.page) // a page beyond the end answers the last page
+}
+watch(lq.query, () => void load())
+/** Search changed: back to page 1 (which reloads), or reload in place. */
+function apply(): void {
+  if (lq.page.value !== 1) lq.resetPage()
+  else void load()
+}
+const reload = () => void load()
+onMounted(reload)
 
 const fields = zodToFields(supplierSchema, {
   status: { type: 'select', options: SUPPLIER_STATUSES.map((s) => ({ title: s, value: s })) },
@@ -44,7 +58,7 @@ async function remove(s: Supplier): Promise<void> {
   error.value = ''
   try {
     await org.removeSupplier(s.id)
-    await org.loadSuppliers(query.value)
+    await load()
   } catch (e) {
     error.value = describe(e)
   }
@@ -56,14 +70,14 @@ const submit = (v: Record<string, unknown>) => (editing.value ? org.updateSuppli
   <UiPage title="Suppliers">
     <template #actions>
       <UiButton icon="mdi-plus" @click="add">New supplier</UiButton>
-      <UiButton variant="text" icon="mdi-refresh" icon-only label="Refresh" @click="org.loadSuppliers(query)" />
+      <UiButton variant="text" icon="mdi-refresh" icon-only label="Refresh" @click="reload" />
     </template>
     <template #filters>
-      <UiInput id="supplier-search" v-model="query" label="Search" sr-only-label placeholder="Search suppliers" type="search" class="w-full md:max-w-sm" @enter="org.loadSuppliers(query)" />
+      <UiInput id="supplier-search" v-model="query" label="Search" sr-only-label placeholder="Search suppliers" type="search" class="w-full md:max-w-sm" @enter="apply" />
     </template>
-    <UiAlert v-if="error || org.error" kind="error" class="mb-3">{{ error || org.error }}</UiAlert>
+    <UiAlert v-if="error || page.error" kind="error" class="mb-3">{{ error || page.error }}</UiAlert>
     <UiCard :padded="false">
-      <UiDataTable :items="org.suppliers" :columns="columns" caption="Suppliers" empty-title="No suppliers">
+      <UiDataTable :items="page.items" :columns="columns" :loading="page.loading" :total="page.total" :page="lq.page.value" :page-size="lq.pageSize.value" :sort="lq.sort.value" caption="Suppliers" empty-title="No suppliers" @update:page="lq.setPage" @update:page-size="lq.setPageSize" @update:sort="lq.setSort">
         <template #cell-status="{ row }"><UiStatusChip :status="row.status" /></template>
         <template #actions="{ row }">
           <UiButton size="xs" variant="text" icon="mdi-pencil-outline" icon-only label="Edit" @click="edit(row)" />
@@ -71,6 +85,6 @@ const submit = (v: Record<string, unknown>) => (editing.value ? org.updateSuppli
         </template>
       </UiDataTable>
     </UiCard>
-    <UiRecordDrawer v-model="dialog" close-on-save :title="editing ? 'Edit supplier' : 'New supplier'" :schema="supplierSchema" :fields="fields" :initial="editing ?? { status: 'active' }" :submit="submit" size="lg" @saved="org.loadSuppliers(query)" />
+    <UiRecordDrawer v-model="dialog" close-on-save :title="editing ? 'Edit supplier' : 'New supplier'" :schema="supplierSchema" :fields="fields" :initial="editing ?? { status: 'active' }" :submit="submit" size="lg" @saved="reload" />
   </UiPage>
 </template>
