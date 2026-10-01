@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { UiPage, UiAlert, UiCard, UiInput, UiButton, UiDataTable, UiStatusChip, UiDocumentList, UiRecordDrawer, useConfirm, type Column } from '@go-tangra/ui'
+import { computed, onMounted, ref, watch } from 'vue'
+import { UiPage, UiAlert, UiCard, UiInput, UiButton, UiDataTable, UiStatusChip, UiDocumentList, UiRecordDrawer, useConfirm, useListQuery, type Column } from '@go-tangra/ui'
 import { zodToFields } from '@go-tangra/ui/forms'
-import { useInventories } from '@/stores/inventories'
+import { LICENSE_LIST, useLicenseList, useInventories } from '@/stores/inventories'
 import { useOrg } from '@/stores/org'
 import { api, describe } from '@/api/client'
 import { licenseSchema, LICENSE_STATUSES } from '@/schemas'
 import type { License } from '@/api/types'
 
 const inv = useInventories()
+const page = useLicenseList()
 const org = useOrg()
 const confirm = useConfirm()
 const query = ref('')
@@ -17,8 +18,22 @@ const editing = ref<License | null>(null)
 const selected = ref<License | null>(null)
 const error = ref('')
 
+// --- server paging and sorting (page / size / sort in the URL: ?licenses.page=…) ---
+const lq = useListQuery('licenses', LICENSE_LIST.opts)
+async function load(): Promise<void> {
+  const res = await page.list({ query: query.value.trim() || undefined }, lq.query.value)
+  if (res?.page) lq.clampTo(res.page) // a page beyond the end answers the last page
+}
+watch(lq.query, () => void load())
+/** Search changed: back to page 1 (which reloads), or reload in place. */
+function apply(): void {
+  if (lq.page.value !== 1) lq.resetPage()
+  else void load()
+}
+const reload = () => void load()
+
 onMounted(() => {
-  void inv.loadLicenses()
+  void load()
   void org.loadSuppliers()
 })
 
@@ -52,7 +67,7 @@ async function remove(l: License): Promise<void> {
   try {
     await inv.removeLicense(l.id)
     if (selected.value?.id === l.id) selected.value = null
-    await inv.loadLicenses(query.value)
+    await load()
   } catch (e) {
     error.value = describe(e)
   }
@@ -64,14 +79,14 @@ const submit = (v: Record<string, unknown>) => (editing.value ? inv.updateLicens
   <UiPage title="Licenses">
     <template #actions>
       <UiButton icon="mdi-plus" @click="add">New license</UiButton>
-      <UiButton variant="text" icon="mdi-refresh" icon-only label="Refresh" @click="inv.loadLicenses(query)" />
+      <UiButton variant="text" icon="mdi-refresh" icon-only label="Refresh" @click="reload" />
     </template>
     <template #filters>
-      <UiInput id="license-search" v-model="query" label="Search" sr-only-label placeholder="Search licenses" type="search" class="w-full md:max-w-sm" @enter="inv.loadLicenses(query)" />
+      <UiInput id="license-search" v-model="query" label="Search" sr-only-label placeholder="Search licenses" type="search" class="w-full md:max-w-sm" @enter="apply" />
     </template>
-    <UiAlert v-if="error || inv.error" kind="error" class="mb-3">{{ error || inv.error }}</UiAlert>
+    <UiAlert v-if="error || page.error" kind="error" class="mb-3">{{ error || page.error }}</UiAlert>
     <UiCard :padded="false" class="mb-4">
-      <UiDataTable :items="inv.licenses" :columns="columns" caption="Licenses" empty-title="No licenses" clickable @row-click="selected = $event">
+      <UiDataTable :items="page.items" :columns="columns" :loading="page.loading" :total="page.total" :page="lq.page.value" :page-size="lq.pageSize.value" :sort="lq.sort.value" caption="Licenses" empty-title="No licenses" clickable @row-click="selected = $event" @update:page="lq.setPage" @update:page-size="lq.setPageSize" @update:sort="lq.setSort">
         <template #cell-status="{ row }"><UiStatusChip :status="row.status" /></template>
         <template #actions="{ row }">
           <UiButton size="xs" variant="text" icon="mdi-pencil-outline" icon-only label="Edit" @click="edit(row)" />
@@ -80,6 +95,6 @@ const submit = (v: Record<string, unknown>) => (editing.value ? inv.updateLicens
       </UiDataTable>
     </UiCard>
     <UiCard v-if="selected"><UiDocumentList :api="api" :base="'licenses/' + selected.id + '/documents'" :title="'Documents — ' + selected.name" /></UiCard>
-    <UiRecordDrawer v-model="dialog" close-on-save :title="editing ? 'Edit license' : 'New license'" :schema="licenseSchema" :fields="fields" :initial="editing ?? { status: 'active' }" :submit="submit" size="lg" @saved="inv.loadLicenses(query)" />
+    <UiRecordDrawer v-model="dialog" close-on-save :title="editing ? 'Edit license' : 'New license'" :schema="licenseSchema" :fields="fields" :initial="editing ?? { status: 'active' }" :submit="submit" size="lg" @saved="reload" />
   </UiPage>
 </template>

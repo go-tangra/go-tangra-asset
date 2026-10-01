@@ -63,3 +63,24 @@ export const useLive = defineStore('asset-live', () => {
 
   return { connected, recent, connect, close, on, _emit }
 })
+
+/**
+ * Coalesces bursts of live events into one call after wait ms (a server page
+ * reload per burst, not per event); cancel() drops a pending call.
+ */
+export function coalesce(fn: () => void, wait = 400): { trigger: () => void; cancel: () => void } {
+  let timer: ReturnType<typeof setTimeout> | null = null
+  return {
+    trigger: () => {
+      if (timer) return
+      timer = setTimeout(() => {
+        timer = null
+        fn()
+      }, wait)
+    },
+    cancel: () => {
+      if (timer) clearTimeout(timer)
+      timer = null
+    },
+  }
+}

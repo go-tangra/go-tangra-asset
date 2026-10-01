@@ -252,3 +252,22 @@ export interface DocumentHit {
   snippet: string
   rank: number
 }
+
+/** Page, size and order of a list request (go-tangra specs/032-server-side-tables). */
+export interface ListParams {
+  page: number
+  page_size: number
+  sort: string
+  order: 'asc' | 'desc'
+}
+
+/** One page of a list: the rows, the records matching the filters and the request applied. */
+export interface Page<T> {
+  items: T[]
+  total: number
+  /** The page returned: a page beyond the end answers the last page. */
+  page?: number
+  page_size?: number
+  sort?: string
+  order?: 'asc' | 'desc'
+}

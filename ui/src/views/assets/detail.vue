@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { UiPage, UiAlert, UiCard, UiButton, UiStatusChip, UiKeyValueTable, UiDataTable, UiDocumentList, UiForm, UiCombobox, UiSelect, UiInput, UiFilePicker, UiBadge, UiDrawer, UiRecordDrawer, useConfirm, type Column } from '@go-tangra/ui'
+import { UiPage, UiAlert, UiCard, UiButton, UiStatusChip, UiKeyValueTable, UiDataTable, UiDocumentList, UiForm, UiCombobox, UiSelect, UiInput, UiFilePicker, UiBadge, UiDrawer, UiRecordDrawer, useConfirm, useListQuery, type Column } from '@go-tangra/ui'
 import { zodToFields, useZodForm } from '@go-tangra/ui/forms'
-import { useAssets } from '@/stores/assets'
+import { ASSIGNMENT_LIST, useAssets } from '@/stores/assets'
 import { useOrg } from '@/stores/org'
 import { useDocuments } from '@/stores/documents'
+import { coalesce, useLive } from '@/stores/live'
+import { pagedList } from '@/stores/paged'
 import { api, describe } from '@/api/client'
 import { assetSchema, assignSchema, unassignSchema, ASSET_STATUSES, type AssetInput } from '@/schemas'
 import type { Asset, Assignment } from '@/api/types'
@@ -16,10 +18,10 @@ const store = useAssets()
 const org = useOrg()
 const docs = useDocuments()
 const confirm = useConfirm()
+const live = useLive()
 
 const id = String(route.params.id)
 const asset = ref<Asset | null>(null)
-const history = ref<Assignment[]>([])
 const error = ref('')
 const edit = ref(false)
 const assignDialog = ref(false)
@@ -27,21 +29,45 @@ const unassignDialog = ref(false)
 const photoFile = ref<File | null>(null)
 const photoBust = ref(String(Date.now()))
 
+// --- assignment history: a server-paged table (?assignments.page=…), newest first ---
+const hq = useListQuery('assignments', ASSIGNMENT_LIST.opts)
+const history = reactive(pagedList<Assignment>('assets/' + id + '/assignments', ASSIGNMENT_LIST.first))
+async function loadHistory(): Promise<void> {
+  const res = await history.list({}, hq.query.value)
+  if (res?.page) hq.clampTo(res.page) // a page beyond the end answers the last page
+}
+watch(hq.query, () => void loadHistory())
+
 async function reload(): Promise<void> {
   error.value = ''
   try {
     asset.value = await store.get(id)
-    history.value = await store.history(id)
   } catch (e) {
     error.value = describe(e)
+    return
   }
+  await loadHistory()
 }
+// asset.* events about this asset (assign / unassign elsewhere): one reload per burst.
+const refresh = coalesce(() => void reload())
+let release: (() => void) | null = null
+let off: (() => void) | null = null
 onMounted(() => {
   void reload()
   void org.loadCategories()
   void org.loadSuppliers()
   void org.loadLocations()
   void store.loadUsers()
+  release = live.connect()
+  off = live.on((type, data) => {
+    const d = data as { id?: string; asset_id?: string } | null
+    if (type.startsWith('asset.') && (d?.asset_id ?? d?.id) === id) refresh.trigger()
+  })
+})
+onUnmounted(() => {
+  off?.()
+  release?.()
+  refresh.cancel()
 })
 
 const fields = computed(() =>
@@ -67,7 +93,7 @@ const assignForm = useZodForm(assignSchema, {
   onSuccess: async () => {
     assignDialog.value = false
     assignForm.reset({ user_id: '', notes: '' })
-    history.value = await store.history(id)
+    await loadHistory()
   },
 })
 const unassignForm = useZodForm(unassignSchema, {
@@ -78,7 +104,7 @@ const unassignForm = useZodForm(unassignSchema, {
   onSuccess: async () => {
     unassignDialog.value = false
     unassignForm.reset({ location_id: '', notes: '' })
-    history.value = await store.history(id)
+    await loadHistory()
   },
 })
 async function remove(): Promise<void> {
@@ -154,8 +180,8 @@ const depreciation = computed(() => {
 const historyColumns: Column<Assignment>[] = [
   { key: 'action', label: 'Action', width: 'sm' },
   { key: 'user_name', label: 'User', format: (h) => h.user_name || h.user_id || '' },
-  { key: 'assigned_at', label: 'At', format: (h) => fmt(h.assigned_at) },
-  { key: 'returned_at', label: 'Returned', format: (h) => fmt(h.returned_at), hideOnStack: true },
+  { key: 'assigned_at', label: 'At', format: (h) => fmt(h.assigned_at), sortable: true, defaultDir: 'desc' },
+  { key: 'returned_at', label: 'Returned', format: (h) => fmt(h.returned_at), sortable: true, defaultDir: 'desc', hideOnStack: true },
   { key: 'assigned_by', label: 'By', hideOnStack: true },
   { key: 'notes', label: 'Notes' },
 ]
@@ -193,7 +219,8 @@ const historyColumns: Column<Assignment>[] = [
           </div>
         </UiCard>
         <UiCard title="Assignment history" :padded="false">
-          <UiDataTable :items="history" :columns="historyColumns" caption="Assignment history" empty-title="Never assigned">
+          <UiAlert v-if="history.error" kind="error" class="m-3">{{ history.error }}</UiAlert>
+          <UiDataTable :items="history.items" :columns="historyColumns" :loading="history.loading" :total="history.total" :page="hq.page.value" :page-size="hq.pageSize.value" :sort="hq.sort.value" caption="Assignment history" empty-title="Never assigned" @update:page="hq.setPage" @update:page-size="hq.setPageSize" @update:sort="hq.setSort">
             <template #cell-action="{ row }"><UiStatusChip :status="row.action" :colors="{ assigned: 'info', unassigned: 'neutral', transferred: 'info' }" /></template>
           </UiDataTable>
         </UiCard>

@@ -64,6 +64,7 @@ type apiFixture struct {
 	inv  *invclient.Fake
 	dir  *userdir.Fake
 	hub  *stream.Hub
+	docs *documents.Service
 }
 
 func newAPI(t *testing.T, withHub bool) *apiFixture {
@@ -97,7 +98,7 @@ func newAPI(t *testing.T, withHub bool) *apiFixture {
 	assetsSvc := assets.New(mem, dir, nil, nil)
 	assetsSvc.SetBlobStore(b)
 	docs := documents.New(mem, b, nil, 4096, time.Minute)
-	f := &apiFixture{s: s, mem: mem, blob: b, inv: inv, dir: dir, hub: hub}
+	f := &apiFixture{s: s, mem: mem, blob: b, inv: inv, dir: dir, hub: hub, docs: docs}
 	s.Register(Deps{
 		Assets: assetsSvc, Categories: categories.New(mem, nil), Suppliers: suppliers.New(mem, env, nil), Locations: locations.New(mem, env, nil),
 		Consumables: consumables.New(mem, nil), Licenses: licenses.New(mem, nil), Insurance: insurance.New(mem, nil), Documents: docs,
@@ -275,7 +276,7 @@ func TestAssetsLifecycle(t *testing.T) {
 	want(t, f.req(t, "DELETE", p+"/assets/"+id, "admin", ""), 204)
 	want(t, f.req(t, "DELETE", p+"/assets/"+id, "admin", ""), 404)
 	// Store failure → 500 without detail.
-	f.mem.FailNext("ListAssets")
+	f.mem.FailNext("PageAssets")
 	e := want(t, f.req(t, "GET", p+"/assets", "admin", ""), 500)
 	if e["reason"] != "internal" || len(e) != 1 {
 		t.Fatal(e)

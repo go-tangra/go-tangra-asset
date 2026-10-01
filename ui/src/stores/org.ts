@@ -2,6 +2,13 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { api, describe } from '@/api/client'
 import type { Category, Location, Supplier } from '@/api/types'
+import { listSpec, loadOptions, pagedList } from './paged'
+
+/** Sortable fields of GET /suppliers (server Spec store.SupplierList). */
+export const SUPPLIER_LIST = listSpec(['name', 'created_at'], 'name')
+
+/** The suppliers table: one server page (list contract). */
+export const useSupplierList = defineStore('asset-supplier-list', () => pagedList<Supplier, { query?: string | undefined }>('suppliers', SUPPLIER_LIST.first))
 
 // Categories, suppliers and locations: the classification records assets refer to.
 export const useOrg = defineStore('asset-org', () => {
@@ -31,9 +38,10 @@ export const useOrg = defineStore('asset-org', () => {
   const updateCategory = (id: string, input: Partial<Category>) => api<Category>('PUT', 'categories/' + id, input)
   const removeCategory = (id: string) => api<void>('DELETE', 'categories/' + id)
 
-  const loadSuppliers = (query = '') =>
+  /** Suppliers for selects and name lookups (by name, up to the largest page). */
+  const loadSuppliers = () =>
     guard(async () => {
-      suppliers.value = (await api<{ items: Supplier[] }>('GET', 'suppliers', undefined, { query: { query } })).items ?? []
+      suppliers.value = await loadOptions<Supplier>('suppliers', 'name')
     })
   const createSupplier = (input: Partial<Supplier>) => api<Supplier>('POST', 'suppliers', input)
   const updateSupplier = (id: string, input: Partial<Supplier>) => api<Supplier>('PUT', 'suppliers/' + id, input)

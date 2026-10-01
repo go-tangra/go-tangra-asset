@@ -36,6 +36,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/asset/v1/assets/inventory-sync/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getInventorySyncSettings"];
+        put: operations["putInventorySyncSettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/asset/v1/assets/inventory-sync/execute": {
         parameters: {
             query?: never;
@@ -127,6 +143,22 @@ export interface paths {
         put?: never;
         post: operations["uploadAssetPhoto"];
         delete: operations["deleteAssetPhoto"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/asset/v1/documents/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["searchDocuments"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -632,6 +664,28 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description one page of a list (a page beyond the end answers the last page); legacy cursor / limit requests answer {items, total} */
+        ListPage: {
+            items: Record<string, never>[];
+            /** @description records matching the filters */
+            total: number;
+            page?: number;
+            page_size?: number;
+            sort?: string;
+            /** @enum {string} */
+            order?: "asc" | "desc";
+        };
+        /** @description Hosts matching these filters are neither created nor updated as assets (feature 030). Patterns are case-insensitive globs. */
+        InventorySyncSettings: {
+            exclude_vms?: boolean;
+            exclude_containers?: boolean;
+            skip_stale?: boolean;
+            skip_retired?: boolean;
+            hostname_include?: string[];
+            hostname_exclude?: string[];
+            os_include?: string[];
+            os_exclude?: string[];
+        };
         /**
          * @example {
          *       "reason": "not_found",
@@ -655,6 +709,10 @@ export interface components {
         cursor: string;
         limit: number;
         query: string;
+        page: number;
+        pageSize: number;
+        /** @description sort direction; defaults to the chosen field's default direction */
+        order: "asc" | "desc";
     };
     requestBodies: never;
     headers: never;
@@ -667,6 +725,12 @@ export interface operations {
             query?: {
                 cursor?: components["parameters"]["cursor"];
                 limit?: components["parameters"]["limit"];
+                page?: components["parameters"]["page"];
+                page_size?: components["parameters"]["pageSize"];
+                /** @description default asset_tag (asc) */
+                sort?: "asset_tag" | "name" | "status" | "category" | "location" | "purchase_date" | "warranty_end" | "created_at";
+                /** @description sort direction; defaults to the chosen field's default direction */
+                order?: components["parameters"]["order"];
                 query?: components["parameters"]["query"];
                 status?: string;
                 category_id?: string;
@@ -680,12 +744,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description list */
+            /** @description page of assets */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ListPage"];
+                };
             };
         };
     };
@@ -736,6 +802,55 @@ export interface operations {
             };
             /** @description inventory unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getInventorySyncSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description persisted inventory-sync filter settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    putInventorySyncSettings: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": components["parameters"]["csrf"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InventorySyncSettings"];
+            };
+        };
+        responses: {
+            /** @description stored */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description validation_failed */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -922,6 +1037,12 @@ export interface operations {
         parameters: {
             query?: {
                 limit?: components["parameters"]["limit"];
+                page?: components["parameters"]["page"];
+                page_size?: components["parameters"]["pageSize"];
+                /** @description default assigned_at (desc) */
+                sort?: "assigned_at" | "returned_at";
+                /** @description sort direction; defaults to the chosen field's default direction */
+                order?: components["parameters"]["order"];
             };
             header?: never;
             path: {
@@ -932,12 +1053,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description assignment history (newest first) */
+            /** @description assignment history (newest first by default) */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ListPage"];
+                };
             };
         };
     };
@@ -1008,6 +1131,40 @@ export interface operations {
         responses: {
             /** @description deleted */
             204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    searchDocuments: {
+        parameters: {
+            query: {
+                q: string;
+                limit?: number;
+                page?: components["parameters"]["page"];
+                page_size?: number;
+                /** @description relevance only (best first) */
+                sort?: "rank";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description documents matching the text, best first: a page of the top 100 hits (items of {document, snippet, rank}) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListPage"];
+                };
+            };
+            /** @description paperless unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1264,6 +1421,12 @@ export interface operations {
                 cursor?: components["parameters"]["cursor"];
                 limit?: components["parameters"]["limit"];
                 query?: components["parameters"]["query"];
+                page?: components["parameters"]["page"];
+                page_size?: components["parameters"]["pageSize"];
+                /** @description default name (asc) */
+                sort?: "name" | "created_at";
+                /** @description sort direction; defaults to the chosen field's default direction */
+                order?: components["parameters"]["order"];
             };
             header?: never;
             path?: never;
@@ -1271,12 +1434,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description list */
+            /** @description page of suppliers */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ListPage"];
+                };
             };
         };
     };
@@ -1538,6 +1703,12 @@ export interface operations {
                 cursor?: components["parameters"]["cursor"];
                 limit?: components["parameters"]["limit"];
                 query?: components["parameters"]["query"];
+                page?: components["parameters"]["page"];
+                page_size?: components["parameters"]["pageSize"];
+                /** @description default name (asc) */
+                sort?: "name" | "amount" | "created_at";
+                /** @description sort direction; defaults to the chosen field's default direction */
+                order?: components["parameters"]["order"];
             };
             header?: never;
             path?: never;
@@ -1545,12 +1716,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description list */
+            /** @description page of consumables */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ListPage"];
+                };
             };
         };
     };
@@ -1746,6 +1919,12 @@ export interface operations {
                 cursor?: components["parameters"]["cursor"];
                 limit?: components["parameters"]["limit"];
                 query?: components["parameters"]["query"];
+                page?: components["parameters"]["page"];
+                page_size?: components["parameters"]["pageSize"];
+                /** @description default name (asc) */
+                sort?: "name" | "valid_to" | "created_at";
+                /** @description sort direction; defaults to the chosen field's default direction */
+                order?: components["parameters"]["order"];
             };
             header?: never;
             path?: never;
@@ -1753,12 +1932,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description list */
+            /** @description page of licenses */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ListPage"];
+                };
             };
         };
     };
@@ -1954,6 +2135,12 @@ export interface operations {
                 cursor?: components["parameters"]["cursor"];
                 limit?: components["parameters"]["limit"];
                 query?: components["parameters"]["query"];
+                page?: components["parameters"]["page"];
+                page_size?: components["parameters"]["pageSize"];
+                /** @description default name (asc) */
+                sort?: "name" | "valid_to" | "created_at";
+                /** @description sort direction; defaults to the chosen field's default direction */
+                order?: components["parameters"]["order"];
             };
             header?: never;
             path?: never;
@@ -1961,12 +2148,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description list */
+            /** @description page of policies */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ListPage"];
+                };
             };
         };
     };
@@ -2073,7 +2262,14 @@ export interface operations {
     };
     listPolicyAssets: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: components["parameters"]["page"];
+                page_size?: components["parameters"]["pageSize"];
+                /** @description default asset_tag (asc) */
+                sort?: "asset_tag" | "name";
+                /** @description sort direction; defaults to the chosen field's default direction */
+                order?: components["parameters"]["order"];
+            };
             header?: never;
             path: {
                 /** @example 018f3a2b-0000-7000-8000-000000000001 */
@@ -2083,12 +2279,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description covered assets */
+            /** @description page of covered assets */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ListPage"];
+                };
             };
         };
     };
