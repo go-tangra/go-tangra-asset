@@ -1,8 +1,8 @@
 # asset configuration, rendered by the gateway's add-module wizard: every
 # ${...} below was filled from the core's own configuration, so the issuer,
-# trust domain and addresses match the core exactly. The store, event bus and
-# object store are this bundle's own (compose.yaml), reached over TLS signed by
-# the bundle's local CA.
+# trust domain and addresses match the core exactly. The store and object
+# store are this bundle's own (compose.yaml), reached over TLS signed by the
+# bundle's local CA; the event bus is the core's Valkey (wizard inputs).
 service_name: asset
 trust_domain: ${TRUST_DOMAIN}
 env: production
@@ -30,7 +30,13 @@ db:
   dsn: postgres://asset_app:${GEN_PASSWORD_2}@asset-db:5432/asset?sslmode=verify-full&sslrootcert=/tls/ca.pem
   migrate_dsn: postgres://postgres:${GEN_PASSWORD_1}@asset-db:5432/asset?sslmode=verify-full&sslrootcert=/tls/ca.pem
   max_conns: 16
-valkey: { addresses: ["asset-valkey:6379"], username: asset, password: ${GEN_PASSWORD_3}, ca_file: /tls/ca.pem }
+# The core's event bus: asset's realtime events reach the browser through the
+# gateway, which reads them from this Valkey.
+valkey:
+  addresses: ["${VALKEY_ADDRESS}"]
+  username: asset
+  password: "${VALKEY_PASSWORD}"
+  ca_file: /tls/valkey-ca.pem
 kek: { source: env, env: ASSET_KEK }
 # Photos and documents: the bundle's RustFS (its CA is trusted via SSL_CERT_DIR).
 object_store:
@@ -39,7 +45,7 @@ object_store:
   region: us-east-1
   use_ssl: true
   access_key: asset
-  secret_key: ${GEN_PASSWORD_4}
+  secret_key: ${GEN_PASSWORD_3}
   presign_ttl_seconds: 300
 inventory: { service: inventory }
 paperless: { enabled: false, service: paperless }
