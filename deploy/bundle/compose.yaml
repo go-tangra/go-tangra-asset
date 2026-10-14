@@ -1,0 +1,85 @@
+# asset join bundle, rendered by the gateway's add-module wizard.
+#   docker compose up -d
+# Values come from .env (written by the gateway: core addresses, generated
+# passwords and keys, and the host inputs you gave). private/ holds the
+# single-use enrolment token, the mesh CA and this bundle's own TLS material
+# (a local CA and server certificates for asset-db and asset-s3). The event
+# bus is the core's Valkey (VALKEY_* inputs), not part of this bundle.
+name: tangra-asset
+services:
+  asset-db:
+    image: timescale/timescaledb:2.17.2-pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: asset
+      POSTGRES_PASSWORD: ${GEN_PASSWORD_1}
+      ASSET_APP_PASSWORD: ${GEN_PASSWORD_2}
+    # The server key must belong to the postgres user: copy it before start.
+    entrypoint: ["sh", "-c", "install -d -o postgres -m 0700 /tls-pg && install -o postgres -m 0600 /tls/asset-db.key /tls-pg/server.key && install -o postgres -m 0644 /tls/asset-db.crt /tls-pg/server.crt && exec docker-entrypoint.sh \"$$@\"", "--"]
+    command: ["postgres", "-c", "ssl=on", "-c", "ssl_cert_file=/tls-pg/server.crt", "-c", "ssl_key_file=/tls-pg/server.key"]
+    volumes:
+      - asset-db:/var/lib/postgresql/data
+      - ./private/tls:/tls:ro
+      - ./init-db.sh:/docker-entrypoint-initdb.d/10-app-role.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d asset"]
+      interval: 5s
+      retries: 30
+  # Prepares what the non-root containers cannot: RustFS's TLS files (owned
+  # by its uid 10001) and asset's state directory (owned by its uid 10001).
+  asset-init:
+    image: alpine:3.20
+    command: ["sh", "-c", "install -o 10001 -g 10001 -m 0644 /tls/asset-s3.crt /s3-tls/rustfs_cert.pem && install -o 10001 -g 10001 -m 0600 /tls/asset-s3.key /s3-tls/rustfs_key.pem && chown 10001:10001 /state && chmod 0700 /state"]
+    volumes:
+      - ./private/tls:/tls:ro
+      - asset-s3-tls:/s3-tls
+      - asset-state:/state
+  # Object store for photos and documents (S3 API over TLS).
+  asset-s3:
+    image: rustfs/rustfs:1.0.1
+    restart: unless-stopped
+    environment:
+      RUSTFS_ACCESS_KEY: asset
+      RUSTFS_SECRET_KEY: ${GEN_PASSWORD_3}
+      RUSTFS_VOLUMES: /data
+      RUSTFS_TLS_PATH: /opt/tls
+    volumes:
+      - asset-s3:/data
+      - asset-s3-tls:/opt/tls:ro
+    depends_on:
+      asset-init: { condition: service_completed_successfully }
+  asset:
+    image: ${MODULE_IMAGE}:${MODULE_VERSION}
+    restart: unless-stopped
+    command: ["-config", "/app/config.yaml"]
+    environment:
+      ASSET_KEK: ${GEN_KEY_1}
+      FREYA_ADVERTISE_HOST: ${MODULE_ADVERTISE_HOST}
+      # Trust the bundle's local CA (asset-s3) next to the system roots.
+      SSL_CERT_DIR: /etc/ssl/certs:/etc/ssl/tangra
+    ports:
+      - "${MODULE_BIND_IP}:9995:9995"
+      - "${MODULE_BIND_IP}:9996:9996"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./policy.yaml:/app/policy.yaml:ro
+      - ./private/enrollment.token:/tokens/enrollment.token:ro
+      - ./private/tls/ca.pem:/tls/ca.pem:ro
+      - ./private/tls/ca.pem:/etc/ssl/tangra/ca.pem:ro
+      - ${VALKEY_CA_FILE}:/tls/valkey-ca.pem:ro
+      - asset-state:/state
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:9830/readyz"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+      start_period: 10s
+    depends_on:
+      asset-db: { condition: service_healthy }
+      asset-s3: { condition: service_started }
+      asset-init: { condition: service_completed_successfully }
+volumes:
+  asset-db: {}
+  asset-s3: {}
+  asset-s3-tls: {}
+  asset-state: {}

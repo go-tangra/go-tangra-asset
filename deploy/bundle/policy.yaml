@@ -1,0 +1,23 @@
+# Freya service-to-service policy for asset (rendered for this core's trust
+# domain): the rules of deploy/policy.yaml. The gateway forwards browser
+# traffic; other modules read the asset.v1 surface; the platform scheduler
+# runs asset:inventory-sync.
+version: asset-join-1
+rules:
+  - id: gateway-forwards
+    from: ["spiffe://${TRUST_DOMAIN}/svc/gateway"]
+    to: ["asset"]
+    operations: ["*"]
+    effect: allow
+  - id: modules-read
+    from: ["spiffe://${TRUST_DOMAIN}/svc/*"]
+    to: ["asset"]
+    operations: ["/asset.v1.AssetService/GetAsset", "/asset.v1.AssetService/ListAssets", "/asset.v1.CategoryService/GetCategoryTree",
+      "/asset.v1.SupplierService/ListSuppliers", "/asset.v1.LocationService/GetLocationTree", "/asset.v1.SystemService/Health",
+      "/asset.v1.SystemService/GetDashboardStats", "/grpc.health.v1.Health/Check"]
+    effect: allow
+  - id: scheduler-execute
+    from: ["spiffe://${TRUST_DOMAIN}/svc/scheduler"]
+    to: ["asset"]
+    operations: ["/scheduler.v1.TaskExecutor/ExecuteTask"]
+    effect: allow
