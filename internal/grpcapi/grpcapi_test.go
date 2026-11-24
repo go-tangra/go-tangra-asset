@@ -124,7 +124,8 @@ func TestAssetServiceFlow(t *testing.T) {
 	withFakeCaller(t, "spiffe://example.org/svc/x", true)
 	ctx := context.Background()
 	s := &AssetServer{d: k.d}
-	a, err := s.CreateAsset(ctx, &assetv1.CreateAssetRequest{TenantId: tenant, Asset: &assetv1.AssetInput{Name: "Laptop", PurchaseCost: 100, PurchaseDate: &assetv1.Timestamp{Unix: 1700000000}, UsefulLifeYears: 3}})
+	// Bought a year ago with a 3-year life: book value stays positive whatever today is.
+	a, err := s.CreateAsset(ctx, &assetv1.CreateAssetRequest{TenantId: tenant, Asset: &assetv1.AssetInput{Name: "Laptop", PurchaseCost: 100, PurchaseDate: &assetv1.Timestamp{Unix: time.Now().AddDate(-1, 0, 0).Unix()}, UsefulLifeYears: 3}})
 	if err != nil || a.GetAssetTag() == "" || a.GetBookValue() <= 0 {
 		t.Fatal(a, err)
 	}
